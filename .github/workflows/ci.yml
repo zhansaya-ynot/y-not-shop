@@ -60,10 +60,26 @@ jobs:
       # Build first — Next.js 16 typed routes generates `.next/types/routes.d.ts`
       # which `next-env.d.ts` references. Without it, typecheck fails to resolve
       # PNG imports + route types. Build is fast (~30s) thanks to no test data.
+      #
+      # BUILD_PROD short-circuits the env validator, but several SDK clients
+      # (Stripe, NextAuth) construct at module-load time and crash on missing
+      # config. Mirror the Dockerfile builder stage's stub envs so page-data
+      # collection completes cleanly. Runtime gets real values from
+      # /etc/ynot/secrets.env (production) or .env.local (dev).
       - name: Build
         run: pnpm build
         env:
           BUILD_PROD: '1'
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: '1'
+          STRIPE_SECRET_KEY: sk_test_build_stub
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_build_stub
+          STRIPE_WEBHOOK_SECRET: whsec_build_stub
+          NEXTAUTH_SECRET: build_stub_nextauth_secret_at_least_32_chars_long
+          ORDER_TOKEN_SECRET: build_stub_order_token_secret_at_least_32_chars
+          NEXT_PUBLIC_SITE_URL: https://ynotlondon.com
+          DATABASE_URL: postgresql://stub:stub@buildonly:5432/stub
+          REDIS_URL: redis://buildonly:6379
 
       - run: pnpm typecheck
       - run: pnpm lint
