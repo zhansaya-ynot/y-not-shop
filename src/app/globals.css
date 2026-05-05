@@ -50,22 +50,28 @@
   --color-success: #27ae60;
   --color-error: #c0392b;
 
-  /* Spacing scale (px) — mirrors Pencil $spacing-* tokens */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  --spacing-3xl: 64px;
-  --spacing-4xl: 96px;
-  --spacing-section: 120px;
-
   /* Breakpoints from brief */
   --breakpoint-sm: 375px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1440px;
+}
+
+/* Pencil $spacing-* tokens live outside @theme on purpose: Tailwind v4
+   maps the --spacing-<key> namespace onto width/max-width/padding utilities,
+   so naming a token --spacing-2xl would override max-w-2xl (42rem → 48px) and
+   collapse every admin/checkout container. Keep these as plain CSS vars; if
+   pure CSS needs them, reference via var(--pen-spacing-md). */
+:root {
+  --pen-spacing-xs: 4px;
+  --pen-spacing-sm: 8px;
+  --pen-spacing-md: 16px;
+  --pen-spacing-lg: 24px;
+  --pen-spacing-xl: 32px;
+  --pen-spacing-2xl: 48px;
+  --pen-spacing-3xl: 64px;
+  --pen-spacing-4xl: 96px;
+  --pen-spacing-section: 120px;
 }
 
 /* Base typography defaults */
