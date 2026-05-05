@@ -31,7 +31,10 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          # Use the workflow's auto-issued GITHUB_TOKEN — has the
+          # `packages: write` scope we declared above and is scoped to
+          # this exact repo. Avoids fine-grained PAT scope mismatches.
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build + push app image
         uses: docker/build-push-action@v5
