@@ -49,7 +49,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY || 'pk_test_build_stub' }}
 
       - name: Build + push worker image
         uses: docker/build-push-action@v5
