@@ -5,6 +5,12 @@ import { SiteOverlays } from "@/components/site-overlays";
 import { CookieBanner } from "@/components/cookie-banner";
 import { getAllCategories } from "@/server/data/categories";
 
+// Phase 8 — root layout fetches the live category list (chrome menu) and
+// reads cookies via downstream client components, so it must render per-request.
+// Marking it `force-dynamic` also keeps `next build` from prerendering pages at
+// build time — Prisma is unreachable inside the Docker builder stage.
+export const dynamic = "force-dynamic";
+
 const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],

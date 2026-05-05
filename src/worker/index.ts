@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import cron from 'node-cron';
 import { env } from '@/server/env';
 import { buildDeps } from '@/server/fulfilment/deps';
@@ -8,6 +10,8 @@ import { syncTracking } from './jobs/sync-tracking';
 import { processEmailJobs } from './jobs/process-email-jobs';
 import { retryFailedShipments } from './jobs/retry-failed-shipments';
 import { enqueueAbandonedCart } from './jobs/enqueue-abandoned-cart';
+
+const execp = promisify(exec);
 
 if (!env.WORKER_ENABLED) {
   process.stderr.write('[ynot-worker] WORKER_ENABLED=false; exiting.\n');
@@ -88,6 +92,33 @@ for (const job of JOBS) {
 }
 
 process.stderr.write('[ynot-worker] all jobs scheduled\n');
+
+// Phase 8 — daily backups (only run in production)
+if (process.env.NODE_ENV === 'production') {
+  cron.schedule('0 3 * * *', async () => {
+    try {
+      const { stdout, stderr } = await execp('/app/scripts/prod-backup-postgres.sh');
+      if (stdout) console.log(stdout);
+      if (stderr) console.error(stderr);
+    } catch (e) {
+      console.error('[worker] postgres backup failed:', e);
+    }
+  });
+
+  cron.schedule('30 3 * * *', async () => {
+    try {
+      const { stdout, stderr } = await execp('/app/scripts/prod-backup-media.sh');
+      if (stdout) console.log(stdout);
+      if (stderr) console.error(stderr);
+    } catch (e) {
+      console.error('[worker] media backup failed:', e);
+    }
+  });
+
+  console.log(
+    '[ynot-worker] backup schedules registered (postgres 03:00 UTC, media 03:30 UTC)',
+  );
+}
 
 // Keep process alive so Docker keeps the container running.
 setInterval(() => {}, 1 << 30);

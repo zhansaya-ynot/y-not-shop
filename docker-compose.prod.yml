@@ -1,0 +1,93 @@
+# Phase 8 — production overrides applied via:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d
+#
+# Differences from base docker-compose.yml:
+# - postgres + redis: drop host port bindings (only the internal Docker network)
+# - app + worker: pull from ghcr.io instead of the base sleep-infinity stub
+# - caddy: real image with Caddyfile mount + Let's Encrypt volumes; replaces nginx
+# - env_file points at /etc/ynot/secrets.env (root:600 on the production host)
+#
+# Requires Docker Compose 2.20+ for the `!reset` tag.
+
+name: ynot
+
+services:
+  postgres:
+    # Strip host port binding — Caddy + app reach Postgres over the Docker network.
+    ports: !reset []
+    environment:
+      POSTGRES_USER: ynot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ynot_prod
+
+  redis:
+    # Same: no host binding in prod.
+    ports: !reset []
+
+  app:
+    image: ghcr.io/batrbekk/ynot-app:${IMAGE_TAG:-latest}
+    profiles: ["prod"]
+    container_name: ynot-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - /etc/ynot/secrets.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://ynot:${POSTGRES_PASSWORD}@postgres:5432/ynot_prod?schema=public
+      REDIS_URL: redis://redis:6379
+      GIT_SHA: ${IMAGE_TAG:-unknown}
+    volumes:
+      - ynot-media:/var/lib/ynot/media
+      - ynot-labels:/var/lib/ynot/labels
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    # No published ports — Caddy reaches the app over the Docker network (app:3000).
+    expose:
+      - "3000"
+
+  ynot-worker:
+    image: ghcr.io/batrbekk/ynot-worker:${IMAGE_TAG:-latest}
+    # Override the base file's `.env.local`-only env_file with the prod
+    # secrets bundle (same source as the app container).
+    env_file: !override
+      - /etc/ynot/secrets.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://ynot:${POSTGRES_PASSWORD}@postgres:5432/ynot_prod?schema=public
+      REDIS_URL: redis://redis:6379
+      WORKER_ENABLED: "true"
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["prod"]
+    container_name: ynot-caddy
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Compose 2.20+ `!reset` removes the parent stub entirely. The base
+  # docker-compose.yml keeps nginx as a documented sleep-infinity stub
+  # (profile `__never__`) so git history reads cleanly; prod uses Caddy.
+  nginx: !reset null
+
+volumes:
+  caddy_data:
+  caddy_config:

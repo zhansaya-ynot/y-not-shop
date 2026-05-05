@@ -1,0 +1,30 @@
+# Phase 8 — YNOT London production reverse proxy.
+# Caddy auto-provisions and renews TLS via Let's Encrypt (HTTP-01).
+# `app:3000` resolves to the Next.js container on the `ynot` Docker network.
+{
+	email hello@ynotlondon.com
+	# HTTP-01 challenge default works; switch to DNS-01 only if Cloudflare is
+	# ever placed in front of the origin (proxy mode would block HTTP-01).
+}
+
+ynotlondon.com {
+	encode gzip zstd
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		-Server
+	}
+
+	reverse_proxy app:3000 {
+		health_uri /api/health
+		health_interval 30s
+		health_timeout 5s
+	}
+}
+
+www.ynotlondon.com {
+	redir https://ynotlondon.com{uri} permanent
+}

@@ -3,7 +3,10 @@
 // Soft-deleted entities use a nullable `deletedAt`; queries must filter manually.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Phase 8 — Alpine 3.18+ ships OpenSSL 3.x only (no libssl.so.1.1), so
+  // pin the engine to the openssl-3 variant. `native` keeps macOS dev fast.
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {

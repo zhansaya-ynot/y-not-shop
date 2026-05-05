@@ -1,12 +1,13 @@
 # YNOT London — local + production container stack.
 # Profiles:
-#   dev   — postgres + redis bound to the host on 5432/6379 so `pnpm dev` and
-#           Prisma CLI on the host can reach them
-#   prod  — adds app + nginx stubs. Phase "Deploy & Ops" will replace the stubs
-#           with a real Next.js standalone build, real nginx config, certbot,
-#           env_file from /etc/ynot/secrets.env, AND will switch the postgres /
-#           redis port bindings to 127.0.0.1-only (or remove them entirely so
-#           only the app container reaches the data tier via Docker DNS).
+#   dev        — postgres + redis bound to the host on 5432/6379 so `pnpm dev`
+#                and Prisma CLI on the host can reach them
+#   prod       — postgres + redis + worker. App + Caddy come from
+#                docker-compose.prod.yml (which also drops postgres/redis host
+#                port bindings via `!reset []`).
+#   __never__  — used to neuter the legacy app/nginx stubs without deleting them
+#                (they were Phase 5 placeholders; Phase 8 replaces them with the
+#                real ghcr.io image and Caddy reverse proxy in the prod override).
 
 name: ynot
 
@@ -57,48 +58,18 @@ services:
       retries: 10
 
   app:
+    # Phase 8 — replaced in prod by the Next.js standalone image from
+    # ghcr.io/batrbekk/ynot-app (see docker-compose.prod.yml).
+    # `__never__` is a profile no command ever passes, so this stub is
+    # silently ignored. Kept for git-history continuity, NOT for runtime.
     image: node:22-alpine
-    profiles: ["prod"]
-    container_name: ynot-app
-    restart: unless-stopped
-    working_dir: /app
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://ynot:ynot_dev_password@postgres:5432/ynot_prod?schema=public
-      REDIS_URL: redis://redis:6379
-      NEXT_PUBLIC_SITE_URL: https://ynot.london
-    command:
-      - sh
-      - -c
-      - |
-        echo "Phase 'Deploy & Ops' will replace this stub with a real build (Dockerfile + standalone Next.js output)."
-        sleep infinity
-    ports:
-      - "3000:3000"
-    volumes:
-      - ynot-media:/var/lib/ynot/media
+    profiles: ["__never__"]
 
   nginx:
+    # Phase 8 — replaced in prod by Caddy (see docker-compose.prod.yml).
+    # Same `__never__` trick: the stanza never runs but the diff stays small.
     image: nginx:1.27-alpine
-    profiles: ["prod"]
-    container_name: ynot-nginx
-    restart: unless-stopped
-    depends_on:
-      - app
-    ports:
-      - "80:80"
-      - "443:443"
-    command:
-      - sh
-      - -c
-      - |
-        echo "Phase 'Deploy & Ops' will mount the real nginx.conf, certbot, and Let's Encrypt volumes."
-        sleep infinity
+    profiles: ["__never__"]
 
   ynot-worker:
     build:

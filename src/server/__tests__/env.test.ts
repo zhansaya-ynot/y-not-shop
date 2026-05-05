@@ -149,3 +149,17 @@ describe("Phase 7a media envs", () => {
     expect(env.MEDIA_PUBLIC_BASE_URL).toBe("https://media.ynotlondon.com");
   });
 });
+
+describe("BUILD_PROD short-circuit", () => {
+  it("parses partial env (missing required vars) when BUILD_PROD=1", () => {
+    const minimal = { BUILD_PROD: "1" };
+    expect(() => parseEnv(minimal)).not.toThrow();
+    const e = parseEnv(minimal);
+    // Required vars come back as undefined; defaults still apply
+    expect(e.NEXT_PUBLIC_SITE_URL).toBeUndefined();
+  });
+
+  it("throws on missing required vars when BUILD_PROD is unset (existing behaviour)", () => {
+    expect(() => parseEnv({})).toThrow();
+  });
+});

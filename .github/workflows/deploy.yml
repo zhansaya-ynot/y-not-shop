@@ -1,0 +1,86 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build + push app image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          tags: |
+            ghcr.io/batrbekk/ynot-app:${{ steps.meta.outputs.tag }}
+            ghcr.io/batrbekk/ynot-app:latest
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Build + push worker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.worker
+          tags: |
+            ghcr.io/batrbekk/ynot-worker:${{ steps.meta.outputs.tag }}
+            ghcr.io/batrbekk/ynot-worker:latest
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH agent setup
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VPS
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" bash -s <<EOF
+            set -euo pipefail
+            cd /srv/ynot
+            git fetch origin main
+            git reset --hard origin/main
+            cd web
+            export IMAGE_TAG=$IMAGE_TAG
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod \\
+              run --rm app sh -c "npx prisma migrate deploy"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod \\
+              up -d --no-deps --remove-orphans app ynot-worker caddy
+            sleep 15
+            curl -fsSL --max-time 10 http://localhost/api/health
+          EOF

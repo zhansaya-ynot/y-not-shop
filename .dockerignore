@@ -1,0 +1,30 @@
+# Phase 8 — exclude host artifacts from `COPY . .` so the builder stage uses
+# only checked-in sources. Node modules and .next are regenerated inside the
+# Linux/Alpine builder; copying the macOS host's versions would ship the wrong
+# Prisma query engine binaries.
+
+node_modules
+.next
+.next-cache
+
+# IDE / OS noise
+.git
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Local secrets — never bake into an image
+.env
+.env.local
+.env.*.local
+
+# Test / dev scratch
+coverage
+.worktrees
+.superpowers
+.vscode
+.idea
+
+# Worktree-specific
+playwright-report
+test-results

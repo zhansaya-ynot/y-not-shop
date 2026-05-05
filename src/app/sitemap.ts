@@ -4,6 +4,11 @@ import { getAllCategories } from "@/server/data/categories";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ynotlondon.com";
 
+// Phase 8 — generate the sitemap on first request, not at build time. Prisma is
+// not reachable inside the Docker builder stage, and the catalog changes often
+// enough that nightly regen via revalidation is acceptable.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const [products, categories] = await Promise.all([

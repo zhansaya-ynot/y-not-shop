@@ -44,14 +44,28 @@ const EnvSchema = z.object({
 });
 
 export type Env = z.infer<typeof EnvSchema>;
+export type PartialEnv = Partial<Env>;
 
-/** Parse an arbitrary record (used by tests) — throws on invalid input. */
-export function parseEnv(input: Record<string, string | undefined>): Env {
-  return EnvSchema.parse(input);
+/**
+ * Parse an arbitrary record (used by tests) — throws on invalid input.
+ *
+ * Phase 8: when `BUILD_PROD=1` is set, parse against a partial schema so the
+ * Docker builder stage can run `next build` without production secrets. This
+ * env var is only set inside the Dockerfile builder stage; runtime always
+ * leaves it unset and gets the strict full-schema validation.
+ */
+export function parseEnv(input: Record<string, string | undefined>): Env | PartialEnv {
+  return input.BUILD_PROD === "1"
+    ? (EnvSchema.partial().parse(input) as PartialEnv)
+    : EnvSchema.parse(input);
 }
 
 /**
  * Validated process.env. Importing this module fails fast on bad config.
  * Server-only — never import from `lib/` or any client component.
+ *
+ * The `as Env` cast is intentional: `BUILD_PROD=1` only happens during
+ * `next build` inside Docker, never at runtime, so production runtime always
+ * has the full validated env.
  */
-export const env: Env = parseEnv(process.env);
+export const env: Env = parseEnv(process.env as Record<string, string | undefined>) as Env;
