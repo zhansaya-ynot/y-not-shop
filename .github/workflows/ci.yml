@@ -47,6 +47,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        # No postinstall hook in package.json, so we generate explicitly.
+        # Locally this lives in node_modules and persists between runs;
+        # in CI we always start fresh.
+        run: pnpm prisma generate
+
       - name: Set up test env
         run: |
           cp .env.example .env.test
