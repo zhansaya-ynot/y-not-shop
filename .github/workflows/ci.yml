@@ -57,6 +57,14 @@ jobs:
         env:
           DATABASE_URL: postgresql://ynot:ynot_test_password@localhost:5432/ynot_test?schema=public
 
+      # Build first — Next.js 16 typed routes generates `.next/types/routes.d.ts`
+      # which `next-env.d.ts` references. Without it, typecheck fails to resolve
+      # PNG imports + route types. Build is fast (~30s) thanks to no test data.
+      - name: Build
+        run: pnpm build
+        env:
+          BUILD_PROD: '1'
+
       - run: pnpm typecheck
       - run: pnpm lint
       - name: Test
@@ -64,8 +72,3 @@ jobs:
         env:
           DATABASE_URL: postgresql://ynot:ynot_test_password@localhost:5432/ynot_test?schema=public
           REDIS_URL: redis://localhost:6379
-
-      - name: Build
-        run: pnpm build
-        env:
-          BUILD_PROD: '1'
