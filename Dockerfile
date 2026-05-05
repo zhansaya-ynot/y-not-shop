@@ -37,13 +37,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # CI passes the real token via `docker build --build-arg SENTRY_AUTH_TOKEN=...`.
 ARG SENTRY_AUTH_TOKEN=""
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
-# Build-time stubs: BUILD_PROD=1 already short-circuits the env validator, but
-# Stripe + downstream SDKs eagerly call `new Stripe(key)` at module load during
-# Next.js page-data collection. These dummy keys are *not* baked into runtime
-# env (the runner stage drops them) — runtime values come from
-# /etc/ynot/secrets.env via Compose env_file.
+# NEXT_PUBLIC_* env vars are inlined into the client bundle at build time —
+# runtime env can't override them. The publishable key is safe to expose (its
+# whole purpose is to ship to the browser), so CI passes the real value via
+# --build-arg. Falls back to a stub locally so `docker build` still works
+# without leaking the key into the repo.
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_build_stub"
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+# Build-time stubs for SECRET keys: BUILD_PROD=1 already short-circuits the env
+# validator, but Stripe + downstream SDKs eagerly call `new Stripe(key)` at
+# module load during Next.js page-data collection. These dummy keys are *not*
+# baked into runtime env (the runner stage drops them) — runtime values come
+# from /etc/ynot/secrets.env via Compose env_file.
 ENV STRIPE_SECRET_KEY=sk_test_build_stub
-ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_build_stub
 ENV STRIPE_WEBHOOK_SECRET=whsec_build_stub
 ENV NEXTAUTH_SECRET=build_stub_nextauth_secret_at_least_32_chars_long
 ENV ORDER_TOKEN_SECRET=build_stub_order_token_secret_at_least_32_chars
