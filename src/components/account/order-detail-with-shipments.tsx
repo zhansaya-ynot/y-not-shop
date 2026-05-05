@@ -1,5 +1,6 @@
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import { getTrackingUrl, type CarrierId } from "@/lib/tracking-url";
 import { Display } from "@/components/ui/typography";
@@ -72,6 +73,12 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
 
   return (
     <div className="flex flex-col gap-12">
+      <Link
+        href="/account/orders"
+        className="self-start inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-foreground-secondary hover:text-foreground-primary transition-colors"
+      >
+        <span aria-hidden="true">←</span> Back to orders
+      </Link>
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <p className="text-[11px] uppercase tracking-[0.2em] text-foreground-secondary mb-2">
@@ -247,6 +254,21 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
           </p>
         </div>
       </section>
+
+      <div className="flex flex-wrap gap-4 border-t border-border-light pt-8">
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center bg-foreground-primary text-foreground-inverse px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-secondary transition-colors"
+        >
+          Continue shopping
+        </Link>
+        <Link
+          href="/account/orders"
+          className="inline-flex items-center justify-center border border-border-dark px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-primary hover:text-foreground-inverse transition-colors"
+        >
+          Back to orders
+        </Link>
+      </div>
     </div>
   );
 }
