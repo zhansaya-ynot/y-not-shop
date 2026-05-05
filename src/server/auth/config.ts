@@ -46,22 +46,38 @@ export const authConfig: NextAuthConfig = {
           // error.
           throw new Error("EMAIL_NOT_VERIFIED");
         }
-        return { id: user.id, email: user.email, name: user.name };
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],
   callbacks: {
     jwt: async ({ token, user }) => {
-      // On sign-in, copy the user id into the token so subsequent reads can
-      // resolve it without another DB query.
+      // On sign-in, copy id + role into the token so route handlers calling
+      // auth() (e.g. /api/admin/**/status) get the role without a DB roundtrip.
+      // requireOwner() reads session.user.role — without this it sees undefined
+      // and rejects every privileged request as 403.
       if (user) {
         token.id = user.id;
+        const role = (user as unknown as { role?: string }).role;
+        if (role) token.role = role;
+      }
+      // Self-heal sessions issued before role was added to the token (otherwise
+      // already-signed-in OWNERs would have to log out + back in to publish).
+      if (token?.id && typeof token.id === "string" && !token.role) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: { role: true },
+        });
+        if (dbUser?.role) token.role = dbUser.role;
       }
       return token;
     },
     session: async ({ session, token }) => {
       if (token?.id && typeof token.id === "string") {
         session.user.id = token.id;
+      }
+      if (token?.role && typeof token.role === "string") {
+        (session.user as unknown as { role?: string }).role = token.role;
       }
       return session;
     },
