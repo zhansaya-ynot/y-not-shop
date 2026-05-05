@@ -76,18 +76,20 @@ jobs:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         run: |
-          ssh -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" bash -s <<EOF
+          ssh -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" \
+            "GHCR_PAT='$GHCR_PAT' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'EOF'
             set -euo pipefail
+            # Login to ghcr.io so pulls work whether packages are public or private.
+            echo "$GHCR_PAT" | docker login ghcr.io -u zhansaya-ynot --password-stdin
             cd /srv/ynot
             git fetch origin main
             git reset --hard origin/main
-            export IMAGE_TAG=$IMAGE_TAG
+            export IMAGE_TAG="$IMAGE_TAG"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod \\
-              run --rm app sh -c "npx prisma migrate deploy"
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod \\
-              up -d --no-deps --remove-orphans app ynot-worker caddy
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod run --rm app sh -c "npx prisma migrate deploy"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d --no-deps --remove-orphans app ynot-worker caddy
             sleep 15
             curl -fsSL --max-time 10 http://localhost/api/health
           EOF
