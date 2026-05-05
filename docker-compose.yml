@@ -59,7 +59,7 @@ services:
 
   app:
     # Phase 8 — replaced in prod by the Next.js standalone image from
-    # ghcr.io/batrbekk/ynot-app (see docker-compose.prod.yml).
+    # ghcr.io/zhansaya-ynot/ynot-app (see docker-compose.prod.yml).
     # `__never__` is a profile no command ever passes, so this stub is
     # silently ignored. Kept for git-history continuity, NOT for runtime.
     image: node:22-alpine

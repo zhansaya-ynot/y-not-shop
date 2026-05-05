@@ -34,8 +34,8 @@ jobs:
           context: .
           file: Dockerfile
           tags: |
-            ghcr.io/batrbekk/ynot-app:${{ steps.meta.outputs.tag }}
-            ghcr.io/batrbekk/ynot-app:latest
+            ghcr.io/zhansaya-ynot/ynot-app:${{ steps.meta.outputs.tag }}
+            ghcr.io/zhansaya-ynot/ynot-app:latest
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -48,8 +48,8 @@ jobs:
           context: .
           file: Dockerfile.worker
           tags: |
-            ghcr.io/batrbekk/ynot-worker:${{ steps.meta.outputs.tag }}
-            ghcr.io/batrbekk/ynot-worker:latest
+            ghcr.io/zhansaya-ynot/ynot-worker:${{ steps.meta.outputs.tag }}
+            ghcr.io/zhansaya-ynot/ynot-worker:latest
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max

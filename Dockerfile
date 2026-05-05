@@ -55,6 +55,9 @@ RUN pnpm build
 
 # ---- runner stage: only what runtime needs ----
 FROM node:22-alpine AS runner
+LABEL org.opencontainers.image.source="https://github.com/zhansaya-ynot/y-not-shop"
+LABEL org.opencontainers.image.description="YNOT London — Next.js storefront + admin"
+LABEL org.opencontainers.image.licenses="MIT"
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

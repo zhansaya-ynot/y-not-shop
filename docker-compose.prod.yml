@@ -25,7 +25,7 @@ services:
     ports: !reset []
 
   app:
-    image: ghcr.io/batrbekk/ynot-app:${IMAGE_TAG:-latest}
+    image: ghcr.io/zhansaya-ynot/ynot-app:${IMAGE_TAG:-latest}
     profiles: ["prod"]
     container_name: ynot-app
     restart: unless-stopped
@@ -55,7 +55,7 @@ services:
       - "3000"
 
   ynot-worker:
-    image: ghcr.io/batrbekk/ynot-worker:${IMAGE_TAG:-latest}
+    image: ghcr.io/zhansaya-ynot/ynot-worker:${IMAGE_TAG:-latest}
     # Override the base file's `.env.local`-only env_file with the prod
     # secrets bundle (same source as the app container).
     env_file: !override
