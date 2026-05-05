@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Phase 8 — explicit @source so Tailwind v4 picks up admin/checkout/account
+   routes during production build. Auto-detection sometimes misses files
+   nested under route groups when emitted via Next.js standalone. */
+@source "../**/*.{ts,tsx,jsx,js}";
+@source "../components/**/*.{ts,tsx,jsx,js}";
+@source "../emails/**/*.{ts,tsx,jsx,js}";
+
 /*
   YNOT London — design tokens
   Source: ynot.pen (Pencil.dev) → variables block.
