@@ -23,48 +23,46 @@ export default async function AdminLayout({
     redirect("/sign-in?next=/admin");
   }
   const envName = process.env.NODE_ENV ?? "development";
+  // Nested layouts must NOT render <html>/<body> — only the root layout owns
+  // those. Returning a div here keeps the root font/style chain intact.
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-screen bg-neutral-50 text-neutral-900 font-sans">
-        <div className="flex min-h-screen">
-          <aside className="w-60 shrink-0 border-r border-neutral-200 bg-white px-5 py-6 flex flex-col">
-            <div className="mb-8">
-              <h1 className="text-lg font-semibold tracking-tight">YNOT Admin</h1>
-              <p className="mt-1 text-xs uppercase tracking-wider text-neutral-500">
-                env: {envName}
-              </p>
-            </div>
-            <nav className="flex flex-col gap-5 text-sm">
-              {NAV_SECTIONS.map((section) => (
-                <div key={section.heading}>
-                  <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-                    {section.heading}
-                  </p>
-                  <div className="flex flex-col gap-0.5">
-                    {section.items.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="rounded px-3 py-1.5 hover:bg-neutral-100"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </nav>
-            <div className="mt-auto pt-6 border-t border-neutral-200 text-xs text-neutral-600">
-              <div className="mb-2">
-                <div className="font-medium text-neutral-900">{user.name ?? user.email}</div>
-                <div>{user.role}</div>
-              </div>
-              <AdminSignOutButton />
-            </div>
-          </aside>
-          <main className="flex-1 px-8 py-8 overflow-x-auto">{children}</main>
+    <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
+      <aside className="w-60 shrink-0 border-r border-neutral-200 bg-white px-5 py-6 flex flex-col">
+        <div className="mb-8">
+          <h1 className="text-lg font-semibold tracking-tight">YNOT Admin</h1>
+          <p className="mt-1 text-xs uppercase tracking-wider text-neutral-500">
+            env: {envName}
+          </p>
         </div>
-      </body>
-    </html>
+        <nav className="flex flex-col gap-5 text-sm">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.heading}>
+              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                {section.heading}
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {section.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="rounded px-3 py-1.5 hover:bg-neutral-100"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+        <div className="mt-auto pt-6 border-t border-neutral-200 text-xs text-neutral-600">
+          <div className="mb-2">
+            <div className="font-medium text-neutral-900">{user.name ?? user.email}</div>
+            <div>{user.role}</div>
+          </div>
+          <AdminSignOutButton />
+        </div>
+      </aside>
+      <main className="flex-1 px-8 py-8 overflow-x-auto">{children}</main>
+    </div>
   );
 }
