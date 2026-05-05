@@ -74,7 +74,6 @@ jobs:
             cd /srv/ynot
             git fetch origin main
             git reset --hard origin/main
-            cd web
             export IMAGE_TAG=$IMAGE_TAG
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod \\
