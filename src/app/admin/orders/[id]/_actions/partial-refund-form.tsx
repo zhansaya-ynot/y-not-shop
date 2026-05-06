@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface OrderItem {
   id: string;
@@ -20,22 +21,26 @@ export function PartialRefundForm({ items }: { items: OrderItem[] }) {
   const [qty, setQty] = React.useState<Record<string, number>>({});
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  const payload = items
+    .map((it) => ({
+      orderItemId: it.id,
+      quantity: Math.max(0, Math.min(it.quantity, qty[it.id] ?? 0)),
+    }))
+    .filter((i) => i.quantity > 0);
+
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const payload = items
-      .map((it) => ({
-        orderItemId: it.id,
-        quantity: Math.max(0, Math.min(it.quantity, qty[it.id] ?? 0)),
-      }))
-      .filter((i) => i.quantity > 0);
     if (payload.length === 0) {
       setError("Select at least one item to refund.");
       return;
     }
-    if (!window.confirm(`Refund ${payload.length} item(s)? This is irreversible.`)) {
-      return;
-    }
+    setError(null);
+    setConfirmOpen(true);
+  }
+
+  async function actuallyRefund() {
     setBusy(true);
     setError(null);
     try {
@@ -50,6 +55,7 @@ export function PartialRefundForm({ items }: { items: OrderItem[] }) {
         return;
       }
       setQty({});
+      setConfirmOpen(false);
       router.refresh();
     } finally {
       setBusy(false);
@@ -99,6 +105,23 @@ export function PartialRefundForm({ items }: { items: OrderItem[] }) {
         </button>
         {error && <span className="text-xs text-red-600">{error}</span>}
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Refund selected items"
+        description={
+          <>
+            Refund <strong>{payload.length}</strong> item
+            {payload.length === 1 ? "" : "s"}? Stripe will return the funds to
+            the customer&rsquo;s card; this action can&rsquo;t be undone.
+          </>
+        }
+        confirmLabel="Refund"
+        destructive
+        pending={busy}
+        onConfirm={actuallyRefund}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </form>
   );
 }
