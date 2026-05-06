@@ -77,7 +77,15 @@ export default async function AdminPreordersPage() {
             )}
             {batches.map((b) => {
               const c = countsById.get(b.id);
-              const releasable = b.status === "PENDING" || b.status === "IN_PRODUCTION";
+              // We allow re-firing the release even when the batch is already
+              // SHIPPING — the underlying flow is idempotent (shipments with
+              // labelGeneratedAt skip), and previously-released batches that
+              // were missing Shipment rows (pre-backfill orders) need a way
+              // to actually generate labels now.
+              const releasable =
+                b.status === "PENDING" ||
+                b.status === "IN_PRODUCTION" ||
+                b.status === "SHIPPING";
               return (
                 <tr key={b.id} className="border-t border-neutral-100 hover:bg-neutral-50">
                   <td className="px-3 py-3 font-medium">{b.name}</td>
@@ -126,12 +134,11 @@ export default async function AdminPreordersPage() {
                         batchId={b.id}
                         batchName={b.name}
                         paidOrderCount={c?.paid ?? 0}
+                        alreadyShipping={b.status === "SHIPPING"}
                       />
                     ) : (
                       <span className="text-[12px] text-neutral-500">
-                        {b.status === "SHIPPING"
-                          ? "Labels generated"
-                          : "Closed"}
+                        Closed
                       </span>
                     )}
                   </td>

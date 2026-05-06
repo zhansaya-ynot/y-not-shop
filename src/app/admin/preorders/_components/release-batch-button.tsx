@@ -8,6 +8,8 @@ interface Props {
   batchId: string;
   batchName: string;
   paidOrderCount: number;
+  /** Batch is already in SHIPPING state — button becomes 'Retry labels'. */
+  alreadyShipping?: boolean;
 }
 
 interface ReleaseResult {
@@ -16,7 +18,7 @@ interface ReleaseResult {
   message: string | null;
 }
 
-export function ReleaseBatchButton({ batchId, batchName, paidOrderCount }: Props) {
+export function ReleaseBatchButton({ batchId, batchName, paidOrderCount, alreadyShipping }: Props) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [pending, setPending] = React.useState(false);
@@ -61,13 +63,13 @@ export function ReleaseBatchButton({ batchId, batchName, paidOrderCount }: Props
         }}
         className="px-3 py-1.5 bg-foreground-primary text-foreground-inverse text-[11px] font-semibold uppercase tracking-wider rounded"
       >
-        Release for shipping
+        {alreadyShipping ? "Retry labels" : "Release for shipping"}
       </button>
 
       <Modal
         open={open}
         onClose={() => closeable && setOpen(false)}
-        title="Release batch for shipping"
+        title={alreadyShipping ? "Retry label generation" : "Release batch for shipping"}
       >
         {!results ? (
           <>
