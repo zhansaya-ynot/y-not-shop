@@ -21,13 +21,19 @@ export default function CheckoutPaymentPage() {
   const [order, setOrder] = React.useState<{ orderId: string; clientSecret: string } | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Guard against returning to this page after the order was already paid:
+  // the cart is now empty, the previous clientSecret refers to a `succeeded`
+  // PaymentIntent, and re-mounting <Elements> in that state used to throw
+  // React #185. Bounce away early so we never reach the second effect.
+  const cartEmpty = !cart || cart.items.length === 0;
+  const checkoutMissing = !address || !methodId || !quote;
   React.useEffect(() => {
-    if (!cart || cart.items.length === 0) { router.push('/'); return; }
-    if (!address || !methodId || !quote) { router.push('/checkout/shipping'); return; }
-  }, [cart, address, methodId, quote, router]);
+    if (cartEmpty) { router.push('/'); return; }
+    if (checkoutMissing) { router.push('/checkout/shipping'); return; }
+  }, [cartEmpty, checkoutMissing, router]);
 
   React.useEffect(() => {
-    if (!address || !methodId || order) return;
+    if (cartEmpty || checkoutMissing || !address || !methodId || order) return;
     (async () => {
       const res = await fetch('/api/checkout/create', {
         method: 'POST', credentials: 'include',
@@ -43,7 +49,7 @@ export default function CheckoutPaymentPage() {
       const json = CreateOrderResponse.parse(await res.json());
       setOrder(json);
     })();
-  }, [address, methodId, order, router]);
+  }, [cartEmpty, checkoutMissing, address, methodId, order, router]);
 
   const selected = quote?.methods.find((m) => m.methodId === methodId);
   const totalCents = (cart?.subtotalCents ?? 0) - (cart?.discountCents ?? 0) + (selected?.totalCents ?? 0);
