@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/cn";
+import { Select } from "./select";
 
 export interface PhoneInputProps {
   label?: string;
@@ -161,33 +162,24 @@ export function PhoneInput({
       )}
       <div
         className={cn(
-          "flex items-center border-b border-border-light",
+          "flex items-center gap-3 border-b border-border-light",
           "focus-within:border-foreground-primary",
           error && "border-error focus-within:border-error",
         )}
       >
-        {/* Country code select. Native <select> here on purpose: keeps the
-            popup keyboard-accessible on mobile, doesn't fight the Combobox
-            we built for the form-level Country picker. */}
-        <select
-          aria-label="Country dial code"
-          value={iso}
-          onChange={(e) => onCountryChange(e.target.value)}
-          className={cn(
-            "h-[48px] bg-transparent border-0 pr-2 py-3",
-            "text-[14px] text-foreground-primary",
-            "focus:outline-none cursor-pointer appearance-none",
-          )}
-        >
-          {DIAL_CODES.map((d) => (
-            <option key={d.iso} value={d.iso}>
-              {d.iso} {d.code}
-            </option>
-          ))}
-        </select>
-        <span aria-hidden="true" className="pr-2 text-foreground-tertiary">
-          ·
-        </span>
+        {/* Country dial-code picker — same branded combobox used for the
+            form-level Country select, sized to fit inside the phone row. */}
+        <div className="w-[120px] shrink-0">
+          <Select
+            value={iso}
+            onChange={onCountryChange}
+            options={DIAL_CODES.map((d) => ({
+              value: d.iso,
+              label: `${d.iso} ${d.code}`,
+            }))}
+            className="!border-0 !h-[48px] !pl-0"
+          />
+        </div>
         <input
           id={inputId}
           type="tel"
