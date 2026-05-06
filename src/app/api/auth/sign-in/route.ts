@@ -3,6 +3,7 @@ import { SignInRequestSchema } from "@/lib/schemas";
 import { assertCsrf } from "@/server/auth/csrf";
 import { signIn } from "@/server/auth/nextauth";
 import { checkRateLimit } from "@/server/auth/rate-limit";
+import { findUserByEmail } from "@/server/repositories/user.repo";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,10 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   try {
     await signIn("credentials", { ...parsed.data, redirect: false });
-    return NextResponse.json({ ok: true });
+    // Surface the role so the sign-in page can route admins straight to /admin
+    // instead of /account (which is the customer cabinet).
+    const user = await findUserByEmail(parsed.data.email);
+    return NextResponse.json({ ok: true, role: user?.role ?? null });
   } catch (err) {
     const message = err instanceof Error ? err.message : "";
     if (message.includes("EMAIL_NOT_VERIFIED")) {

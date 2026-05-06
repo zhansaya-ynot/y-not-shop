@@ -11,7 +11,10 @@ import { authFetch } from "@/lib/auth-fetch";
 function SignInPageInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") ?? "/account";
+  // Honour ?next= when set (e.g. middleware pushed the user to /sign-in from
+  // a deep link). When absent we route by role: ADMIN/OWNER → /admin so the
+  // shop owner doesn't land in the customer cabinet.
+  const explicitNext = params.get("next");
   const toast = useToast();
 
   const handleSubmit = async (data: SignInFormSubmit) => {
@@ -31,8 +34,11 @@ function SignInPageInner() {
       toast.show("Email or password is incorrect.");
       return;
     }
+    const json = (await res.json().catch(() => ({}))) as { role?: string | null };
+    const isAdmin = json.role === "ADMIN" || json.role === "OWNER";
+    const dest = explicitNext ?? (isAdmin ? "/admin" : "/account");
     toast.show("Welcome back.");
-    router.push(next);
+    router.push(dest);
     router.refresh();
   };
 
