@@ -47,6 +47,9 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     heading: 'SHIPPING',
-    items: [{ href: '/admin/shipping/zones', label: 'Zones' }],
+    items: [
+      { href: '/admin/shipping/zones', label: 'Zones' },
+      { href: '/admin/preorders', label: 'Preorder batches' },
+    ],
   },
 ];
