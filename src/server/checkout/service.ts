@@ -43,6 +43,10 @@ export async function createOrderAndPaymentIntent(
       );
     }
     for (const item of snap.items) {
+      // Preorders ship from a future batch — current stock is allowed to be
+      // 0, so the guard would always trip. Skip the check; the batch capacity
+      // is enforced separately when assignItemToBatch runs at cart time.
+      if (item.isPreorder) continue;
       const stockRow = await tx.productSize.findUniqueOrThrow({
         where: { productId_size: { productId: item.productId, size: item.size } },
       });
@@ -51,8 +55,10 @@ export async function createOrderAndPaymentIntent(
       }
     }
 
-    // 3. Atomic stock decrement.
+    // 3. Atomic stock decrement (in-stock items only — preorders aren't
+    //    drawn from current stock, they're produced for the next batch).
     for (const item of snap.items) {
+      if (item.isPreorder) continue;
       await tx.productSize.update({
         where: { productId_size: { productId: item.productId, size: item.size } },
         data: { stock: { decrement: item.quantity } },
