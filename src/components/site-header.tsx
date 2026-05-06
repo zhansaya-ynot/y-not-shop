@@ -75,6 +75,23 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
   const openCart = useCartStore((s) => s.openDrawer);
   const openMenu = useUIStore((s) => s.openMenu);
   const openSearch = useUIStore((s) => s.openSearch);
+  // Owners/admins land in /admin straight from the header instead of having
+  // to detour through the customer cabinet at /account. Fetch the role from
+  // NextAuth's session endpoint once on mount; default to /account so the
+  // link still works for the unauthenticated/customer case.
+  const [accountHref, setAccountHref] = React.useState("/account");
+  React.useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/session", { credentials: "same-origin" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((s: { user?: { role?: string } } | null) => {
+        if (cancelled) return;
+        const role = s?.user?.role;
+        if (role === "ADMIN" || role === "OWNER") setAccountHref("/admin");
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   // Interpolate: progress 0 -> transparent bg + white text; 1 -> white bg + dark text
   const bgAlpha = progress;
@@ -148,7 +165,7 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
             <SearchIcon />
           </button>
           <Link
-            href="/account"
+            href={accountHref}
             aria-label="Account"
             className="flex h-10 w-10 items-center justify-center"
           >
