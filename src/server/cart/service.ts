@@ -131,9 +131,6 @@ export async function addItem(
       where: { cartId, productId: input.productId, size: input.size },
     });
     const totalQty = (existingItem?.quantity ?? 0) + input.quantity;
-    if (totalQty > stockRow.stock) {
-      throw new StockConflictError(input.productId, input.size, stockRow.stock);
-    }
 
     // Auto-assign preorder items to the active PreorderBatch (spec §9.2 / Group M).
     // `Product.preOrder = true` is the catalog-side flag; the per-line
@@ -141,6 +138,15 @@ export async function addItem(
     // lookup so an item never lands in cart with `isPreorder = true` but no
     // batch — the checkout shipment splitter would otherwise drop it.
     const treatAsPreorder = product.preOrder || input.isPreorder;
+
+    // Stock guard only applies to in-stock items; preorders ship from a
+    // future batch so current stock can legitimately be 0. Without this
+    // skip, every preorder add bounced as STOCK_CONFLICT and the customer
+    // saw nothing happen on click.
+    if (!treatAsPreorder && totalQty > stockRow.stock) {
+      throw new StockConflictError(input.productId, input.size, stockRow.stock);
+    }
+
     let preorderBatchId: string | null = null;
     if (treatAsPreorder) {
       preorderBatchId = await assignItemToBatch(input.productId, tx);
