@@ -10,7 +10,9 @@ import type {
  * the top-level `prisma` and a tx client so callers (cart `addItem`, checkout)
  * can run the lookup inside their own transaction.
  */
-type AssignBatchClient = Pick<Prisma.TransactionClient, 'preorderBatch'> | typeof prisma;
+type AssignBatchClient =
+  | Pick<Prisma.TransactionClient, 'preorderBatch'>
+  | typeof prisma;
 
 /**
  * Find the active {@link PreorderBatch} a preorder line should join.
@@ -39,7 +41,27 @@ export async function assignItemToBatch(
     orderBy: { estimatedShipFrom: 'asc' },
     select: { id: true },
   });
-  return batch?.id ?? null;
+  if (batch) return batch.id;
+
+  // No active batch yet — create a default PENDING one so the order has a
+  // home. Operator can later edit the dates / capacity in /admin (TODO Group
+  // M). Without this auto-create, every preorder line lands with
+  // preorderBatchId=null, the shipment splitter drops it, and the order
+  // shows "No shipments yet" forever even after payment.
+  const now = new Date();
+  const ship = new Date(now);
+  ship.setDate(ship.getDate() + 28); // 4-week default lead time
+  const created = await client.preorderBatch.create({
+    data: {
+      name: `Auto batch ${now.toISOString().slice(0, 10)}`,
+      productId,
+      status: 'PENDING',
+      estimatedShipFrom: ship,
+      estimatedShipTo: new Date(ship.getTime() + 14 * 86_400_000), // +2 weeks window
+    },
+    select: { id: true },
+  });
+  return created.id;
 }
 
 export interface ReleaseBatchForShippingDeps {
