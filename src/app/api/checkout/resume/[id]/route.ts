@@ -27,8 +27,14 @@ export async function GET(_req: Request, ctx: Ctx): Promise<Response> {
   const { id } = await ctx.params;
 
   const order =
-    (await prisma.order.findUnique({ where: { id } })) ??
-    (await prisma.order.findUnique({ where: { orderNumber: id } }));
+    (await prisma.order.findUnique({
+      where: { id },
+      include: { items: { orderBy: { id: 'asc' } } },
+    })) ??
+    (await prisma.order.findUnique({
+      where: { orderNumber: id },
+      include: { items: { orderBy: { id: 'asc' } } },
+    }));
   if (!order) {
     return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
   }
@@ -111,8 +117,20 @@ export async function GET(_req: Request, ctx: Ctx): Promise<Response> {
 
   return NextResponse.json({
     orderId: order.id,
+    orderNumber: order.orderNumber,
     clientSecret,
+    subtotalCents: order.subtotalCents,
+    shippingCents: order.shippingCents,
     totalCents: order.totalCents,
     currency: order.currency,
+    items: order.items.map((it) => ({
+      id: it.id,
+      name: it.productName,
+      image: it.productImage,
+      colour: it.colour,
+      size: it.size,
+      quantity: it.quantity,
+      unitPriceCents: it.unitPriceCents,
+    })),
   });
 }
