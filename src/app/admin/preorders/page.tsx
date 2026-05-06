@@ -39,7 +39,7 @@ export default async function AdminPreordersPage() {
       <h2 className="text-2xl font-semibold mb-2">Preorders</h2>
       <div className="text-sm text-neutral-700 space-y-2 mb-6">
         <p>
-          A <strong>preorder batch</strong> groups customer orders for a
+          A <strong>preorder batch</strong>{" "}groups customer orders for a
           product that hasn&rsquo;t been produced yet. While the batch is
           <em> Pending</em> or <em>In production</em>, no carrier label is
           generated — customers see <code>Preparing</code> on their order.

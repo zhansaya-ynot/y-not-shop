@@ -27,7 +27,10 @@ export default async function AdminLayout({
   // those. Returning a div here keeps the root font/style chain intact.
   return (
     <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
-      <aside className="w-60 shrink-0 border-r border-neutral-200 bg-white px-5 py-6 flex flex-col">
+      {/* Sticky sidebar that scrolls independently of the main column. With
+         all nav sections expanded the user/sign-out block was sliding below
+         the fold on shorter laptops; sticky + h-screen keeps it visible. */}
+      <aside className="w-60 shrink-0 border-r border-neutral-200 bg-white px-5 py-6 flex flex-col sticky top-0 h-screen overflow-y-auto">
         <div className="mb-8">
           <h1 className="text-lg font-semibold tracking-tight">YNOT Admin</h1>
           <p className="mt-1 text-xs uppercase tracking-wider text-neutral-500">
