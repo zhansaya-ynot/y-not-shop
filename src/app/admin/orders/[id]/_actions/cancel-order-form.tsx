@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 /**
  * Two-step cancel: reason input → confirm → POST /cancel.
@@ -14,14 +15,19 @@ export function CancelOrderForm() {
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (reason.trim().length < 3) {
       setError("Reason is required.");
       return;
     }
-    if (!window.confirm("Cancel this order and refund the customer?")) return;
+    setError(null);
+    setConfirmOpen(true);
+  }
+
+  async function actuallyCancel() {
     setBusy(true);
     setError(null);
     try {
@@ -35,6 +41,7 @@ export function CancelOrderForm() {
         setError((await res.text().catch(() => "")) || `Failed (${res.status})`);
         return;
       }
+      setConfirmOpen(false);
       router.refresh();
     } finally {
       setBusy(false);
@@ -60,6 +67,32 @@ export function CancelOrderForm() {
         {busy ? "Cancelling…" : "Cancel order"}
       </button>
       {error && <span className="text-xs text-red-600">{error}</span>}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Cancel this order?"
+        description={
+          <>
+            <p className="mb-3">
+              The order will be marked <strong>Cancelled</strong>. We will:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Issue a full refund to the customer&rsquo;s card via Stripe.</li>
+              <li>Restock items that haven&rsquo;t been despatched yet.</li>
+              <li>Email the customer with the cancellation + refund summary.</li>
+            </ul>
+            <p className="mt-3 text-foreground-tertiary">
+              Reason recorded: <em>{reason.trim() || "—"}</em>
+            </p>
+          </>
+        }
+        confirmLabel="Cancel order"
+        cancelLabel="Keep order"
+        destructive
+        pending={busy}
+        onConfirm={actuallyCancel}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </form>
   );
 }
