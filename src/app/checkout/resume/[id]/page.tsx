@@ -75,7 +75,7 @@ export default function CheckoutResumePage() {
             <StripePaymentElement
               clientSecret={data.clientSecret}
               orderId={data.orderId}
-              totalLabel={formatPrice(data.totalCents, data.currency)}
+              totalLabel={formatPrice(data.totalCents, data.currency as 'GBP')}
             />
           )}
         </div>
