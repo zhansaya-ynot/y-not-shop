@@ -58,18 +58,60 @@ export async function GET(_req: Request, ctx: Ctx): Promise<Response> {
   }
 
   const payment = await prisma.payment.findUnique({ where: { orderId: order.id } });
-  if (!payment?.stripePaymentIntentId) {
-    return NextResponse.json({ error: 'NO_PAYMENT_INTENT' }, { status: 409 });
+
+  // Try to reuse the original PaymentIntent. If it doesn't exist (e.g. the
+  // order pre-dates a Stripe key rotation, so the stored PI lives in a
+  // different account) or has reached a terminal state, fall through to
+  // creating a fresh intent for the same order amount.
+  let clientSecret: string | null = null;
+  if (payment?.stripePaymentIntentId) {
+    try {
+      const intent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
+      const reusable = intent.status === 'requires_payment_method'
+        || intent.status === 'requires_confirmation'
+        || intent.status === 'requires_action';
+      if (reusable && intent.client_secret) {
+        clientSecret = intent.client_secret;
+      }
+    } catch {
+      // Stripe couldn't find the intent under this account/key — make a new one.
+    }
   }
 
-  const intent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
-  if (!intent.client_secret) {
-    return NextResponse.json({ error: 'NO_CLIENT_SECRET' }, { status: 500 });
+  if (!clientSecret) {
+    const fresh = await stripe.paymentIntents.create({
+      amount: order.totalCents,
+      currency: order.currency.toLowerCase(),
+      automatic_payment_methods: { enabled: true },
+      metadata: { orderId: order.id, orderNumber: order.orderNumber, resumed: 'true' },
+    });
+    if (!fresh.client_secret) {
+      return NextResponse.json({ error: 'NO_CLIENT_SECRET' }, { status: 500 });
+    }
+    clientSecret = fresh.client_secret;
+
+    // Persist so subsequent webhooks can be matched against this order.
+    if (payment) {
+      await prisma.payment.update({
+        where: { orderId: order.id },
+        data: { stripePaymentIntentId: fresh.id, status: 'PENDING' },
+      });
+    } else {
+      await prisma.payment.create({
+        data: {
+          orderId: order.id,
+          stripePaymentIntentId: fresh.id,
+          status: 'PENDING',
+          amountCents: order.totalCents,
+          currency: order.currency,
+        },
+      });
+    }
   }
 
   return NextResponse.json({
     orderId: order.id,
-    clientSecret: intent.client_secret,
+    clientSecret,
     totalCents: order.totalCents,
     currency: order.currency,
   });
