@@ -256,9 +256,9 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
       </section>
 
       <div className="flex flex-wrap gap-4 border-t border-border-light pt-8">
-        {order.status === "PENDING_PAYMENT" ? (
+        {order.status === "PENDING_PAYMENT" || order.status === "PAYMENT_FAILED" ? (
           <Link
-            href="/checkout/payment"
+            href={`/checkout/resume/${order.id}`}
             className="inline-flex items-center justify-center bg-foreground-primary text-foreground-inverse px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-secondary transition-colors"
           >
             Resume payment
