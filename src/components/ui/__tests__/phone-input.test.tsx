@@ -9,7 +9,7 @@ function Harness({ onChange }: { onChange: (v: string) => void }) {
   return (
     <PhoneInput
       label="Phone"
-      prefix="+44"
+      defaultCountry="GB"
       value={v}
       onChange={(next) => {
         setV(next);
