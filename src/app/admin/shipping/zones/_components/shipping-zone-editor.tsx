@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ZoneEditorProps {
   zone: {
@@ -90,11 +91,28 @@ export function ShippingZoneEditor({ zone }: ZoneEditorProps) {
       )
     : ALL_COUNTRIES;
 
+  // "Select all" reflects the *filtered* slice — toggling it adds/removes
+  // every visible country, leaving anything filtered-out untouched.
+  const allFilteredSelected =
+    filtered.length > 0 && filtered.every((c) => selected.has(c.code));
+
   function toggle(code: string) {
     setSelected((s) => {
       const next = new Set(s);
       if (next.has(code)) next.delete(code);
       else next.add(code);
+      return next;
+    });
+  }
+
+  function toggleAllFiltered() {
+    setSelected((s) => {
+      const next = new Set(s);
+      if (allFilteredSelected) {
+        for (const c of filtered) next.delete(c.code);
+      } else {
+        for (const c of filtered) next.add(c.code);
+      }
       return next;
     });
   }
@@ -126,7 +144,7 @@ export function ShippingZoneEditor({ zone }: ZoneEditorProps) {
         <div>
           <h3 className="text-base font-semibold">{zone.name}</h3>
           <p className="text-xs text-neutral-500 mt-0.5">
-            {selected.size} countr{selected.size === 1 ? "y" : "ies"} selected
+            {selected.size} of {ALL_COUNTRIES.length} countries
             {zone.methods.length > 0 && (
               <>
                 {" · "}
@@ -135,17 +153,14 @@ export function ShippingZoneEditor({ zone }: ZoneEditorProps) {
             )}
           </p>
         </div>
-        <label className="inline-flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-          />
-          Active
-        </label>
+        <Checkbox
+          label="Active"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+        />
       </header>
 
-      <div className="px-5 py-4 space-y-3">
+      <div className="px-5 py-4 space-y-4">
         <input
           type="text"
           value={filter}
@@ -153,22 +168,41 @@ export function ShippingZoneEditor({ zone }: ZoneEditorProps) {
           placeholder="Filter by country or ISO code…"
           className="w-full border border-neutral-300 rounded px-3 py-2 text-sm"
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 max-h-96 overflow-y-auto pr-2">
-          {filtered.map((c) => (
-            <label
-              key={c.code}
-              className="inline-flex items-center gap-2 text-[13px] py-1 cursor-pointer hover:text-foreground-primary"
-            >
-              <input
-                type="checkbox"
-                checked={selected.has(c.code)}
-                onChange={() => toggle(c.code)}
-              />
-              <span className="font-mono text-[11px] text-neutral-500 w-6">
-                {c.code}
+
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <Checkbox
+            label={
+              <span className="font-semibold">
+                Select all{filter ? ` (${filtered.length} matching)` : ""}
               </span>
-              <span>{c.name}</span>
-            </label>
+            }
+            checked={allFilteredSelected}
+            onChange={toggleAllFiltered}
+          />
+          <span className="text-[12px] text-neutral-500">
+            {Array.from(selected).filter((c) =>
+              filtered.some((f) => f.code === c),
+            ).length}
+            {" / "}
+            {filtered.length} selected
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 max-h-96 overflow-y-auto pr-2">
+          {filtered.map((c) => (
+            <Checkbox
+              key={c.code}
+              label={
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-[11px] text-neutral-500 w-6">
+                    {c.code}
+                  </span>
+                  <span>{c.name}</span>
+                </span>
+              }
+              checked={selected.has(c.code)}
+              onChange={() => toggle(c.code)}
+            />
           ))}
         </div>
       </div>
