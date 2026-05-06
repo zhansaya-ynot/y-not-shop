@@ -93,4 +93,11 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d --no-deps --remove-orphans app ynot-worker caddy
             sleep 15
             curl -fsSL --max-time 10 http://localhost/api/health
+            # Reclaim disk: every build pushes new layers; without prune the
+            # 1GB+ images stack up (one shop owner saw the VPS hit 100% disk
+            # after ~30 deploys and Postgres panicked on checkpoint write).
+            # `prune -af` removes images not referenced by any container,
+            # which after the up -d above means everything except the just-
+            # deployed :latest tag. Volumes are explicitly excluded.
+            docker image prune -af --filter "until=24h" || true
           EOF
