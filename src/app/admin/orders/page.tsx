@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import type { OrderStatus } from "@prisma/client";
 import { listForAdmin } from "@/server/orders/service";
+import { OrdersFilters } from "./_components/orders-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -53,62 +54,14 @@ export default async function AdminOrdersPage({ searchParams }: SP) {
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-6">Orders</h2>
-      <form
-        method="get"
-        className="flex flex-wrap gap-3 mb-4 items-end text-sm"
-      >
-        <label className="flex flex-col">
-          <span className="text-xs text-neutral-600 mb-1">Status</span>
-          <select
-            name="status"
-            defaultValue={filters.status ?? ""}
-            className="border border-neutral-300 rounded px-2 py-1 bg-white"
-          >
-            <option value="">All</option>
-            {ORDER_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col">
-          <span className="text-xs text-neutral-600 mb-1">Carrier</span>
-          <select
-            name="carrier"
-            defaultValue={filters.carrier ?? ""}
-            className="border border-neutral-300 rounded px-2 py-1 bg-white"
-          >
-            <option value="">All</option>
-            <option value="ROYAL_MAIL">Royal Mail</option>
-            <option value="DHL">DHL</option>
-          </select>
-        </label>
-        <label className="flex flex-col">
-          <span className="text-xs text-neutral-600 mb-1">Country</span>
-          <input
-            name="country"
-            defaultValue={filters.country ?? ""}
-            placeholder="GB"
-            className="border border-neutral-300 rounded px-2 py-1 bg-white w-20"
-          />
-        </label>
-        <label className="flex flex-col flex-1 min-w-48">
-          <span className="text-xs text-neutral-600 mb-1">Search</span>
-          <input
-            name="search"
-            defaultValue={filters.search ?? ""}
-            placeholder="Order #, surname, tracking"
-            className="border border-neutral-300 rounded px-2 py-1 bg-white"
-          />
-        </label>
-        <button
-          type="submit"
-          className="h-[34px] px-4 bg-neutral-900 text-white text-xs uppercase tracking-wider rounded"
-        >
-          Filter
-        </button>
-      </form>
+      <OrdersFilters
+        initial={{
+          status: filters.status,
+          carrier: filters.carrier,
+          country: filters.country,
+          search: filters.search,
+        }}
+      />
 
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         <table className="w-full text-sm">

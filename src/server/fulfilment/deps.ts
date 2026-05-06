@@ -55,6 +55,7 @@ export function buildDeps(env: Env): WorkerDeps {
     apiKey: env.DHL_API_KEY ?? '',
     apiSecret: env.DHL_API_SECRET ?? '',
     accountNumber: env.DHL_ACCOUNT_NUMBER ?? '',
+    baseUrl: env.DHL_API_ENV ?? 'prod',
   });
   const rm = new RoyalMailClickDropProvider({
     apiKey: env.ROYAL_MAIL_API_KEY ?? '',

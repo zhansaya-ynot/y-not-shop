@@ -21,6 +21,10 @@ const EnvSchema = z.object({
   DHL_API_KEY: z.string().min(1).optional(),
   DHL_API_SECRET: z.string().min(1).optional(),
   DHL_ACCOUNT_NUMBER: z.string().min(1).optional(),
+  // 'prod' (default) hits https://express.api.dhl.com/mydhlapi; 'test' hits the
+  // /test sandbox so Customer Integration credentials work before Production
+  // Access is granted at developer.dhl.com.
+  DHL_API_ENV: z.enum(['prod', 'test']).default('prod'),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM: z.string().min(1).optional(), // accepts "Display Name <email>" Resend sender format
   // Phase 5 — label storage backend.

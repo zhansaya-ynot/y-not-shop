@@ -9,12 +9,20 @@ import type {
 } from './provider';
 
 const ORIGIN = { country: 'GB', postcode: 'SW7 5QG', city: 'London' } as const;
-const DHL_BASE = 'https://express.api.dhl.com/mydhlapi';
+const DHL_BASE_PROD = 'https://express.api.dhl.com/mydhlapi';
+const DHL_BASE_TEST = 'https://express.api.dhl.com/mydhlapi/test';
 
 export interface DhlExpressConfig {
   apiKey: string;
   apiSecret: string;
   accountNumber: string;
+  /**
+   * MyDHL API base URL. Pass `'test'` for the Customer Integration Testing
+   * sandbox at developer.dhl.com (default credentials there only work against
+   * `/mydhlapi/test`); pass `'prod'` (or omit) once Production Access has been
+   * granted. Override with a full URL string for self-hosted gateways.
+   */
+  baseUrl?: 'prod' | 'test' | string;
   fetcher?: typeof fetch;
 }
 
@@ -72,9 +80,13 @@ const SHIPPER_ADDRESS = {
  */
 export class DhlExpressProvider implements ShippingRateProvider {
   private readonly fetcher: typeof fetch;
+  private readonly base: string;
 
   constructor(private readonly cfg: DhlExpressConfig) {
     this.fetcher = cfg.fetcher ?? fetch;
+    if (!cfg.baseUrl || cfg.baseUrl === 'prod') this.base = DHL_BASE_PROD;
+    else if (cfg.baseUrl === 'test') this.base = DHL_BASE_TEST;
+    else this.base = cfg.baseUrl;
   }
 
   private headers(): HeadersInit {
@@ -118,7 +130,7 @@ export class DhlExpressProvider implements ShippingRateProvider {
       ],
     };
 
-    const resp = await this.fetcher(`${DHL_BASE}/rates`, {
+    const resp = await this.fetcher(`${this.base}/rates`, {
       method: 'POST',
       headers: this.headers(),
       body: JSON.stringify(body),
@@ -183,7 +195,7 @@ export class DhlExpressProvider implements ShippingRateProvider {
       })),
     };
 
-    const resp = await this.fetcher(`${DHL_BASE}/landed-cost`, {
+    const resp = await this.fetcher(`${this.base}/landed-cost`, {
       method: 'POST',
       headers: this.headers(),
       body: JSON.stringify(body),
@@ -292,7 +304,7 @@ export class DhlExpressProvider implements ShippingRateProvider {
       },
     };
 
-    const resp = await this.fetcher(`${DHL_BASE}/shipments`, {
+    const resp = await this.fetcher(`${this.base}/shipments`, {
       method: 'POST',
       headers: this.headers(),
       body: JSON.stringify(body),
