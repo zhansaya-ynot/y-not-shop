@@ -6,8 +6,13 @@ import { useCartStore } from '@/lib/stores/cart-store';
 import { formatPrice } from '@/lib/format';
 
 export function OrderSummaryCard() {
-  const items = useCartStore((s) => s.snapshot?.items ?? []);
-  const subtotalCents = useCartStore((s) => s.snapshot?.subtotalCents ?? 0);
+  // Read the snapshot directly. The `?? []` fallback can't live inside a
+  // zustand selector — every render returns a fresh empty-array reference,
+  // which zustand sees as a state change and triggers a re-render, which
+  // returns another fresh array, ad infinitum (React #185).
+  const snapshot = useCartStore((s) => s.snapshot);
+  const items = snapshot?.items ?? [];
+  const subtotalCents = snapshot?.subtotalCents ?? 0;
 
   return (
     <aside className="border border-border-light p-6 bg-surface-primary">

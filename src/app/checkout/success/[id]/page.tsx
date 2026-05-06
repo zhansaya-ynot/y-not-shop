@@ -6,6 +6,8 @@ import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { ClaimAccountForm } from '@/components/checkout/claim-account-form';
 import { formatPrice } from '@/lib/format';
+import { useCartStore } from '@/lib/stores/cart-store';
+import { useCheckoutStore } from '@/lib/stores/checkout-store';
 
 interface OrderView {
   id: string;
@@ -25,6 +27,17 @@ export default function CheckoutSuccessPage() {
   const orderId = (Array.isArray(params.id) ? params.id[0] : params.id) ?? '';
   const [order, setOrder] = React.useState<OrderView | null>(null);
   const [tries, setTries] = React.useState(0);
+  const clearCart = useCartStore((s) => s.clear);
+  const resetCheckout = useCheckoutStore((s) => s.reset);
+
+  // Clearing the cart + checkout-store on success means the next bag drawer
+  // open shows empty (matches reality — items just shipped) and re-opening
+  // /checkout/shipping won't pre-fill stale address data from the last buy.
+  // Server-side clear runs once; local store reset is fire-and-forget.
+  React.useEffect(() => {
+    clearCart();
+    resetCheckout();
+  }, [clearCart, resetCheckout]);
 
   React.useEffect(() => {
     let cancelled = false;
