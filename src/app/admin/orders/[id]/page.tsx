@@ -152,6 +152,14 @@ export default async function AdminOrderDetail({ params }: Params) {
             <h4 className="text-xs uppercase tracking-wider text-neutral-500">
               Fulfilment
             </h4>
+            {order.shipments.some((s) => s.labelStorageKey) && (
+              <Link
+                href={`/admin/orders/${order.id}/ship`}
+                className="inline-block px-3 py-2 text-xs uppercase tracking-wider rounded bg-neutral-900 text-white"
+              >
+                Print &amp; despatch
+              </Link>
+            )}
             <AdminActionButton
               endpoint={endpoint("retry-label")}
               disabled={!hasFailedShipment}
