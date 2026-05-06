@@ -14,8 +14,19 @@ export function CartDrawer() {
   const close = useCartStore((s) => s.closeDrawer);
   // Read snapshot as a whole to avoid creating new array references on each render
   const snapshot = useCartStore((s) => s.snapshot);
+  const hydrate = useCartStore((s) => s.hydrate);
   const removeItem = useCartStore((s) => s.removeItem);
   const setQuantity = useCartStore((s) => s.setQuantity);
+
+  // Hydrate from /api/cart on first mount and on every open. Without this,
+  // pages that don't run hydrate themselves (product, collection, home) show
+  // an "Your bag is empty" drawer even when the DB cart is non-empty.
+  React.useEffect(() => {
+    if (snapshot === null) hydrate();
+  }, [snapshot, hydrate]);
+  React.useEffect(() => {
+    if (isOpen) hydrate();
+  }, [isOpen, hydrate]);
 
   const items = snapshot?.items ?? [];
   const subtotalCents = snapshot?.subtotalCents ?? 0;
