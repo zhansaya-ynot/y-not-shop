@@ -256,12 +256,21 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
       </section>
 
       <div className="flex flex-wrap gap-4 border-t border-border-light pt-8">
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center bg-foreground-primary text-foreground-inverse px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-secondary transition-colors"
-        >
-          Continue shopping
-        </Link>
+        {order.status === "PENDING_PAYMENT" ? (
+          <Link
+            href="/checkout/payment"
+            className="inline-flex items-center justify-center bg-foreground-primary text-foreground-inverse px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-secondary transition-colors"
+          >
+            Resume payment
+          </Link>
+        ) : (
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center bg-foreground-primary text-foreground-inverse px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-secondary transition-colors"
+          >
+            Continue shopping
+          </Link>
+        )}
         <Link
           href="/account/orders"
           className="inline-flex items-center justify-center border border-border-dark px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-primary hover:text-foreground-inverse transition-colors"

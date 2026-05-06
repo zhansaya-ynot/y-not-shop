@@ -3,11 +3,16 @@ import { CartItemSchema } from "./cart";
 import { AddressSchema } from "./address";
 
 export const OrderStatusSchema = z.enum([
+  "pending_payment",
+  "payment_failed",
   "new",
   "processing",
+  "partially_shipped",
   "shipped",
+  "partially_delivered",
   "delivered",
   "returned",
+  "cancelled",
 ]);
 export type OrderStatus = z.infer<typeof OrderStatusSchema>;
 
