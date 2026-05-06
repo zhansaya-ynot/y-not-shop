@@ -67,8 +67,16 @@ export function CartDrawer() {
                   <div className="flex items-center justify-between">
                     <QuantityStepper
                       value={item.quantity}
-                      onChange={(q) => setQuantity(item.id, q)}
-                      min={1}
+                      onChange={(q) => {
+                        // Pressing − at qty=1 removes the line so the button
+                        // never feels dead — common pattern in checkout UIs.
+                        if (q < 1) {
+                          removeItem(item.id);
+                          return;
+                        }
+                        setQuantity(item.id, q);
+                      }}
+                      min={0}
                       // Pre-order items bypass the live stockAvailable cap
                       // (zero stock is allowed); cap at a generous 20.
                       max={item.isPreorder ? 20 : item.stockAvailable}
