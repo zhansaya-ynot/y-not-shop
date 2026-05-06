@@ -60,6 +60,10 @@ function AddressFormContent({ initial, onCancel, onSubmit }: AddressFormContentP
   const [country, setCountry] = React.useState(initial?.address.country ?? "GB");
   const [phone, setPhone] = React.useState(initial?.address.phone ?? "");
 
+  // Carriers reject non-Latin chars in name + address fields. Strip on input
+  // so the saved value is always carrier-printable.
+  const latinize = (s: string) => s.replace(/[^A-Za-z0-9 \-,./'#&()]/g, "");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!label || !firstName || !lastName || !line1 || !city || !postcode) return;
@@ -72,14 +76,17 @@ function AddressFormContent({ initial, onCancel, onSubmit }: AddressFormContentP
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <Input label="Label (Home, Work, etc.)" value={label} onChange={(e) => setLabel(e.target.value)} required />
+      <p className="text-[11px] text-foreground-secondary -mt-2">
+        Latin characters only — required by the courier.
+      </p>
       <div className="grid gap-5 md:grid-cols-2">
-        <Input label="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-        <Input label="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+        <Input label="First name" value={firstName} onChange={(e) => setFirstName(latinize(e.target.value))} required />
+        <Input label="Last name" value={lastName} onChange={(e) => setLastName(latinize(e.target.value))} required />
       </div>
-      <Input label="Street address" value={line1} onChange={(e) => setLine1(e.target.value)} required />
+      <Input label="Street address" value={line1} onChange={(e) => setLine1(latinize(e.target.value))} required />
       <div className="grid gap-5 md:grid-cols-3">
-        <Input label="City" value={city} onChange={(e) => setCity(e.target.value)} required />
-        <Input label="Postcode" value={postcode} onChange={(e) => setPostcode(e.target.value)} required />
+        <Input label="City" value={city} onChange={(e) => setCity(latinize(e.target.value))} required />
+        <Input label="Postcode" value={postcode} onChange={(e) => setPostcode(latinize(e.target.value))} required />
         <Select label="Country" value={country} onChange={setCountry} options={COUNTRIES} />
       </div>
       <PhoneInput label="Phone" value={phone} onChange={setPhone} />

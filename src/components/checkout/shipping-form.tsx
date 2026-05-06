@@ -130,6 +130,14 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
     onContinue();
   }
 
+  // Carriers (DHL Express, Royal Mail) reject non-ASCII characters in name +
+  // address lines — Cyrillic in particular returns "destination invalid". Strip
+  // anything that's not a Latin letter, digit, space or basic punctuation as
+  // the customer types so they always end up with a label-printable value.
+  function latinize(s: string): string {
+    return s.replace(/[^A-Za-z0-9 \-,./'#&()]/g, "");
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       <fieldset className="flex flex-col gap-6">
@@ -152,11 +160,15 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
         <legend className="text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground-secondary mb-2">
           Shipping information
         </legend>
+        <p className="text-[11px] text-foreground-secondary -mt-2">
+          Please enter your name and address in Latin characters — required by
+          the courier (DHL / Royal Mail).
+        </p>
         <div className="grid gap-6 md:grid-cols-2">
           <Input
             label="First name"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => setFirstName(latinize(e.target.value))}
             onBlur={handleBlur}
             autoComplete="given-name"
             required
@@ -164,7 +176,7 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
           <Input
             label="Last name"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => setLastName(latinize(e.target.value))}
             onBlur={handleBlur}
             autoComplete="family-name"
             required
@@ -174,7 +186,7 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
         <Input
           label="Street address"
           value={line1}
-          onChange={(e) => setLine1(e.target.value)}
+          onChange={(e) => setLine1(latinize(e.target.value))}
           onBlur={handleBlur}
           autoComplete="address-line1"
           required
@@ -182,14 +194,14 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
         <Input
           label="Apartment, suite, etc. (optional)"
           value={line2}
-          onChange={(e) => setLine2(e.target.value)}
+          onChange={(e) => setLine2(latinize(e.target.value))}
           autoComplete="address-line2"
         />
         <div className="grid gap-6 md:grid-cols-3">
           <Input
             label="City"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => setCity(latinize(e.target.value))}
             onBlur={handleBlur}
             autoComplete="address-level2"
             required
@@ -197,7 +209,7 @@ export function ShippingForm({ quote, selectedMethodId, onAddressBlur, onSelectM
           <Input
             label="Postcode"
             value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
+            onChange={(e) => setPostcode(latinize(e.target.value))}
             onBlur={handleBlur}
             autoComplete="postal-code"
             required
