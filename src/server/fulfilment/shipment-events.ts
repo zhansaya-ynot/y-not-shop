@@ -83,6 +83,35 @@ export async function enqueueOrderShippedEmail(opts: {
 }
 
 /**
+ * Enqueue the OrderDelivered email for a shipment that just landed at the
+ * customer's door. Mirrors enqueueOrderShippedEmail's dedup pattern.
+ */
+export async function enqueueOrderDeliveredEmail(opts: {
+  shipment: Shipment;
+}): Promise<boolean> {
+  const { shipment } = opts;
+  const order = await prisma.order.findUnique({
+    where: { id: shipment.orderId },
+    include: {
+      user: { select: { email: true } },
+    },
+  });
+  if (!order || !order.user?.email) return false;
+
+  await enqueueEmailJob({
+    template: 'OrderDelivered',
+    recipientEmail: order.user.email,
+    payload: {
+      orderNumber: order.orderNumber,
+      customerName: order.shipFirstName,
+    },
+    dispatchAt: new Date(),
+    dedupKey: `OrderDelivered:${shipment.id}`,
+  });
+  return true;
+}
+
+/**
  * Apply a manual tracking-status override.
  *
  * - `IN_TRANSIT` (or first-time event with `shippedAt = null`): sets
@@ -135,6 +164,11 @@ export async function applyManualShipmentStatus(
     await reconcileShipped(fresh.orderId);
   }
   if (status === 'DELIVERED') {
+    // Send delivered email only the first time deliveredAt was set this call —
+    // re-firing DELIVERED on an already-delivered shipment is a no-op.
+    if (!shipment.deliveredAt) {
+      await enqueueOrderDeliveredEmail({ shipment: fresh });
+    }
     await reconcileDelivered(fresh.orderId);
   }
 }
