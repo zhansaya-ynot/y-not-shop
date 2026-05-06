@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Select } from "@/components/ui/select";
 
 interface Shipment {
   id: string;
@@ -61,42 +62,37 @@ export function ManualLabelForm({ shipments }: { shipments: Shipment[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-2">
-      <label className="text-xs">
-        Shipment
-        <select
-          value={shipmentId}
-          onChange={(e) => setShipmentId(e.target.value)}
-          className="mt-1 w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-        >
-          {failed.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.carrier} · {s.id.slice(0, 8)}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="text-xs">
+    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <Select
+        label="Shipment"
+        value={shipmentId}
+        onChange={setShipmentId}
+        options={failed.map((s) => ({
+          value: s.id,
+          label: `${s.carrier} · ${s.id.slice(0, 8)}`,
+        }))}
+      />
+      <label className="flex flex-col gap-1 text-[11px] uppercase tracking-[0.2em] text-foreground-secondary">
         Tracking number
         <input
           value={trackingNumber}
           onChange={(e) => setTrackingNumber(e.target.value)}
-          className="mt-1 w-full border border-neutral-300 rounded px-2 py-1 text-sm"
+          className="border border-neutral-300 rounded px-2 py-1.5 text-sm normal-case tracking-normal text-foreground-primary"
         />
       </label>
-      <label className="text-xs">
+      <label className="flex flex-col gap-1 text-[11px] uppercase tracking-[0.2em] text-foreground-secondary">
         Label PDF
         <input
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="mt-1 w-full text-sm"
+          className="text-sm normal-case tracking-normal"
         />
       </label>
       <button
         type="submit"
         disabled={busy}
-        className="self-start px-3 py-1.5 text-xs uppercase tracking-wider rounded bg-neutral-900 text-white disabled:opacity-50"
+        className="self-start mt-1 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] rounded bg-foreground-primary text-foreground-inverse disabled:opacity-50"
       >
         {busy ? "Uploading…" : "Save manual label"}
       </button>

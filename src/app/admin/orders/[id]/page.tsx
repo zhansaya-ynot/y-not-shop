@@ -165,53 +165,59 @@ export default async function AdminOrderDetail({ params }: Params) {
         </ul>
       </section>
 
-      <section className="bg-white border border-neutral-200 rounded-lg p-5">
-        <h3 className="font-semibold mb-3">Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h4 className="text-xs uppercase tracking-wider text-neutral-500">
+      <section className="bg-white border border-neutral-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-5">Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="space-y-6">
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
               Fulfilment
             </h4>
-            {order.shipments.some((s) => s.labelStorageKey) && (
-              <Link
-                href={`/admin/orders/${order.id}/ship`}
-                className="inline-block px-3 py-2 text-xs uppercase tracking-wider rounded bg-neutral-900 text-white"
+            <div className="flex flex-wrap items-center gap-3">
+              {order.shipments.some((s) => s.labelStorageKey) && (
+                <Link
+                  href={`/admin/orders/${order.id}/ship`}
+                  className="px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] rounded bg-foreground-primary text-foreground-inverse"
+                >
+                  Print &amp; despatch
+                </Link>
+              )}
+              <AdminActionButton
+                endpoint={endpoint("retry-label")}
+                disabled={!hasFailedShipment}
               >
-                Print &amp; despatch
-              </Link>
-            )}
-            <AdminActionButton
-              endpoint={endpoint("retry-label")}
-              disabled={!hasFailedShipment}
-            >
-              Retry label
-            </AdminActionButton>
-            <div>
-              <h5 className="text-xs uppercase text-neutral-500 mb-1">
+                Retry label
+              </AdminActionButton>
+            </div>
+            <div className="space-y-2 border-t border-neutral-100 pt-5">
+              <h5 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
                 Manual label override
               </h5>
               <ManualLabelForm shipments={order.shipments} />
             </div>
-            <div>
-              <h5 className="text-xs uppercase text-neutral-500 mb-1">
+            <div className="space-y-2 border-t border-neutral-100 pt-5">
+              <h5 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
                 Update tracking
               </h5>
               <UpdateTrackingForm shipments={order.shipments} />
             </div>
-            <AdminActionButton
-              endpoint={endpoint("resend-tracking-email")}
-              disabled={!hasShippedShipment}
-            >
-              Resend tracking email
-            </AdminActionButton>
+            <div className="border-t border-neutral-100 pt-5">
+              <AdminActionButton
+                endpoint={endpoint("resend-tracking-email")}
+                disabled={!hasShippedShipment}
+              >
+                Resend tracking email
+              </AdminActionButton>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <h4 className="text-xs uppercase tracking-wider text-neutral-500">
+          <div className="space-y-6">
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
               Money &amp; lifecycle
             </h4>
-            <div>
-              <h5 className="text-xs uppercase text-neutral-500 mb-1">Partial refund</h5>
+            <div className="space-y-2">
+              <h5 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
+                Partial refund
+              </h5>
               <PartialRefundForm
                 items={order.items.map((i) => ({
                   id: i.id,
@@ -222,8 +228,10 @@ export default async function AdminOrderDetail({ params }: Params) {
                 }))}
               />
             </div>
-            <div>
-              <h5 className="text-xs uppercase text-neutral-500 mb-1">Cancel order</h5>
+            <div className="space-y-2 border-t border-neutral-100 pt-5">
+              <h5 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-500">
+                Cancel order
+              </h5>
               <CancelOrderForm
                 disabledReason={
                   isCancellable

@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Select } from "@/components/ui/select";
 
 interface Shipment {
   id: string;
@@ -59,43 +60,37 @@ export function UpdateTrackingForm({ shipments }: { shipments: Shipment[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap gap-2 items-end">
-      <label className="flex flex-col text-xs">
-        Shipment
-        <select
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
+      <div className="min-w-[200px] flex-1">
+        <Select
+          label="Shipment"
           value={shipmentId}
-          onChange={(e) => setShipmentId(e.target.value)}
-          className="mt-1 border border-neutral-300 rounded px-2 py-1"
-        >
-          {eligible.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.carrier} · {s.trackingNumber}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col text-xs">
-        Status
-        <select
+          onChange={setShipmentId}
+          options={eligible.map((s) => ({
+            value: s.id,
+            label: `${s.carrier} · ${s.trackingNumber}`,
+          }))}
+        />
+      </div>
+      <div className="min-w-[160px]">
+        <Select
+          label="Status"
           value={status}
-          onChange={(e) => setStatus(e.target.value as typeof STATUSES[number])}
-          className="mt-1 border border-neutral-300 rounded px-2 py-1"
-        >
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(v) => setStatus(v as typeof STATUSES[number])}
+          options={STATUSES.map((s) => ({
+            value: s,
+            label: s.replace(/_/g, " "),
+          }))}
+        />
+      </div>
       <button
         type="submit"
         disabled={busy}
-        className="px-3 py-1.5 text-xs uppercase tracking-wider rounded bg-neutral-900 text-white disabled:opacity-50"
+        className="px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] rounded bg-foreground-primary text-foreground-inverse disabled:opacity-50"
       >
         {busy ? "Saving…" : "Update"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="basis-full text-xs text-red-600">{error}</span>}
     </form>
   );
 }
