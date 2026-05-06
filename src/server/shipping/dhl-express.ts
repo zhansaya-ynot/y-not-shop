@@ -271,10 +271,25 @@ export class DhlExpressProvider implements ShippingRateProvider {
           contactInformation: {
             fullName: input.recipient.fullName,
             companyName: input.recipient.companyName ?? input.recipient.fullName,
-            email: input.recipient.email ?? '',
-            phone: input.recipient.phone ?? '',
+            // DHL validates email + phone — empty strings hit a "string [] does
+            // not match pattern" 422. Fall back to the shipper's contact so the
+            // payload is always well-formed; carrier still routes by address.
+            email: input.recipient.email && input.recipient.email.length > 0
+              ? input.recipient.email
+              : SHIPPER_CONTACT.email,
+            phone: input.recipient.phone && input.recipient.phone.length >= 5
+              ? input.recipient.phone
+              : SHIPPER_CONTACT.phone,
           },
         },
+      },
+      // DHL Express requires a `pickup` block whether or not we're scheduling
+      // a courier. `isRequested: false` says we'll drop off at a Service Point
+      // ourselves; the `closeTime` is needed by the schema validator regardless.
+      pickup: {
+        isRequested: false,
+        closeTime: '18:00',
+        location: 'reception',
       },
       content: {
         unitOfMeasurement: 'metric',
