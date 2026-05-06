@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { Select } from "../select";
 
 describe("Select", () => {
-  it("renders options and fires onChange", async () => {
+  it("opens the listbox and fires onChange when an option is picked", async () => {
     const onChange = vi.fn();
     render(
       <Select
@@ -17,10 +17,9 @@ describe("Select", () => {
         ]}
       />,
     );
-    await userEvent.selectOptions(
-      screen.getByLabelText("Country"),
-      "US",
-    );
+    // Now a button-driven combobox, not a native <select>: open it then click.
+    await userEvent.click(screen.getByLabelText("Country"));
+    await userEvent.click(screen.getByRole("option", { name: "United States" }));
     expect(onChange).toHaveBeenCalledWith("US");
   });
 });
