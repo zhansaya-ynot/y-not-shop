@@ -16,6 +16,26 @@ interface Params {
 
 const CANCELLABLE = ["NEW", "PROCESSING", "PARTIALLY_SHIPPED"];
 
+/** Human-readable reason the cancel button is disabled for a given status. */
+function disabledCancelReason(status: string): string {
+  switch (status) {
+    case "PENDING_PAYMENT":
+      return "Payment hasn't been captured yet — the order will auto-cancel if it doesn't complete.";
+    case "PAYMENT_FAILED":
+      return "Payment failed. There's nothing to cancel — let the customer retry on /checkout/resume.";
+    case "SHIPPED":
+    case "PARTIALLY_DELIVERED":
+    case "DELIVERED":
+      return "Parcel is already with the carrier — use the Returns flow to refund a delivered order.";
+    case "RETURNED":
+      return "Order was already returned and refunded.";
+    case "CANCELLED":
+      return "Already cancelled.";
+    default:
+      return `Cancel isn't available for status ${status}.`;
+  }
+}
+
 export default async function AdminOrderDetail({ params }: Params) {
   const { id } = await params;
   const order = await getForAdmin(id);
@@ -204,13 +224,13 @@ export default async function AdminOrderDetail({ params }: Params) {
             </div>
             <div>
               <h5 className="text-xs uppercase text-neutral-500 mb-1">Cancel order</h5>
-              {isCancellable ? (
-                <CancelOrderForm />
-              ) : (
-                <p className="text-xs text-neutral-500">
-                  Order in {order.status} — past the cancel window.
-                </p>
-              )}
+              <CancelOrderForm
+                disabledReason={
+                  isCancellable
+                    ? null
+                    : disabledCancelReason(order.status)
+                }
+              />
             </div>
           </div>
         </div>
