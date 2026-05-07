@@ -14,8 +14,10 @@ beforeEach(() => {
 });
 
 describe("MenuSidebar", () => {
-  it("renders categories when open", () => {
+  it("renders categories under Shop after expanding", async () => {
     render(<MenuSidebar categories={categories} />);
+    // Categories live under the collapsed Shop accordion — expand first.
+    await userEvent.click(screen.getByRole("button", { name: /shop/i }));
     expect(screen.getByRole("link", { name: "Jackets" })).toHaveAttribute(
       "href",
       "/collection/jackets",
@@ -28,6 +30,7 @@ describe("MenuSidebar", () => {
 
   it("closes when category link clicked", async () => {
     render(<MenuSidebar categories={categories} />);
+    await userEvent.click(screen.getByRole("button", { name: /shop/i }));
     await userEvent.click(screen.getByRole("link", { name: "Jackets" }));
     expect(useUIStore.getState().isMenuOpen).toBe(false);
   });
@@ -35,6 +38,6 @@ describe("MenuSidebar", () => {
   it("does not render when closed", () => {
     useUIStore.setState({ isMenuOpen: false });
     render(<MenuSidebar categories={categories} />);
-    expect(screen.queryByRole("link", { name: "Jackets" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /shop/i })).toBeNull();
   });
 });
