@@ -14,13 +14,14 @@ const WAREHOUSE = {
   phone: '+44 20 0000 0000',
 } as const;
 
-/** Royal Mail Tracked 48 (outbound). Click & Drop rejects bare 'TPN' with
- *  "Service code 'TPN' could not be found or it's not supported" — the
- *  delivery-time-suffixed variant TPN48 is the actual product code. */
-const SERVICE_CODE_TRACKED_48 = 'TPN48';
-/** Royal Mail Tracked Returns 48. Mirrors the suffixed convention above —
- *  bare 'TPS' fails the same way. */
-const SERVICE_CODE_TRACKED_RETURNS = 'TRM48';
+/** Royal Mail Tracked 48 (outbound parcel). Click & Drop service code per
+ *  the published integration list (TPN/TPN48 both rejected with "Service
+ *  code could not be found or it's not supported"). */
+const SERVICE_CODE_TRACKED_48 = 'TRN48';
+/** Royal Mail Tracked Returns 48. Speculative — if rejected the operator's
+ *  Click & Drop account → Settings → Integrations exposes a "View service
+ *  codes" panel with the canonical list for that subscription. */
+const SERVICE_CODE_TRACKED_RETURNS = 'TRR48';
 
 export interface RoyalMailClickDropConfig {
   apiKey: string;
