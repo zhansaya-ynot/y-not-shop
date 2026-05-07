@@ -99,7 +99,17 @@ jobs:
             export IMAGE_TAG="$IMAGE_TAG"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod run --rm app sh -c "npx prisma migrate deploy"
+            # Belt-and-braces: explicitly stop+remove so up -d cannot decide
+            # the container is already correct. Two prior deploys silently
+            # left old containers running despite --force-recreate (cause
+            # never identified — possibly compose comparing image digests
+            # via a mirror that lagged). Removing first guarantees recreate.
+            echo "==> stopping old app/worker containers if any"
+            docker rm -f ynot-app ynot-worker 2>/dev/null || true
+            echo "==> bringing up new containers (image tag: $IMAGE_TAG)"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d --no-deps --force-recreate --remove-orphans app ynot-worker caddy
+            echo "==> running containers:"
+            docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
             sleep 15
             curl -fsSL --max-time 10 http://localhost/api/health
             # Reclaim disk: every build pushes new layers; without prune the
