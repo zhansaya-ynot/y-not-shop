@@ -78,7 +78,7 @@ describe('RoyalMailClickDropProvider.createShipment', () => {
     expect(order.total).toBe(190);
     expect(order.shippingCostCharged).toBe(0);
     expect(order.currencyCode).toBe('GBP');
-    expect(order.postageDetails.serviceCode).toBe('TPN');
+    expect(order.postageDetails.serviceCode).toBe('TPN48');
     expect(order.orderLines[0].SKU).toBe('SHRT-OX-WHT-M');
     expect(order.orderLines[0].quantity).toBe(2);
     expect(order.orderLines[0].unitValue).toBe(95);
@@ -204,7 +204,7 @@ describe('RoyalMailClickDropProvider.createReturnLabel', () => {
     const [createUrl, createInit] = fetchMock.mock.calls[0]!;
     expect(createUrl).toBe('https://api.parcel.royalmail.com/api/v1/orders');
     const order = JSON.parse(createInit.body as string).items[0];
-    expect(order.postageDetails.serviceCode).toBe('TPS');
+    expect(order.postageDetails.serviceCode).toBe('TRM48');
     // warehouse becomes the recipient (parcel travels back to YNOT HQ)
     expect(order.recipient.address.postcode).toBe('SW7 5QG');
     expect(order.recipient.address.companyName).toBe('YNOT London');
