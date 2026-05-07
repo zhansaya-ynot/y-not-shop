@@ -98,7 +98,13 @@ jobs:
             git reset --hard origin/main
             export IMAGE_TAG="$IMAGE_TAG"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod run --rm app sh -c "npx prisma migrate deploy"
+            # `</dev/null` is mandatory: without it `compose run` attaches our
+            # heredoc stdin to the migrate container, which then eats every
+            # subsequent line of this script. That's why prior deploys silently
+            # stopped after migrate — rm/up/health check never ran, GHA reported
+            # success because set -e didn't trip, container kept running the
+            # previous image.
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod run --rm -T app sh -c "npx prisma migrate deploy" </dev/null
             # Belt-and-braces: explicitly stop+remove so up -d cannot decide
             # the container is already correct. Two prior deploys silently
             # left old containers running despite --force-recreate (cause
