@@ -273,7 +273,7 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
         )}
         {(order.status === "DELIVERED" || order.status === "PARTIALLY_DELIVERED") && (
           <Link
-            href="/initiate-return"
+            href={`/initiate-return?orderId=${encodeURIComponent(order.id)}`}
             className="inline-flex items-center justify-center border border-border-dark px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-primary hover:text-foreground-inverse transition-colors"
           >
             Request return

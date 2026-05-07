@@ -22,6 +22,7 @@ function InitiateReturnInner() {
   const router = useRouter();
   const params = useSearchParams();
   const step = (Number(params.get("step")) || 1) as 1 | 2 | 3;
+  const seedOrderId = params.get("orderId");
 
   const orderId = useReturnsStubStore((s) => s.orderId);
   const selectedItems = useReturnsStubStore((s) => s.selectedItems);
@@ -32,6 +33,16 @@ function InitiateReturnInner() {
 
   const [fetchedOrder, setFetchedOrder] = React.useState<Order | null>(null);
   const [findError, setFindError] = React.useState<string | undefined>();
+
+  // When the customer arrives from /account/orders/<id> we already know which
+  // order they want to return — auto-fill it and jump straight to step 2 so
+  // they don't have to retype the order number on a 3-step form.
+  React.useEffect(() => {
+    if (!seedOrderId || orderId === seedOrderId) return;
+    setOrder(seedOrderId);
+    router.replace("/initiate-return?step=2");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seedOrderId]);
 
   React.useEffect(() => {
     if (!orderId) return;
