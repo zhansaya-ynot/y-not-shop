@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { useCartStore } from '@/lib/stores/cart-store';
+import { useCheckoutStore } from '@/lib/stores/checkout-store';
 import { formatPrice } from '@/lib/format';
 
 export function OrderSummaryCard() {
@@ -17,6 +18,15 @@ export function OrderSummaryCard() {
   const promoCode = snapshot?.promo?.code ?? null;
   const applyPromo = useCartStore((s) => s.applyPromo);
   const removePromo = useCartStore((s) => s.removePromo);
+
+  // Pick up the shipping cost from the checkout store so /payment shows the
+  // actual line and the total reconciles with the Pay button. On /shipping
+  // (no method selected yet) we still render the 'Calculated at checkout'
+  // placeholder so the sidebar mirrors what the page can actually commit to.
+  const quote = useCheckoutStore((s) => s.quote);
+  const selectedMethodId = useCheckoutStore((s) => s.selectedMethodId);
+  const selectedMethod = quote?.methods.find((m) => m.methodId === selectedMethodId) ?? null;
+  const shippingCents = selectedMethod?.totalCents ?? null;
 
   const [code, setCode] = React.useState('');
   const [promoError, setPromoError] = React.useState<string | null>(null);
@@ -104,11 +114,17 @@ export function OrderSummaryCard() {
         )}
         <div className="flex justify-between">
           <span className="text-foreground-secondary">Shipping</span>
-          <span>Calculated at checkout</span>
+          <span>
+            {shippingCents === null
+              ? 'Calculated at checkout'
+              : shippingCents === 0
+                ? 'Free'
+                : formatPrice(shippingCents, 'GBP')}
+          </span>
         </div>
         <div className="flex justify-between border-t border-border-light pt-2 font-semibold">
           <span>Total</span>
-          <span>{formatPrice(subtotalCents - discountCents, 'GBP')}</span>
+          <span>{formatPrice(subtotalCents - discountCents + (shippingCents ?? 0), 'GBP')}</span>
         </div>
       </div>
     </aside>
