@@ -99,7 +99,7 @@ jobs:
             export IMAGE_TAG="$IMAGE_TAG"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod pull
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod run --rm app sh -c "npx prisma migrate deploy"
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d --no-deps --remove-orphans app ynot-worker caddy
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile prod up -d --no-deps --force-recreate --remove-orphans app ynot-worker caddy
             sleep 15
             curl -fsSL --max-time 10 http://localhost/api/health
             # Reclaim disk: every build pushes new layers; without prune the
