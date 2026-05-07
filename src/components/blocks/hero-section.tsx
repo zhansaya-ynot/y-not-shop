@@ -8,6 +8,12 @@ import type { HeroBlock } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { duration, ease } from "@/lib/motion";
 
+// 1×1 dark JPEG — paints instantly while the full hero decodes, kills the
+// flash-of-blank-screen on slow connections. Generated once with sharp at
+// build time; if the brand palette changes, regenerate to match.
+const HERO_BLUR_DATA_URL =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKpgD//Z";
+
 export function HeroSection({ hero }: { hero: HeroBlock }) {
   return (
     <section className="relative w-full block h-[100svh] min-h-[600px] overflow-hidden bg-surface-dark shrink-0">
@@ -26,7 +32,15 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
             alt=""
             fill
             priority
+            // fetchPriority="high" lets the browser kick off the request
+            // before our React JS even hydrates. Combined with `priority`
+            // it's the closest we can get to <link rel=preload> for
+            // dynamically-sourced hero art.
+            fetchPriority="high"
             sizes="100vw"
+            placeholder="blur"
+            blurDataURL={HERO_BLUR_DATA_URL}
+            quality={80}
             className="object-cover"
           />
         </motion.div>
