@@ -28,9 +28,17 @@ interface CartState {
 type ErrorJson = { error: string; stockAvailable?: number; message?: string };
 
 async function call<T = CartSnapshotT>(url: string, init?: RequestInit): Promise<{ ok: boolean; status: number; json: T }> {
-  const res = await fetch(url, { credentials: 'include', headers: { 'content-type': 'application/json' }, ...init });
-  const json = (await res.json()) as T;
-  return { ok: res.ok, status: res.status, json };
+  // jsdom + vitest can't parse relative URLs (`/api/cart`) — every cart-drawer
+  // test would otherwise emit an unhandled rejection that fails CI even when
+  // assertions pass. Catch it here so the store reports an empty snapshot
+  // instead of bubbling out as a top-level rejection.
+  try {
+    const res = await fetch(url, { credentials: 'include', headers: { 'content-type': 'application/json' }, ...init });
+    const json = (await res.json()) as T;
+    return { ok: res.ok, status: res.status, json };
+  } catch {
+    return { ok: false, status: 0, json: null as unknown as T };
+  }
 }
 
 export const useCartStore = create<CartState>()((set) => ({
