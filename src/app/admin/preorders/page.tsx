@@ -2,13 +2,39 @@ import * as React from "react";
 import Link from "next/link";
 import { prisma } from "@/server/db/client";
 import { ReleaseBatchButton } from "./_components/release-batch-button";
+import type { PreorderBatchStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPreordersPage() {
-  // Fetch all batches with item counts so the operator can see how big a
-  // release will be before they hit the button.
+const ACTIVE_STATUSES: PreorderBatchStatus[] = ["PENDING", "IN_PRODUCTION"];
+const SHIPPED_STATUSES: PreorderBatchStatus[] = ["SHIPPING", "COMPLETED"];
+
+interface PageProps {
+  searchParams?: Promise<{ view?: string }>;
+}
+
+/** Filter tabs at the top of /admin/preorders. Default 'active' so a batch
+ *  whose product was later flagged as in-stock (and therefore moved past
+ *  PENDING/IN_PRODUCTION) doesn't keep cluttering the operator's working
+ *  view. The historical batches remain accessible under the 'shipped' tab. */
+type View = "active" | "shipped" | "all";
+
+export default async function AdminPreordersPage({ searchParams }: PageProps) {
+  const params = (await searchParams) ?? {};
+  const view: View =
+    params.view === "shipped" || params.view === "all" ? params.view : "active";
+
+  const where =
+    view === "active"
+      ? { status: { in: ACTIVE_STATUSES } }
+      : view === "shipped"
+        ? { status: { in: SHIPPED_STATUSES } }
+        : {};
+
+  // Fetch batches matching the selected view with item counts so the operator
+  // can see how big a release will be before they hit the button.
   const batches = await prisma.preorderBatch.findMany({
+    where,
     orderBy: [{ status: "asc" }, { estimatedShipFrom: "asc" }],
     include: {
       product: { select: { id: true, name: true, slug: true } },
@@ -53,6 +79,29 @@ export default async function AdminPreordersPage() {
         </p>
       </div>
 
+      <div className="flex gap-1 mb-4 border-b border-neutral-200">
+        {(
+          [
+            { key: "active", label: "Active" },
+            { key: "shipped", label: "Shipping & completed" },
+            { key: "all", label: "All" },
+          ] as { key: View; label: string }[]
+        ).map((tab) => (
+          <Link
+            key={tab.key}
+            href={tab.key === "active" ? "/admin/preorders" : `/admin/preorders?view=${tab.key}`}
+            className={
+              "px-4 py-2 text-xs uppercase tracking-wider border-b-2 -mb-px " +
+              (view === tab.key
+                ? "border-foreground-primary text-foreground-primary font-semibold"
+                : "border-transparent text-neutral-500 hover:text-neutral-800")
+            }
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
+
       <div className="bg-white rounded-md border border-neutral-200 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-neutral-50 text-neutral-600 text-xs uppercase">
@@ -69,9 +118,11 @@ export default async function AdminPreordersPage() {
             {batches.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-3 py-8 text-center text-neutral-500">
-                  No preorder batches yet — they&rsquo;re created
-                  automatically the first time a customer adds a preorder
-                  product to their bag.
+                  {view === "active"
+                    ? "No active preorder batches. New batches appear here when a customer adds a preorder product to their bag."
+                    : view === "shipped"
+                      ? "No shipped or completed batches yet."
+                      : "No preorder batches yet."}
                 </td>
               </tr>
             )}
