@@ -45,3 +45,6 @@ next-env.d.ts
 # superpowers brainstorm scratch + isolated worktrees
 .superpowers/
 .worktrees/
+
+# Local drop folder for raw assets from operator desktop
+/_input/
