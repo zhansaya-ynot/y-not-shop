@@ -207,18 +207,39 @@ export class RoyalMailClickDropProvider {
    *  Click & Drop returns 400 'documentType parameter or property was not
    *  provided' if the query string is omitted; postageLabel is the shipping
    *  label, customsDeclaration is the CN23 (handled by our own renderer
-   *  for international returns, so we never request it from RM here). */
+   *  for international returns, so we never request it from RM here).
+   *
+   *  Throws {@link RoyalMailLabelApiUnavailableError} on HTTP 403 — basic
+   *  Click & Drop tiers don't grant programmatic label access; the operator
+   *  prints from the RM dashboard and uploads via Manual label override. */
   async getLabel(rmOrderId: string): Promise<Buffer> {
     const url = `${RM_BASE}/orders/${rmOrderId}/label?documentType=postageLabel&pageFormat=A4`;
     const resp = await this.fetcher(url, {
       method: 'GET',
       headers: { ...this.headers(false), Accept: 'application/pdf' },
     });
+    if (resp.status === 403) {
+      throw new RoyalMailLabelApiUnavailableError(rmOrderId);
+    }
     if (!resp.ok) {
       const err = await resp.text();
       throw new Error(`Royal Mail getLabel ${resp.status}: ${err}`);
     }
     return Buffer.from(await resp.arrayBuffer());
+  }
+}
+
+/** Thrown when GET /orders/:id/label returns 403 because the merchant's
+ *  Click & Drop tier doesn't include programmatic label access. carrier.ts
+ *  catches this specifically and surfaces a manual-print instruction to
+ *  the operator, instead of bubbling a generic 403 retry loop. */
+export class RoyalMailLabelApiUnavailableError extends Error {
+  constructor(public readonly rmOrderId: string) {
+    super(
+      `Royal Mail label API not enabled on this tier. RM order ID: ${rmOrderId}. ` +
+        'Print from https://business.parcel.royalmail.com → Orders, then upload via Manual label override.',
+    );
+    this.name = 'RoyalMailLabelApiUnavailableError';
   }
 }
 

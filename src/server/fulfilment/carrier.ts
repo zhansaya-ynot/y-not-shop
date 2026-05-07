@@ -1,7 +1,10 @@
 import { prisma } from '../db/client';
 import type { LabelStorage } from './label-storage';
 import type { DhlExpressProvider } from '../shipping/dhl-express';
-import type { RoyalMailClickDropProvider } from '../shipping/royal-mail-click-drop';
+import {
+  type RoyalMailClickDropProvider,
+  RoyalMailLabelApiUnavailableError,
+} from '../shipping/royal-mail-click-drop';
 import type {
   CreateShipmentInput,
   ShipmentParty,
@@ -111,7 +114,22 @@ export async function createShipmentForOrder(
   } else {
     const result = await deps.rm.createShipment(carrierInput);
     trackingNumber = result.trackingNumber;
-    labelBytes = await deps.rm.getLabel(result.rmOrderId);
+    try {
+      labelBytes = await deps.rm.getLabel(result.rmOrderId);
+    } catch (err) {
+      if (err instanceof RoyalMailLabelApiUnavailableError) {
+        // Basic Click & Drop tier — no programmatic label access. Save the
+        // RM order id (in the trackingNumber column for now; nothing else on
+        // Shipment is meant for it) so the operator can find it in the C&D
+        // dashboard, then re-throw so tryCreateShipment records the
+        // manual-print instruction in lastAttemptError.
+        await prisma.shipment.update({
+          where: { id: shipmentId },
+          data: { trackingNumber: result.rmOrderId },
+        });
+      }
+      throw err;
+    }
   }
 
   const labelKey = await deps.storage.put(shipment.id, labelBytes);
