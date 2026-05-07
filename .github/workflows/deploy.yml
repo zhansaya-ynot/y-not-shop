@@ -117,7 +117,12 @@ jobs:
             echo "==> running containers:"
             docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
             sleep 15
-            curl -fsSL --max-time 10 http://localhost/api/health
+            # Hit the app container directly instead of going through Caddy.
+            # Caddy 308-redirects port 80 → 443 and serves the staging.ynotlondon.com
+            # cert, which curl rejects when targeting localhost ("tlsv1 alert
+            # internal error"). Bypassing Caddy here checks the app process
+            # itself, which is what we actually care about post-deploy.
+            docker exec ynot-app curl -fs --max-time 10 http://localhost:3000/api/health
             # Reclaim disk: every build pushes ~2.7GB of new layers (app +
             # worker). Without aggressive prune the VPS hit 22GB used after
             # only 4 back-to-back deploys (each SHA-tagged pair is preserved).
