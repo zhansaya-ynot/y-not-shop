@@ -45,6 +45,12 @@ const EnvSchema = z.object({
   MEDIA_STORAGE: z.enum(['local', 's3', 'r2']).default('local'),
   MEDIA_STORAGE_PATH: z.string().default('/var/lib/ynot/media'),
   MEDIA_PUBLIC_BASE_URL: z.string().optional(),
+  // Phase 8 — trader identifiers for the CN23 customs declaration on
+  // international returns. Optional so dev/test envs without them keep
+  // parsing; when unset the corresponding line is omitted from the PDF.
+  YNOT_EORI: z.string().min(1).optional(),
+  YNOT_VAT: z.string().min(1).optional(),
+  YNOT_RETURNS_PHONE: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

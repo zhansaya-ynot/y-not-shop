@@ -1,5 +1,6 @@
 import { prisma } from '@/server/db/client';
 import { buildCustomsDeclaration } from '@/lib/pdf/customs';
+import { env } from '@/server/env';
 import type { LabelStorage } from '@/server/fulfilment/label-storage';
 
 const DEFAULT_ITEM_WEIGHT_GRAMS = 500;
@@ -54,13 +55,18 @@ export async function buildAndStoreCustomsDeclaration(
       city: ret.order.shipCity,
       postcode: ret.order.shipPostcode,
       country: ret.order.shipCountry,
+      phone: ret.order.shipPhone,
     },
     toAddress: {
       line1: RETURN_ADDRESS.line1,
       city: RETURN_ADDRESS.city,
       postcode: RETURN_ADDRESS.postcode,
       country: RETURN_ADDRESS.country,
+      phone: env.YNOT_RETURNS_PHONE ?? null,
     },
+    eori: env.YNOT_EORI ?? null,
+    vat: env.YNOT_VAT ?? null,
+    currency: ret.order.currency,
     items: ret.items.map((ri) => ({
       name: ri.orderItem.productName,
       quantity: ri.quantity,
