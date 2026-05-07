@@ -48,8 +48,12 @@ export const useCartStore = create<CartState>()((set) => ({
 
   async hydrate() {
     set({ isLoading: true });
-    const { json } = await call('/api/cart');
-    set({ snapshot: json, isLoading: false });
+    const { ok, json } = await call('/api/cart');
+    // Don't blow away an existing snapshot when the request fails (jsdom
+    // tests, transient network errors) — keep the last good cart visible
+    // and only update on a successful refetch.
+    if (ok) set({ snapshot: json, isLoading: false });
+    else set({ isLoading: false });
   },
 
   async addItem(input) {
