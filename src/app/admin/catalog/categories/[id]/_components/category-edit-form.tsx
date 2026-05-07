@@ -16,6 +16,7 @@ interface Props {
     slug: string;
     description: string;
     parentId: string | null;
+    bannerImage: string | null;
   };
   parentOptions: ParentOption[];
   /**
@@ -39,6 +40,7 @@ export function CategoryEditForm({
   const [slug, setSlug] = React.useState(initial.slug);
   const [description, setDescription] = React.useState(initial.description);
   const [parentId, setParentId] = React.useState<string>(initial.parentId ?? '');
+  const [bannerImage, setBannerImage] = React.useState<string>(initial.bannerImage ?? '');
   const illegalSet = React.useMemo(() => new Set(illegalParentIds), [illegalParentIds]);
   const cycleWarning = parentId !== '' && illegalSet.has(parentId);
 
@@ -62,6 +64,7 @@ export function CategoryEditForm({
           slug,
           description,
           parentId: parentId || null,
+          bannerImage: bannerImage.trim() || null,
         }),
       });
       if (res.status === 422) {
@@ -146,6 +149,27 @@ export function CategoryEditForm({
           rows={4}
           className="border border-neutral-300 rounded px-3 py-2"
         />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">Banner image URL</span>
+        <input
+          type="text"
+          value={bannerImage}
+          onChange={(e) => setBannerImage(e.target.value)}
+          placeholder="/cms/categories/jackets.jpg"
+          className="border border-neutral-300 rounded px-3 py-2"
+        />
+        <span className="text-[11px] text-neutral-500 mt-1">
+          Shown on the homepage Shop-by-Category grid. Upload elsewhere (Hero / Lookbook media manager) and paste the URL here.
+        </span>
+        {bannerImage.trim() && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={bannerImage}
+            alt="Banner preview"
+            className="mt-2 max-h-32 w-auto rounded border border-neutral-200"
+          />
+        )}
       </label>
       {error && <p className="text-sm text-red-700">{error}</p>}
       <div className="flex gap-3 mt-2">

@@ -13,6 +13,7 @@ const initial = {
   slug: 'outerwear',
   description: 'd',
   parentId: null as string | null,
+  bannerImage: null as string | null,
 };
 
 describe('<CategoryEditForm>', () => {

@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { useUIStore } from "@/lib/stores/ui-store";
-import { Accordion } from "@/components/ui/accordion";
 import logoWhite from "../../public/brand/ynot-logo-white.png";
 
 interface MenuCategory {
@@ -99,15 +98,21 @@ export function MenuSidebar({ categories }: MenuSidebarProps) {
         WebkitClipPath: "circle(0% at 32px 32px)",
       }}
     >
-      <div className="flex items-center justify-between px-6 py-5">
-        <Link href="/" onClick={close} className="relative block h-12 w-[110px]">
+      <div className="flex items-center justify-between px-6 py-6">
+        {/* Left-aligned wordmark, sized to match the menu items below it
+            so the logo and the first row sit on the same vertical edge. */}
+        <Link
+          href="/"
+          onClick={close}
+          className="relative block h-16 w-[160px] -ml-2"
+        >
           <Image
             src={logoWhite}
             alt="YNOT London"
             fill
-            sizes="110px"
+            sizes="160px"
             priority
-            className="object-contain"
+            className="object-contain object-left"
           />
         </Link>
         <button
@@ -134,58 +139,107 @@ function MenuLinks({
   categories: MenuCategory[];
   close: () => void;
 }) {
-  const linkClass =
-    "block py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-foreground-inverse hover:opacity-70 transition-opacity";
+  const [shopOpen, setShopOpen] = React.useState(false);
+  const rowClass =
+    "flex items-center justify-between py-4 text-[13px] font-semibold uppercase tracking-[0.15em] text-foreground-inverse hover:opacity-70 transition-opacity";
   const subLinkClass =
     "block py-2 text-[13px] text-foreground-inverse/70 hover:text-foreground-inverse transition-colors";
 
   return (
     <div className="border-t border-foreground-inverse/20">
-      <Accordion
-        items={[
-          {
-            value: "shop",
-            title: <span className="text-foreground-inverse">Shop</span>,
-            content: (
-              <div className="flex flex-col">
-                <Link href="/collection/jackets" onClick={close} className={subLinkClass}>
-                  All
-                </Link>
-                {categories.map((c) => (
-                  <Link
-                    key={c.slug}
-                    href={`/collection/${c.slug}`}
-                    onClick={close}
-                    className={subLinkClass}
-                  >
-                    {c.name}
-                  </Link>
-                ))}
-              </div>
-            ),
-          },
-        ]}
-      />
       <div className="border-b border-foreground-inverse/20">
-        <Link href="/our-story" onClick={close} className={linkClass}>
-          Our Story
-        </Link>
+        <button
+          type="button"
+          onClick={() => setShopOpen((v) => !v)}
+          aria-expanded={shopOpen}
+          className={rowClass + " w-full text-left"}
+        >
+          <span>Shop</span>
+          <svg
+            aria-hidden
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            className={"transition-transform duration-300 " + (shopOpen ? "rotate-180" : "")}
+          >
+            <path
+              d="M3 5l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <div
+          className={
+            "overflow-hidden transition-[max-height] duration-400 ease-out " +
+            (shopOpen ? "max-h-[600px]" : "max-h-0")
+          }
+        >
+          <div className="pb-3 pl-1">
+            <Link href="/collection/jackets" onClick={close} className={subLinkClass}>
+              All
+            </Link>
+            {categories.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/collection/${c.slug}`}
+                onClick={close}
+                className={subLinkClass}
+              >
+                {c.name}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="border-b border-foreground-inverse/20">
-        <Link href="/contact" onClick={close} className={linkClass}>
-          Contact
-        </Link>
-      </div>
-      <div className="border-b border-foreground-inverse/20">
-        <Link href="/shipping-returns" onClick={close} className={linkClass}>
-          Shipping &amp; Returns
-        </Link>
-      </div>
-      <div className="border-b border-foreground-inverse/20">
-        <Link href="/account" onClick={close} className={linkClass}>
-          Account
-        </Link>
-      </div>
+
+      <Row href="/our-story" onClick={close}>
+        Our Story
+      </Row>
+      <Row href="/contact" onClick={close}>
+        Contact
+      </Row>
+      <Row href="/shipping-returns" onClick={close}>
+        Shipping &amp; Returns
+      </Row>
+      <Row href="/account" onClick={close}>
+        Account
+      </Row>
+    </div>
+  );
+}
+
+function Row({
+  href,
+  onClick,
+  children,
+}: {
+  href: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-foreground-inverse/20">
+      <Link
+        href={href}
+        onClick={onClick}
+        className="flex items-center justify-between py-4 text-[13px] font-semibold uppercase tracking-[0.15em] text-foreground-inverse hover:opacity-70 transition-opacity"
+      >
+        <span>{children}</span>
+        <svg aria-hidden width="14" height="14" viewBox="0 0 14 14">
+          <path
+            d="M5 3l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
     </div>
   );
 }

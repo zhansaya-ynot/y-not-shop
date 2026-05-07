@@ -87,6 +87,7 @@ export default async function AdminCategoryEditPage({
           slug: category.slug,
           description: category.description,
           parentId: category.parentId,
+          bannerImage: category.bannerImage,
         }}
         parentOptions={options}
         illegalParentIds={Array.from(illegal)}

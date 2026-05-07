@@ -11,6 +11,9 @@ export const CategoryCreateSchema = z.object({
   slug: z.string().min(1).max(100).optional(),
   parentId: z.string().min(1).nullable().optional(),
   description: z.string().max(5000).default(''),
+  /** Optional URL/storage path for the category banner — surfaced on the
+   *  homepage Shop-by-Category grid. */
+  bannerImage: z.string().nullable().optional(),
 });
 
 export const CategoryUpdateSchema = CategoryCreateSchema.partial();
