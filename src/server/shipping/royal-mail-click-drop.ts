@@ -203,9 +203,14 @@ export class RoyalMailClickDropProvider {
     return { rmOrderId, labelPdfBytes };
   }
 
-  /** GET /orders/:id/label — binary PDF response. */
+  /** GET /orders/:id/label?documentType=postageLabel — binary PDF response.
+   *  Click & Drop returns 400 'documentType parameter or property was not
+   *  provided' if the query string is omitted; postageLabel is the shipping
+   *  label, customsDeclaration is the CN23 (handled by our own renderer
+   *  for international returns, so we never request it from RM here). */
   async getLabel(rmOrderId: string): Promise<Buffer> {
-    const resp = await this.fetcher(`${RM_BASE}/orders/${rmOrderId}/label`, {
+    const url = `${RM_BASE}/orders/${rmOrderId}/label?documentType=postageLabel&pageFormat=A4`;
+    const resp = await this.fetcher(url, {
       method: 'GET',
       headers: { ...this.headers(false), Accept: 'application/pdf' },
     });

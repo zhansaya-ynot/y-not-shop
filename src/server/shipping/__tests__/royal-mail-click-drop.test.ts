@@ -132,7 +132,7 @@ describe('RoyalMailClickDropProvider.getLabel', () => {
     expect(buf.equals(pdfBytes)).toBe(true);
 
     const [url, init] = fetchMock.mock.calls[0]!;
-    expect(url).toBe('https://api.parcel.royalmail.com/api/v1/orders/12345/label');
+    expect(url).toBe('https://api.parcel.royalmail.com/api/v1/orders/12345/label?documentType=postageLabel&pageFormat=A4');
     const headers = init.headers as Record<string, string>;
     expect(headers.Authorization).toBe('Bearer rm-key');
     expect(headers.Accept).toContain('application/pdf');
