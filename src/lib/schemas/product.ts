@@ -32,6 +32,14 @@ export const ProductSchema = z.object({
   categorySlugs: z.array(z.string()),
   stock: z.partialRecord(SizeSchema, z.number().int().nonnegative()),
   preOrder: z.boolean(),
+  /** True when the product has no size variants (sold as 'one size'). The
+   *  storefront skips the size picker and the cart records ONE_SIZE.
+   *  Optional for backwards-compat with older fixtures; treat undefined
+   *  as false. */
+  isOneSize: z.boolean().optional(),
+  /** URL/storage key for the uploaded size guide image — shown in a modal
+   *  triggered from the PDP "Size guide" link. */
+  sizeGuideImage: z.string().nullable().optional(),
   details: ProductDetailsSchema,
 });
 

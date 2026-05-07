@@ -15,6 +15,13 @@ export const ProductCreateSchema = z.object({
     .optional(),
   countryOfOriginCode: z.string().length(2).optional(),
   preOrder: z.boolean().default(false),
+  /** True for accessories / one-size pieces — disables size variant
+   *  enforcement on the storefront. Optional in the create payload (defaults
+   *  to false at the DB layer). */
+  isOneSize: z.boolean().optional(),
+  /** Optional URL or storage path for the size guide image shown in the
+   *  PDP modal. Empty string is normalised to null at the service layer. */
+  sizeGuideImage: z.string().nullable().optional(),
 });
 
 export const ProductUpdateSchema = ProductCreateSchema.partial().extend({

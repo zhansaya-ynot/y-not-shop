@@ -46,6 +46,8 @@ export async function createProduct(opts: CreateProductOptions) {
           hsCode: input.hsCode,
           countryOfOriginCode: input.countryOfOriginCode,
           preOrder: input.preOrder,
+          isOneSize: input.isOneSize,
+          sizeGuideImage: input.sizeGuideImage,
           status: 'DRAFT',
         },
       });
@@ -90,6 +92,8 @@ export async function updateProduct(opts: UpdateProductOptions) {
             hsCode: input.hsCode,
             countryOfOriginCode: input.countryOfOriginCode,
             preOrder: input.preOrder,
+            isOneSize: input.isOneSize,
+            sizeGuideImage: input.sizeGuideImage,
           },
         });
         // Re-link categories when explicitly provided. We treat undefined as

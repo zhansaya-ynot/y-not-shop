@@ -15,6 +15,8 @@ export interface ProductDetailsInitial {
   hsCode: string | null;
   countryOfOriginCode: string | null;
   preOrder: boolean;
+  isOneSize: boolean;
+  sizeGuideImage: string | null;
 }
 
 interface Props {
@@ -51,6 +53,8 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         care: state.care,
         sizing: state.sizing,
         preOrder: state.preOrder,
+        isOneSize: state.isOneSize,
+        sizeGuideImage: state.sizeGuideImage,
       };
       if (state.weightGrams) body.weightGrams = state.weightGrams;
       if (state.hsCode) body.hsCode = state.hsCode;
@@ -169,6 +173,26 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         />
         <span>Pre-order</span>
       </label>
+      <label className="flex items-center gap-2 text-sm md:col-span-2">
+        <input
+          type="checkbox"
+          checked={state.isOneSize}
+          onChange={(e) => update('isOneSize', e.target.checked)}
+        />
+        <span>One size — hide the size picker on this product</span>
+      </label>
+      <Field label="Size guide image URL" className="md:col-span-2">
+        <input
+          type="text"
+          value={state.sizeGuideImage ?? ''}
+          onChange={(e) => update('sizeGuideImage', e.target.value || null)}
+          placeholder="/cms/size-guides/jacket-fit.jpg"
+          className="border border-neutral-300 rounded px-3 py-2 w-full text-sm"
+        />
+        <p className="text-[11px] text-neutral-500 mt-1">
+          Upload the image elsewhere (e.g. via Hero / Lookbook media manager) and paste the URL or storage path here. The PDP shows a "Size guide" link on the size picker that opens this image in a modal.
+        </p>
+      </Field>
 
       <div className="md:col-span-2 flex items-center gap-3 mt-2">
         <button
@@ -188,12 +212,14 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
 function Field({
   label,
   children,
+  className,
 }: {
   label: string;
   children: React.ReactNode;
+  className?: string;
 }): React.ReactElement {
   return (
-    <label className="flex flex-col gap-1 text-sm">
+    <label className={"flex flex-col gap-1 text-sm" + (className ? " " + className : "")}>
       <span className="text-xs uppercase tracking-wider text-neutral-600">{label}</span>
       {children}
     </label>

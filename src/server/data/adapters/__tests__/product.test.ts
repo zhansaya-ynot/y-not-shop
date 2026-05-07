@@ -12,6 +12,8 @@ const fixture = {
   status: "PUBLISHED" as const,
   publishedAt: null as Date | null,
   preOrder: false,
+  isOneSize: false,
+  sizeGuideImage: null as string | null,
   materials: "Lamb leather",
   care: "Wipe with damp cloth",
   sizing: "True to size",

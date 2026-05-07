@@ -22,6 +22,8 @@ export function toProduct(row: ProductWithRelations): ZodProduct {
     categorySlugs: row.categories.map((c) => c.category.slug),
     stock,
     preOrder: row.preOrder,
+    isOneSize: row.isOneSize,
+    sizeGuideImage: row.sizeGuideImage,
     details: {
       materials: row.materials,
       care: row.care,

@@ -146,6 +146,13 @@ model Product {
   status      ProductStatus @default(DRAFT)
   publishedAt DateTime?
   preOrder    Boolean   @default(false)
+  /// Some pieces are sold without size selection (one-size accessories,
+  /// limited drops). When true the storefront hides the size picker and
+  /// there's a single implicit "ONE_SIZE" variant.
+  isOneSize   Boolean   @default(false)
+  /// Storage key (or absolute URL) of an uploaded size guide image. Shown
+  /// inside a modal triggered from the PDP "Size guide" link.
+  sizeGuideImage      String?
   materials   String
   care        String
   sizing      String

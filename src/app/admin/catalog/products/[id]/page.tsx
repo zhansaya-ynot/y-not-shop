@@ -100,6 +100,8 @@ export default async function AdminProductDetailPage({
             hsCode: product.hsCode,
             countryOfOriginCode: product.countryOfOriginCode,
             preOrder: product.preOrder,
+            isOneSize: product.isOneSize,
+            sizeGuideImage: product.sizeGuideImage,
           }}
         />
       </section>
