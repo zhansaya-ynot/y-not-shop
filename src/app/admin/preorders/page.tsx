@@ -43,6 +43,8 @@ export default async function AdminPreordersPage({ searchParams }: PageProps) {
   });
 
   // Per-batch: how many orders + how many of those are paid (NEW or later)
+  // + how many shipments still need a label (so the operator only sees the
+  // Retry button when retrying would actually do something).
   const orderCounts = await Promise.all(
     batches.map(async (b) => {
       const items = await prisma.orderItem.findMany({
@@ -55,7 +57,19 @@ export default async function AdminPreordersPage({ searchParams }: PageProps) {
           .filter((i) => i.order && i.order.status !== "PENDING_PAYMENT" && i.order.status !== "PAYMENT_FAILED")
           .map((i) => i.orderId),
       );
-      return { id: b.id, orders: orderIds.size, paid: paidOrderIds.size };
+      const pendingShipments = await prisma.shipment.count({
+        where: {
+          orderId: { in: Array.from(paidOrderIds) },
+          labelGeneratedAt: null,
+          cancelledAt: null,
+        },
+      });
+      return {
+        id: b.id,
+        orders: orderIds.size,
+        paid: paidOrderIds.size,
+        pendingShipments,
+      };
     }),
   );
   const countsById = new Map(orderCounts.map((c) => [c.id, c]));
@@ -128,15 +142,15 @@ export default async function AdminPreordersPage({ searchParams }: PageProps) {
             )}
             {batches.map((b) => {
               const c = countsById.get(b.id);
-              // We allow re-firing the release even when the batch is already
-              // SHIPPING — the underlying flow is idempotent (shipments with
-              // labelGeneratedAt skip), and previously-released batches that
-              // were missing Shipment rows (pre-backfill orders) need a way
-              // to actually generate labels now.
-              const releasable =
-                b.status === "PENDING" ||
-                b.status === "IN_PRODUCTION" ||
-                b.status === "SHIPPING";
+              // PENDING/IN_PRODUCTION batches are awaiting first release.
+              // SHIPPING batches only get a Retry button if they actually have
+              // shipments still missing a label — otherwise the action is just
+              // noise. COMPLETED batches are always closed.
+              const isFirstRelease =
+                b.status === "PENDING" || b.status === "IN_PRODUCTION";
+              const canRetry =
+                b.status === "SHIPPING" && (c?.pendingShipments ?? 0) > 0;
+              const releasable = isFirstRelease || canRetry;
               return (
                 <tr key={b.id} className="border-t border-neutral-100 hover:bg-neutral-50">
                   <td className="px-3 py-3 font-medium">{b.name}</td>
@@ -189,7 +203,11 @@ export default async function AdminPreordersPage({ searchParams }: PageProps) {
                       />
                     ) : (
                       <span className="text-[12px] text-neutral-500">
-                        Closed
+                        {b.status === "SHIPPING"
+                          ? "All labels ready"
+                          : b.status === "COMPLETED"
+                            ? "Done"
+                            : "Closed"}
                       </span>
                     )}
                   </td>
