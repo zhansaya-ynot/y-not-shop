@@ -32,8 +32,9 @@ export default async function Home() {
         <HeroSection hero={hero} />
         <FadeUpOnScroll>
           <BrandStatement
-            primary="Urban outerwear, built to endure."
-            secondary="Why not is not a question. It’s how she lives."
+            primary="Urban outerwear designed to move with you, for any occasion — from street to statement."
+            secondary="Why not."
+            tertiary="A way of living."
           />
         </FadeUpOnScroll>
         <FadeUpOnScroll>

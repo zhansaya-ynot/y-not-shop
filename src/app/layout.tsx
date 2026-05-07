@@ -33,12 +33,12 @@ export const metadata: Metadata = {
     template: "%s · YNOT London",
   },
   description:
-    "Urban outerwear, built to endure. Designed to be relied on. Premium women's outerwear from London.",
+    "Urban outerwear designed to move with you, for any occasion — from street to statement. Why not. A way of living.",
   openGraph: {
     type: "website",
     siteName: "YNOT London",
     title: "YNOT London",
-    description: "Urban outerwear, built to endure. Designed to be relied on.",
+    description: "Urban outerwear designed to move with you, for any occasion — from street to statement.",
     url: SITE_URL,
     images: [
       {
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "YNOT London",
-    description: "Urban outerwear, built to endure. Designed to be relied on.",
+    description: "Urban outerwear designed to move with you, for any occasion — from street to statement.",
     images: ["/cms/hero.jpg"],
   },
   robots: { index: true, follow: true },
