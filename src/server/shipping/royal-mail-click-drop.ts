@@ -40,11 +40,36 @@ interface RmCreatedOrder {
   trackingNumber?: string;
 }
 
+interface RmFailedOrderError {
+  errorCode?: string;
+  errorMessage?: string;
+  /** Click & Drop sometimes also embeds the offending field/value pair. */
+  fields?: unknown;
+}
+interface RmFailedOrder {
+  orderReference?: string;
+  errors?: RmFailedOrderError[];
+}
 interface RmCreateOrdersResponse {
   createdOrders?: RmCreatedOrder[];
-  failedOrders?: unknown[];
+  failedOrders?: RmFailedOrder[];
   errorsCount?: number;
   successCount?: number;
+}
+
+/** Flatten Click & Drop's failedOrders payload into a single human message. */
+function summariseRmFailures(failures: RmFailedOrder[] | undefined): string {
+  if (!failures?.length) return 'no createdOrders and no failedOrders payload';
+  return failures
+    .map((f) => {
+      const ref = f.orderReference ? `${f.orderReference}: ` : '';
+      const errs = (f.errors ?? [])
+        .map((e) => [e.errorCode, e.errorMessage].filter(Boolean).join(' '))
+        .filter((s) => s.length > 0)
+        .join('; ');
+      return `${ref}${errs || 'no error detail'}`;
+    })
+    .join(' | ');
 }
 
 /**
@@ -66,7 +91,11 @@ export class RoyalMailClickDropProvider {
 
   private headers(json = true): HeadersInit {
     const h: Record<string, string> = {
-      Authorization: `Bearer ${this.cfg.apiKey}`,
+      // Click & Drop API auth scheme is `ApiKey <key>`, not the OAuth-style
+       // `Bearer <key>` that most of our other carriers (DHL, Stripe) use.
+       // Sending Bearer returns HTTP 200 with every item silently moved into
+       // `failedOrders`, masking the auth failure as a payload validation error.
+      Authorization: `ApiKey ${this.cfg.apiKey}`,
       Accept: 'application/json',
     };
     if (json) h['Content-Type'] = 'application/json';
@@ -91,7 +120,9 @@ export class RoyalMailClickDropProvider {
     const data = (await resp.json()) as RmCreateOrdersResponse;
     const created = data.createdOrders?.[0];
     if (!created) {
-      throw new Error('Royal Mail createShipment returned no createdOrders');
+      throw new Error(
+        `Royal Mail createShipment returned no createdOrders — ${summariseRmFailures(data.failedOrders)}`,
+      );
     }
     if (!created.trackingNumber || created.orderIdentifier === undefined) {
       throw new Error('Royal Mail createShipment response missing trackingNumber/orderIdentifier');
@@ -144,7 +175,9 @@ export class RoyalMailClickDropProvider {
     const data = (await resp.json()) as RmCreateOrdersResponse;
     const created = data.createdOrders?.[0];
     if (!created || created.orderIdentifier === undefined) {
-      throw new Error('Royal Mail createReturnLabel returned no createdOrders');
+      throw new Error(
+        `Royal Mail createReturnLabel returned no createdOrders — ${summariseRmFailures(data.failedOrders)}`,
+      );
     }
     const rmOrderId = String(created.orderIdentifier);
     const labelPdfBytes = await this.getLabel(rmOrderId);

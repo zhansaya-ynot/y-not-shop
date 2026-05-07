@@ -62,7 +62,7 @@ describe('RoyalMailClickDropProvider.createShipment', () => {
     expect(url).toBe('https://api.parcel.royalmail.com/api/v1/orders');
     expect(init.method).toBe('POST');
     const headers = init.headers as Record<string, string>;
-    expect(headers.Authorization).toBe('Bearer rm-key-xyz');
+    expect(headers.Authorization).toBe('ApiKey rm-key-xyz');
     expect(headers['Content-Type']).toBe('application/json');
 
     const body = JSON.parse(init.body as string);
@@ -134,7 +134,7 @@ describe('RoyalMailClickDropProvider.getLabel', () => {
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe('https://api.parcel.royalmail.com/api/v1/orders/12345/label');
     const headers = init.headers as Record<string, string>;
-    expect(headers.Authorization).toBe('Bearer rm-key');
+    expect(headers.Authorization).toBe('ApiKey rm-key');
     expect(headers.Accept).toContain('application/pdf');
   });
 
