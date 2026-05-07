@@ -47,6 +47,9 @@ export default function ShippingReturnsPage() {
                         UK shipping is free via Royal Mail. Worldwide DHL is charged at standard rates calculated at checkout. Orders are dispatched from our London warehouse within 1–2 business days.
                       </p>
                       <ShippingTable rows={ROWS} />
+                      <p className="text-[15px] text-foreground-primary max-w-[640px]">
+                        For pre-orders, please allow an extra 3 weeks on top of the standard delivery time. We&rsquo;ll email you as soon as your item ships.
+                      </p>
                     </div>
                   ),
                 },

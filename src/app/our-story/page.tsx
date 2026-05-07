@@ -37,10 +37,19 @@ export default function OurStoryPage() {
           <Container size="narrow">
             <div className="flex flex-col gap-6 text-[16px] leading-relaxed text-foreground-primary">
               <p>
-                YNOT London was born from a simple belief: outerwear should be as resilient as the women who wear it. Our name carries a quiet philosophy — why not live boldly, dress intentionally, and choose pieces that endure.
+                Previously known as Ynot Fashion — an online multi-brand clothing store — we&rsquo;ve rebranded as YNOT LONDON, marking an exciting new chapter in our journey.
               </p>
               <p>
-                Every silhouette in our collection is engineered for movement, designed for everyday wear, and constructed to last beyond a single season. We work with materials chosen for their character — leather that softens, wool that insulates, cotton that breathes — and finish each piece with hardware made to outlive trends.
+                Throughout the year, our team developed a luxury outerwear collection that blends style, functionality and sustainability with timeless designs and contemporary innovations. Every piece is designed in London and produced between London and Istanbul.
+              </p>
+              <p>
+                The collection features timeless silhouettes in seasonal colours with versatile styling options. Excellent craftsmanship, weather-resistant materials and unisex pieces sit at the heart of the line.
+              </p>
+              <p>
+                <strong>Materials &amp; production standards.</strong> Our outerwear uses premium-quality materials, including vegetable-tanned leather sourced from Gold-rated suppliers of first-class raw materials. Leather outerwear is produced with zero leather waste — a commitment to sustainability built into the way we cut and pattern every piece.
+              </p>
+              <p>
+                <strong>Featured pieces.</strong> Our lookbook showcases four signatures: the Lia Suede Bomber, Zoe Wool Coat, Tia Leather Bomber and Noa Leather Jacket.
               </p>
             </div>
           </Container>
@@ -58,7 +67,7 @@ export default function OurStoryPage() {
         <Section padding="lg">
           <Container size="wide">
             <PullQuote
-              quote="Urban outerwear, built to endure."
+              quote="Urban outerwear designed to move with you, for any occasion — from street to statement."
               attribution="YNOT London"
             />
           </Container>
