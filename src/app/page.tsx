@@ -8,14 +8,30 @@ import { ProductsRow } from "@/components/blocks/products-row";
 import { EditorialOverlay } from "@/components/blocks/editorial-overlay";
 import { LookbookCarousel } from "@/components/blocks/lookbook-carousel";
 import { FadeUpOnScroll } from "@/components/blocks/fade-up-on-scroll";
+import { ShopByCategory } from "@/components/blocks/shop-by-category";
+import { NewsletterSignup } from "@/components/blocks/newsletter-signup";
 import { getHero, getLookbook } from "@/server/data/content";
 import { getNewArrivals } from "@/server/data/products";
+import { prisma } from "@/server/db/client";
+
+async function getTopLevelCategories() {
+  // Top-level categories only (no parent), excluding soft-deleted, sorted
+  // by sortOrder then name. The Category model has no isActive flag — we
+  // treat 'not deleted' as visible.
+  return prisma.category.findMany({
+    where: { deletedAt: null, parentId: null },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    take: 8,
+    select: { slug: true, name: true, bannerImage: true },
+  });
+}
 
 export default async function Home() {
-  const [hero, lookbook, newArrivals] = await Promise.all([
+  const [hero, lookbook, newArrivals, categories] = await Promise.all([
     getHero(),
     getLookbook(),
     getNewArrivals(4),
+    getTopLevelCategories(),
   ]);
 
   const timelessImage = "/cms/timeless.jpg";
@@ -38,10 +54,12 @@ export default async function Home() {
           />
         </FadeUpOnScroll>
         <FadeUpOnScroll>
-          <ProductsRow
-            title="New Arrivals"
-            products={newArrivals}
-            ctaHref="/collection/jackets"
+          <ShopByCategory
+            items={categories.map((c) => ({
+              slug: c.slug,
+              name: c.name,
+              bannerImage: c.bannerImage,
+            }))}
           />
         </FadeUpOnScroll>
         <FadeUpOnScroll>
@@ -54,8 +72,23 @@ export default async function Home() {
           />
         </FadeUpOnScroll>
         <FadeUpOnScroll>
-          <LookbookCarousel lookbook={lookbook} />
+          <ProductsRow
+            title="New Arrivals"
+            products={newArrivals}
+            ctaHref="/collection/jackets"
+          />
         </FadeUpOnScroll>
+        {/* Lookbook + newsletter only on tablet+ — mobile design (per
+            ynot.pen) intentionally omits both blocks to keep the homepage
+            short on phone screens. */}
+        <div className="hidden md:block">
+          <FadeUpOnScroll>
+            <LookbookCarousel lookbook={lookbook} />
+          </FadeUpOnScroll>
+          <FadeUpOnScroll>
+            <NewsletterSignup />
+          </FadeUpOnScroll>
+        </div>
       </main>
 
       <SiteFooter />
