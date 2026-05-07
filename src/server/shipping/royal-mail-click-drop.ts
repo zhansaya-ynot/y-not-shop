@@ -137,11 +137,17 @@ export class RoyalMailClickDropProvider {
         `Royal Mail createShipment returned no createdOrders — ${summariseRmFailures(data.failedOrders)}`,
       );
     }
-    if (!created.trackingNumber || created.orderIdentifier === undefined) {
-      throw new Error('Royal Mail createShipment response missing trackingNumber/orderIdentifier');
+    if (created.orderIdentifier === undefined) {
+      throw new Error(
+        `Royal Mail createShipment response missing orderIdentifier (raw: ${JSON.stringify(created).slice(0, 200)})`,
+      );
     }
+    // Click & Drop assigns the trackingNumber when the order is "manifested"
+    // (label generated). The initial POST /orders response can come back with
+    // trackingNumber=null and that's fine — we save the rmOrderId now and
+    // fetch tracking later via GET /orders/<id> after the label is created.
     return {
-      trackingNumber: created.trackingNumber,
+      trackingNumber: created.trackingNumber ?? '',
       rmOrderId: String(created.orderIdentifier),
     };
   }
