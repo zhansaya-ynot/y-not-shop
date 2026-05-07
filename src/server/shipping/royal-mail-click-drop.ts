@@ -91,11 +91,14 @@ export class RoyalMailClickDropProvider {
 
   private headers(json = true): HeadersInit {
     const h: Record<string, string> = {
-      // Click & Drop API auth scheme is `ApiKey <key>`, not the OAuth-style
-       // `Bearer <key>` that most of our other carriers (DHL, Stripe) use.
-       // Sending Bearer returns HTTP 200 with every item silently moved into
-       // `failedOrders`, masking the auth failure as a payload validation error.
-      Authorization: `ApiKey ${this.cfg.apiKey}`,
+      // Click & Drop accepts `Bearer <key>` — confirmed against the live API
+      // (the alternative `ApiKey <key>` scheme returns HTTP 401). When the
+      // request is authenticated but the order payload fails validation,
+      // the API still returns HTTP 200 with createdOrders=[] and the per-
+      // item failure detail under failedOrders. summariseRmFailures (below)
+      // surfaces those errors so the operator sees the real reason instead
+      // of a generic 'no createdOrders' string.
+      Authorization: `Bearer ${this.cfg.apiKey}`,
       Accept: 'application/json',
     };
     if (json) h['Content-Type'] = 'application/json';
