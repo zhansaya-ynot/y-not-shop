@@ -112,11 +112,14 @@ jobs:
             docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
             sleep 15
             curl -fsSL --max-time 10 http://localhost/api/health
-            # Reclaim disk: every build pushes new layers; without prune the
-            # 1GB+ images stack up (one shop owner saw the VPS hit 100% disk
-            # after ~30 deploys and Postgres panicked on checkpoint write).
-            # `prune -af` removes images not referenced by any container,
-            # which after the up -d above means everything except the just-
-            # deployed :latest tag. Volumes are explicitly excluded.
-            docker image prune -af --filter "until=24h" || true
+            # Reclaim disk: every build pushes ~2.7GB of new layers (app +
+            # worker). Without aggressive prune the VPS hit 22GB used after
+            # only 4 back-to-back deploys (each SHA-tagged pair is preserved).
+            # `prune -af` (no until filter) removes every image not referenced
+            # by a running container — that's the previous deploy's :latest +
+            # any SHA-tagged copies. Rollback to a previous version is still
+            # possible via `git revert` + redeploy; we never roll back by
+            # docker-tag-pinning, so retaining old tags has zero value.
+            # Volumes are explicitly excluded.
+            docker image prune -af || true
           EOF
