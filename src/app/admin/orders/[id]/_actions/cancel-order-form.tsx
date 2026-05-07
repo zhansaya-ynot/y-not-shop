@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 
 /**
  * Two-step cancel: reason input → confirm → POST /cancel.
@@ -21,6 +22,7 @@ export interface CancelOrderFormProps {
 
 export function CancelOrderForm({ disabledReason }: CancelOrderFormProps = {}) {
   const router = useRouter();
+  const toast = useToast();
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -54,6 +56,7 @@ export function CancelOrderForm({ disabledReason }: CancelOrderFormProps = {}) {
         return;
       }
       setConfirmOpen(false);
+      toast.show("Order cancelled and refund issued.");
       router.refresh();
     } finally {
       setBusy(false);

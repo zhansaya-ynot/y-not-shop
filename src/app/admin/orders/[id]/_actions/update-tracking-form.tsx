@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
 
 interface Shipment {
   id: string;
@@ -24,6 +25,7 @@ const STATUSES = [
  */
 export function UpdateTrackingForm({ shipments }: { shipments: Shipment[] }) {
   const router = useRouter();
+  const toast = useToast();
   const eligible = shipments.filter((s) => s.shippedAt && s.trackingNumber);
   const [shipmentId, setShipmentId] = React.useState(eligible[0]?.id ?? "");
   const [status, setStatus] = React.useState<typeof STATUSES[number]>("DELIVERED");
@@ -53,6 +55,7 @@ export function UpdateTrackingForm({ shipments }: { shipments: Shipment[] }) {
         setError((await res.text().catch(() => "")) || `Failed (${res.status})`);
         return;
       }
+      toast.show(`Tracking updated to ${status.replace(/_/g, " ").toLowerCase()}.`);
       router.refresh();
     } finally {
       setBusy(false);

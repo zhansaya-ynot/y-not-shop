@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Select } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
 
 interface Shipment {
   id: string;
@@ -18,6 +19,7 @@ interface Shipment {
  */
 export function ManualLabelForm({ shipments }: { shipments: Shipment[] }) {
   const router = useRouter();
+  const toast = useToast();
   const failed = shipments.filter((s) => !s.labelGeneratedAt);
   const [shipmentId, setShipmentId] = React.useState(failed[0]?.id ?? "");
   const [trackingNumber, setTrackingNumber] = React.useState("");
@@ -55,6 +57,7 @@ export function ManualLabelForm({ shipments }: { shipments: Shipment[] }) {
         setError((await res.text().catch(() => "")) || `Failed (${res.status})`);
         return;
       }
+      toast.show("Manual label saved.");
       router.refresh();
     } finally {
       setBusy(false);

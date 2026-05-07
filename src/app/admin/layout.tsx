@@ -5,6 +5,7 @@ import { getSessionUser } from "@/server/auth/session";
 import { isAdminRole } from "@/server/auth/admin";
 import { AdminSignOutButton } from "./_components/sign-out-button";
 import { NAV_SECTIONS } from "./_components/nav-sections";
+import { AdminShell } from "./_components/admin-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function AdminLayout({
   // Nested layouts must NOT render <html>/<body> — only the root layout owns
   // those. Returning a div here keeps the root font/style chain intact.
   return (
+    <AdminShell>
     <div className="flex min-h-screen bg-neutral-50 text-neutral-900">
       {/* Sticky sidebar that scrolls independently of the main column. With
          all nav sections expanded the user/sign-out block was sliding below
@@ -67,5 +69,6 @@ export default async function AdminLayout({
       </aside>
       <main className="flex-1 px-8 py-8 overflow-x-auto">{children}</main>
     </div>
+    </AdminShell>
   );
 }

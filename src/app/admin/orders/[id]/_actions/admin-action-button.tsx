@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/toast";
 
 export interface AdminActionButtonProps {
   /** POST endpoint relative to the site root. */
@@ -15,6 +16,8 @@ export interface AdminActionButtonProps {
   className?: string;
   /** Disable the button altogether (e.g. invalid state). */
   disabled?: boolean;
+  /** Toast text on success. Defaults to "Done." */
+  successToast?: string;
 }
 
 /**
@@ -35,8 +38,10 @@ export function AdminActionButton({
   confirmText,
   className,
   disabled,
+  successToast = "Done.",
 }: AdminActionButtonProps) {
   const router = useRouter();
+  const toast = useToast();
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -55,6 +60,7 @@ export function AdminActionButton({
         setError(text || `Request failed (${res.status})`);
         return;
       }
+      toast.show(successToast);
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
