@@ -21,11 +21,13 @@ export function CartDrawer() {
   // Hydrate from /api/cart on first mount and on every open. Without this,
   // pages that don't run hydrate themselves (product, collection, home) show
   // an "Your bag is empty" drawer even when the DB cart is non-empty.
+  // Swallow errors so the drawer keeps rendering in environments where
+  // fetch can't resolve a relative URL (vitest jsdom, SSR pre-hydrate).
   React.useEffect(() => {
-    if (snapshot === null) hydrate();
+    if (snapshot === null) hydrate().catch(() => {});
   }, [snapshot, hydrate]);
   React.useEffect(() => {
-    if (isOpen) hydrate();
+    if (isOpen) hydrate().catch(() => {});
   }, [isOpen, hydrate]);
 
   const items = snapshot?.items ?? [];

@@ -16,6 +16,12 @@ interface Params {
 
 const CANCELLABLE = ["NEW", "PROCESSING", "PARTIALLY_SHIPPED"];
 
+const PENDING_RETURN_STATUSES = new Set([
+  "REQUESTED",
+  "AWAITING_PARCEL",
+  "RECEIVED",
+]);
+
 /** Human-readable reason the cancel button is disabled for a given status. */
 function disabledCancelReason(status: string): string {
   switch (status) {
@@ -45,6 +51,9 @@ export default async function AdminOrderDetail({ params }: Params) {
   const hasShippedShipment = order.shipments.some((s) => s.shippedAt);
   const isCancellable = CANCELLABLE.includes(order.status);
   const endpoint = (suffix: string) => `/api/admin/orders/${order.id}/${suffix}`;
+  const pendingReturn = order.returns.find((r) =>
+    PENDING_RETURN_STATUSES.has(r.status),
+  );
 
   return (
     <div className="space-y-6">
@@ -65,6 +74,27 @@ export default async function AdminOrderDetail({ params }: Params) {
           Print &amp; despatch
         </Link>
       </div>
+
+      {pendingReturn && (
+        <div className="border border-amber-300 bg-amber-50 rounded-lg p-4 flex items-start gap-3">
+          <span className="text-amber-700 text-lg leading-none mt-0.5">●</span>
+          <div className="flex-1 text-sm">
+            <p className="font-semibold text-amber-900">
+              Customer requested a return — {pendingReturn.returnNumber}
+            </p>
+            <p className="text-amber-800 mt-1">
+              Status: {pendingReturn.status.replace(/_/g, " ").toLowerCase()}
+              {pendingReturn.reasonCategory ? ` · Reason: ${pendingReturn.reasonCategory}` : ""}
+            </p>
+            <Link
+              href={`/admin/returns/${pendingReturn.id}`}
+              className="inline-block mt-2 text-xs uppercase tracking-wider underline text-amber-900"
+            >
+              Open return →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <section className="bg-white border border-neutral-200 rounded-lg p-5">
         <h3 className="font-semibold mb-3">Customer</h3>
@@ -258,6 +288,45 @@ export default async function AdminOrderDetail({ params }: Params) {
           ))}
         </ul>
       </section>
+
+      {order.returns.length > 0 && (
+        <section className="bg-white border border-neutral-200 rounded-lg p-5">
+          <h3 className="font-semibold mb-3">Returns</h3>
+          <ul className="space-y-3 text-sm">
+            {order.returns.map((r) => (
+              <li
+                key={r.id}
+                className="border border-neutral-100 rounded p-3 flex flex-col gap-2"
+              >
+                <div className="flex justify-between items-baseline">
+                  <Link
+                    href={`/admin/returns/${r.id}`}
+                    className="font-medium underline"
+                  >
+                    {r.returnNumber}
+                  </Link>
+                  <span className="text-xs uppercase tracking-wider text-neutral-600">
+                    {r.status.replace(/_/g, " ").toLowerCase()}
+                  </span>
+                </div>
+                <ul className="text-xs text-neutral-600">
+                  {r.items.map((ri) => (
+                    <li key={ri.id}>
+                      {ri.orderItem.productName} · {ri.orderItem.size} · qty {ri.quantity}
+                    </li>
+                  ))}
+                </ul>
+                {r.reason && (
+                  <p className="text-xs text-neutral-600">Reason: {r.reason}</p>
+                )}
+                <span className="text-xs text-neutral-500">
+                  Requested {new Date(r.createdAt).toISOString().slice(0, 16).replace("T", " ")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {order.refundEvents.length > 0 && (
         <section className="bg-white border border-neutral-200 rounded-lg p-5">

@@ -47,7 +47,25 @@ export type OrderForCustomer = {
     note: string | null;
     createdAt: Date;
   }>;
+  returns: Array<{
+    id: string;
+    returnNumber: string;
+    status: string;
+    reason: string | null;
+    createdAt: Date;
+    items: Array<{
+      id: string;
+      quantity: number;
+      orderItem: { productName: string; size: string };
+    }>;
+  }>;
 };
+
+const PENDING_RETURN_STATUSES = new Set([
+  "REQUESTED",
+  "AWAITING_PARCEL",
+  "RECEIVED",
+]);
 
 const eventDateFormat = (d: Date) =>
   new Date(d).toLocaleDateString("en-GB", {
@@ -70,6 +88,10 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
     month: "long",
     year: "numeric",
   });
+
+  const pendingReturn = order.returns.find((r) =>
+    PENDING_RETURN_STATUSES.has(r.status),
+  );
 
   return (
     <div className="flex flex-col gap-12">
@@ -232,6 +254,41 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
         )}
       </section>
 
+      {order.returns.length > 0 && (
+        <section>
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground-secondary mb-4">
+            Returns
+          </h2>
+          <ul className="flex flex-col gap-4">
+            {order.returns.map((r) => (
+              <li
+                key={r.id}
+                className="border border-border-light p-4 flex flex-col gap-2 text-[13px]"
+              >
+                <div className="flex justify-between items-baseline">
+                  <p className="font-medium">Return #{r.returnNumber}</p>
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-foreground-secondary">
+                    {statusLabel(r.status)}
+                  </span>
+                </div>
+                <ul className="text-[12px] text-foreground-secondary">
+                  {r.items.map((ri) => (
+                    <li key={ri.id}>
+                      {ri.orderItem.productName} · Size {ri.orderItem.size} · Qty {ri.quantity}
+                    </li>
+                  ))}
+                </ul>
+                {r.status === "AWAITING_PARCEL" && (
+                  <p className="text-[12px] text-foreground-secondary">
+                    Instructions emailed — please post the parcel by the date in your email.
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="grid gap-12 md:grid-cols-2">
         <div>
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground-secondary mb-4">
@@ -271,7 +328,7 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
             Continue shopping
           </Link>
         )}
-        {(order.status === "DELIVERED" || order.status === "PARTIALLY_DELIVERED") && (
+        {(order.status === "DELIVERED" || order.status === "PARTIALLY_DELIVERED") && !pendingReturn && (
           <Link
             href={`/initiate-return?orderId=${encodeURIComponent(order.orderNumber)}`}
             className="inline-flex items-center justify-center border border-border-dark px-8 py-3 text-[12px] font-semibold uppercase tracking-[0.2em] hover:bg-foreground-primary hover:text-foreground-inverse transition-colors"

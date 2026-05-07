@@ -4,6 +4,8 @@ import type {
   OrderItem,
   OrderStatusEvent,
   Prisma,
+  Return,
+  ReturnItem,
   Shipment,
 } from "@prisma/client";
 import { prisma } from "@/server/db/client";
@@ -16,12 +18,17 @@ const include = {
   items: { orderBy: { id: "asc" } },
   shipments: { orderBy: { createdAt: "asc" } },
   events: { orderBy: { createdAt: "asc" } },
+  returns: {
+    orderBy: { createdAt: "desc" },
+    include: { items: { include: { orderItem: true } } },
+  },
 } satisfies Prisma.OrderInclude;
 
 export type CustomerOrderDetail = Order & {
   items: OrderItem[];
   shipments: Shipment[];
   events: OrderStatusEvent[];
+  returns: Array<Return & { items: Array<ReturnItem & { orderItem: OrderItem }> }>;
 };
 
 /**

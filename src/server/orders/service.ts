@@ -169,7 +169,10 @@ export async function getForAdmin(orderId: string) {
       payment: true,
       events: { orderBy: { createdAt: 'asc' } },
       refundEvents: { orderBy: { createdAt: 'asc' } },
-      returns: { include: { items: true } },
+      returns: {
+        orderBy: { createdAt: 'desc' },
+        include: { items: { include: { orderItem: true } } },
+      },
       user: { select: { id: true, email: true, name: true } },
     },
   });

@@ -62,6 +62,7 @@ function buildOrder(overrides: Partial<OrderForCustomer> = {}): OrderForCustomer
         createdAt: new Date("2026-04-30T12:00:00Z"),
       },
     ],
+    returns: [],
     ...overrides,
   };
 }
