@@ -14,13 +14,15 @@
 4. [Order detail — карточка заказа](#4-order-detail--карточка-заказа)
 5. [Royal Mail: manual label flow](#5-royal-mail-manual-label-flow)
 6. [Returns — возвраты](#6-returns--возвраты)
-7. [Catalog — Products](#7-catalog--products)
-8. [Catalog — Categories](#8-catalog--categories)
-9. [Content (CMS)](#9-content-cms)
-10. [Marketing — Promo codes](#10-marketing--promo-codes)
-11. [Shipping — Zones](#11-shipping--zones)
-12. [Shipping — Preorder batches](#12-shipping--preorder-batches)
-13. [Если что-то пошло не так](#13-если-что-то-пошло-не-так)
+7. [Customers — клиенты](#7-customers--клиенты)
+8. [Catalog — Products](#8-catalog--products)
+9. [Catalog — Categories](#9-catalog--categories)
+10. [Catalog — Inventory](#10-catalog--inventory)
+11. [Content (CMS)](#11-content-cms)
+12. [Marketing — Promo codes](#12-marketing--promo-codes)
+13. [Shipping — Zones](#13-shipping--zones)
+14. [Shipping — Preorder batches](#14-shipping--preorder-batches)
+15. [Если что-то пошло не так](#15-если-что-то-пошло-не-так)
 
 ---
 
@@ -37,18 +39,32 @@ password" пока не реализована).
 
 ## 2. Dashboard (Overview)
 
-`/admin` — главная страница админки. Показывает основные метрики:
+`/admin` — главная страница админки, твой "первый экран дня".
 
-- Выручка за сегодня / неделю / месяц
-- Количество заказов (за те же периоды)
-- Средний чек (AOV)
-- Последние 10 заказов — клик ведёт на карточку
-- Топ-5 товаров месяца по выручке
-- Outstanding shipments — заказы без сгенерированного label, с которыми
-  нужно работать
+### KPI tiles (верхний ряд, 7 плиток)
 
-Это твой "первый экран дня" — здесь сразу видно сколько новых заказов,
-что нужно отправить.
+| Плитка | Что показывает |
+|---|---|
+| **Revenue today** | Сумма выручки за сегодня (UTC) |
+| **Revenue this week** | За текущую неделю (с понедельника) |
+| **Revenue this month** | За текущий месяц |
+| **Orders today** | Кол-во заказов сегодня |
+| **Orders this week** | Кол-во за неделю |
+| **AOV (this month)** | Средний чек за месяц = revenue / orders |
+| **Outstanding shipments** | Заказы оплачены но не отправлены — клик ведёт на `/admin/orders?status=NEW` |
+
+Выручка считается **только по оплаченным** заказам (исключая `CANCELLED`,
+`PAYMENT_FAILED`, `PENDING_PAYMENT`).
+
+### Recent orders (10 последних)
+
+Список последних 10 заказов. Колонки: order #, customer, total, status,
+дата. Клик ведёт на `/admin/orders/[id]`.
+
+### Top products this month (топ-5)
+
+Самые продаваемые товары текущего месяца по выручке. Помогает понять что
+сейчас "горит".
 
 ---
 
@@ -187,7 +203,44 @@ labels (~£5–10/мес сверху). Тогда шаги 2 и 3 не нужн
 
 ---
 
-## 7. Catalog — Products
+## 7. Customers — клиенты
+
+`/admin/customers` — список всех клиентов магазина.
+
+### Список
+
+Колонки: name, email, role (CUSTOMER / ADMIN / OWNER), # orders, lifetime
+spend, joined date, last order date.
+
+Фильтры (real-time, без кнопки Filter):
+
+| Фильтр | Что делает |
+|---|---|
+| Search | Поиск по имени или email |
+| Role | Фильтр по роли |
+| Hide guests | Скрыть guest-checkout без зарегистрированного аккаунта |
+
+Lifetime spend считается **без** учёта `CANCELLED`, `PAYMENT_FAILED`,
+`PENDING_PAYMENT` — это реальные деньги от клиента.
+
+### Карточка клиента (`/admin/customers/[id]`)
+
+- **Имя, email, role badge, guest indicator** (если `isGuest: true`)
+- **Stats card row** (4 плитки):
+  - Total orders
+  - Lifetime spend
+  - Average order value
+  - Returns count
+- **Order history** — таблица всех заказов клиента, клик ведёт на `/admin/orders/[id]`
+- **Address book** — все адреса доставки, по которым клиент когда-либо
+  получал заказы (deduplicated по line1+postcode)
+
+Используй когда клиент пишет "не пришла посылка" / "сделай скидку как
+лояльному" — сразу видишь его историю.
+
+---
+
+## 8. Catalog — Products
 
 `/admin/catalog/products` — список товаров. Колонки: photo, name, slug,
 status, price.
@@ -218,7 +271,7 @@ status, price.
 
 ---
 
-## 8. Catalog — Categories
+## 9. Catalog — Categories
 
 `/admin/catalog/categories` — категории навигации (Outerwear, Knitwear и т.д.).
 
@@ -232,7 +285,44 @@ status, price.
 
 ---
 
-## 9. Content (CMS)
+## 10. Catalog — Inventory
+
+`/admin/inventory` — bulk-управление stock'ом по всем variant'ам без захода
+в каждую карточку товара.
+
+### Сетка
+
+Каждая строка = один variant (product × size).
+Колонки: photo, product name, size, current stock, low-stock badge.
+
+**Low-stock badge** появляется когда stock ≤ 5 — оранжевый pill, чтобы
+сразу видеть что заканчивается.
+
+### Inline-edit stock
+
+1. Кликни на число в колонке Stock → поле становится editable
+2. Введи новое значение → Tab / Enter / клик вне поля → автосохранение
+3. Toast подтверждает: "Stock updated to N"
+4. Esc — отменить редактирование
+
+Защита: отрицательные числа и не-целые значения отбиваются на сервере с
+ошибкой (toast красный).
+
+### Фильтры
+
+- **Search** — по имени продукта
+- **Show only low stock** — показать только варианты ≤ 5
+
+### Когда использовать
+
+- Понедельник утром: Open inventory + filter "low stock" → составить
+  заявку на пополнение
+- Получили партию товара: открыть один раз и проставить новые stock
+  числа списком, без переходов между карточками продуктов
+
+---
+
+## 11. Content (CMS)
 
 Управление статическим контентом сайта. Сохранение через "Save" в каждой
 секции — после save изменения сразу на сайте.
@@ -247,7 +337,7 @@ status, price.
 
 ---
 
-## 10. Marketing — Promo codes
+## 12. Marketing — Promo codes
 
 `/admin/marketing/promos` — управление промокодами.
 
@@ -265,7 +355,7 @@ status, price.
 
 ---
 
-## 11. Shipping — Zones
+## 13. Shipping — Zones
 
 `/admin/shipping/zones` — управление зонами доставки.
 
@@ -280,7 +370,7 @@ status, price.
 
 ---
 
-## 12. Shipping — Preorder batches
+## 14. Shipping — Preorder batches
 
 `/admin/preorders` — управление партиями pre-order товаров.
 
@@ -304,7 +394,7 @@ status, price.
 
 ---
 
-## 13. Если что-то пошло не так
+## 15. Если что-то пошло не так
 
 ### Сайт не открывается
 1. Зайди на [Cloudflare](https://dash.cloudflare.com) → DNS — проверь что A-record указывает на `13.135.247.31`
