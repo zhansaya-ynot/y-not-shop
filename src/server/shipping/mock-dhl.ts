@@ -36,20 +36,27 @@ export class MockDhlProvider implements MultiQuoteShippingProvider {
     const region = resolveRegion(req.destination.countryCode);
     const row = RATE_TABLE[region];
     const dutiesCents = Math.round(req.subtotalCents * row.dutyRate);
-    // Find the DHL method whose zone covers the destination country. Original
-    // implementation looked for a wildcard `'*'` zone, but the seed creates
-    // explicit per-country zones (UK, EU, Worldwide), so the wildcard match
-    // returned null and no DHL quotes ever reached the storefront.
-    const method = await prisma.shippingMethod.findFirst({
-      where: {
-        carrier: 'DHL',
-        isActive: true,
-        zone: {
+    // Find the DHL method whose zone covers the destination country. The
+    // production seed uses explicit ISO-2 codes (UK, EU, Worldwide); test
+    // fixtures still use a single wildcard zone (`countries: ['*']`). Match
+    // either by trying the destination ISO first, then falling back to the
+    // wildcard so both layouts work.
+    const upper = req.destination.countryCode.toUpperCase();
+    const method =
+      (await prisma.shippingMethod.findFirst({
+        where: {
+          carrier: 'DHL',
           isActive: true,
-          countries: { has: req.destination.countryCode.toUpperCase() },
+          zone: { isActive: true, countries: { has: upper } },
         },
-      },
-    });
+      })) ??
+      (await prisma.shippingMethod.findFirst({
+        where: {
+          carrier: 'DHL',
+          isActive: true,
+          zone: { isActive: true, countries: { has: '*' } },
+        },
+      }));
     if (!method) return [];
     return [{
       methodId: method.id,

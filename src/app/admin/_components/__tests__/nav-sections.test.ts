@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { NAV_SECTIONS } from '../nav-sections';
 
 describe('admin sidebar NAV_SECTIONS', () => {
-  it('groups links into the five operator domains', () => {
+  it('groups links into the operator domains', () => {
     const headings = NAV_SECTIONS.map((s) => s.heading);
     expect(headings).toEqual([
       'DASHBOARD',
@@ -10,6 +10,7 @@ describe('admin sidebar NAV_SECTIONS', () => {
       'CATALOG',
       'CONTENT',
       'MARKETING',
+      'SHIPPING',
     ]);
   });
 

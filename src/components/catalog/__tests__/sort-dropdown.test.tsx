@@ -12,17 +12,20 @@ vi.mock("next/navigation", () => ({
 
 import { SortDropdown } from "../sort-dropdown";
 
+// Sort component uses our custom Select combobox (button + listbox), not a
+// native <select>, so userEvent.selectOptions doesn't apply. Drive it with
+// click + click-on-option just like a real user.
 describe("SortDropdown", () => {
-  it("renders default Newest", () => {
+  it("renders default Newest in the trigger", () => {
     render(<SortDropdown />);
-    expect(screen.getByLabelText(/sort/i)).toHaveValue("newest");
+    expect(screen.getByRole("combobox", { name: /sort/i })).toHaveTextContent(/newest/i);
   });
   it("calls router.push when changed", async () => {
     pushMock.mockClear();
     render(<SortDropdown />);
-    await userEvent.selectOptions(
-      screen.getByLabelText(/sort/i),
-      "price-asc",
+    await userEvent.click(screen.getByRole("combobox", { name: /sort/i }));
+    await userEvent.click(
+      screen.getByRole("option", { name: "Price: low to high" }),
     );
     expect(pushMock).toHaveBeenCalled();
     expect(pushMock.mock.calls[0][0]).toContain("sort=price-asc");

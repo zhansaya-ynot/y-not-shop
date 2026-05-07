@@ -7,7 +7,7 @@ import {
   createUserCart,
   type CartClient,
 } from '@/server/repositories/cart.repo';
-import { assignItemToBatch } from '@/server/preorders/service';
+import { assignItemToBatchOrCreate } from '@/server/preorders/service';
 import type { CartSnapshotT, CartItemSnapshotT, AddItemRequestT } from '@/lib/schemas/cart';
 
 export interface CartIdentity {
@@ -149,7 +149,7 @@ export async function addItem(
 
     let preorderBatchId: string | null = null;
     if (treatAsPreorder) {
-      preorderBatchId = await assignItemToBatch(input.productId, tx);
+      preorderBatchId = await assignItemToBatchOrCreate(input.productId, tx);
     }
 
     if (existingItem) {

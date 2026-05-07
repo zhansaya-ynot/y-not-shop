@@ -41,23 +41,36 @@ export async function assignItemToBatch(
     orderBy: { estimatedShipFrom: 'asc' },
     select: { id: true },
   });
-  if (batch) return batch.id;
+  return batch?.id ?? null;
+}
 
-  // No active batch yet — create a default PENDING one so the order has a
-  // home. Operator can later edit the dates / capacity in /admin (TODO Group
-  // M). Without this auto-create, every preorder line lands with
-  // preorderBatchId=null, the shipment splitter drops it, and the order
-  // shows "No shipments yet" forever even after payment.
+/**
+ * Like {@link assignItemToBatch}, but auto-creates a default PENDING batch
+ * (4-week lead, 2-week window) when no active one exists. Used by the cart
+ * `addItem` path so customers always land in a batch even when the operator
+ * hasn't configured one in /admin/preorders yet.
+ *
+ * Splitter relies on every preorder OrderItem having a non-null
+ * `preorderBatchId`, otherwise the Shipment never gets created and the
+ * order shows "No shipments yet" indefinitely after payment.
+ */
+export async function assignItemToBatchOrCreate(
+  productId: string,
+  client: AssignBatchClient = prisma,
+): Promise<string> {
+  const existing = await assignItemToBatch(productId, client);
+  if (existing) return existing;
+
   const now = new Date();
   const ship = new Date(now);
-  ship.setDate(ship.getDate() + 28); // 4-week default lead time
+  ship.setDate(ship.getDate() + 28);
   const created = await client.preorderBatch.create({
     data: {
       name: `Auto batch ${now.toISOString().slice(0, 10)}`,
       productId,
       status: 'PENDING',
       estimatedShipFrom: ship,
-      estimatedShipTo: new Date(ship.getTime() + 14 * 86_400_000), // +2 weeks window
+      estimatedShipTo: new Date(ship.getTime() + 14 * 86_400_000),
     },
     select: { id: true },
   });

@@ -84,6 +84,11 @@ jobs:
             set -euo pipefail
             # Login to ghcr.io so pulls work whether packages are public or private.
             echo "$GHCR_PAT" | docker login ghcr.io -u zhansaya-ynot --password-stdin
+            # Git refuses to operate on a repo whose ownership doesn't match
+            # the current user — happens when the working tree was last
+            # touched as a different account during VPS bootstrap. Whitelist
+            # /srv/ynot so the deploy fetch always succeeds.
+            git config --global --add safe.directory /srv/ynot
             cd /srv/ynot
             git fetch origin main
             git reset --hard origin/main
