@@ -7,12 +7,7 @@ import { motion } from "motion/react";
 import type { HeroBlock } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { duration, ease } from "@/lib/motion";
-
-// 1×1 dark JPEG — paints instantly while the full hero decodes, kills the
-// flash-of-blank-screen on slow connections. Generated once with sharp at
-// build time; if the brand palette changes, regenerate to match.
-const HERO_BLUR_DATA_URL =
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKpgD//Z";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 
 export function HeroSection({ hero }: { hero: HeroBlock }) {
   return (
@@ -39,7 +34,7 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
             fetchPriority="high"
             sizes="100vw"
             placeholder="blur"
-            blurDataURL={HERO_BLUR_DATA_URL}
+            blurDataURL={BLUR_DARK}
             quality={80}
             className="object-cover"
           />

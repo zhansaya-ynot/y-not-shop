@@ -1,6 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Display } from "@/components/ui/typography";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 
 export interface CategoryHeaderProps {
   title: string;
@@ -21,7 +22,11 @@ export function CategoryHeader({
           alt=""
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
+          placeholder="blur"
+          blurDataURL={BLUR_DARK}
+          quality={80}
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />

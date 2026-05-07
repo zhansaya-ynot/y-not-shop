@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
@@ -43,6 +44,9 @@ export function ProductCard({
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
           priority={priority}
+          placeholder="blur"
+          blurDataURL={BLUR_DARK}
+          quality={75}
           className={cn(
             "object-cover transition-opacity duration-500",
             hoverImage && "group-hover:opacity-0",
@@ -55,6 +59,10 @@ export function ProductCard({
             aria-hidden
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            placeholder="blur"
+            blurDataURL={BLUR_DARK}
+            quality={75}
+            loading="lazy"
             className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           />
         )}

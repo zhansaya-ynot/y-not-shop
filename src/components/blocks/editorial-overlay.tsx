@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Display } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 
 export interface EditorialOverlayProps {
   title: string;
@@ -30,6 +31,9 @@ export function EditorialOverlay({
         alt=""
         fill
         sizes="100vw"
+        placeholder="blur"
+        blurDataURL={BLUR_DARK}
+        quality={80}
         className="object-cover"
       />
       <div className="absolute inset-0 bg-black/40" />

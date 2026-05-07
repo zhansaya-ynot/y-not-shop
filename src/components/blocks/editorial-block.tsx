@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 import Link from "next/link";
 import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
@@ -37,6 +38,9 @@ export function EditorialBlock({
               alt={title}
               fill
               sizes="(min-width: 768px) 50vw, 100vw"
+              placeholder="blur"
+              blurDataURL={BLUR_DARK}
+              quality={80}
               className="object-cover"
             />
           </div>

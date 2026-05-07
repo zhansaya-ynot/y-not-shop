@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 import Link from "next/link";
 import type { Lookbook } from "@/lib/schemas";
 import { Section } from "@/components/ui/section";
@@ -31,6 +32,10 @@ export function LookbookCarousel({
                   alt={img.alt}
                   fill
                   sizes="(min-width: 768px) 480px, 80vw"
+                  placeholder="blur"
+                  blurDataURL={BLUR_DARK}
+                  quality={75}
+                  loading="lazy"
                   className="object-cover"
                 />
               </div>

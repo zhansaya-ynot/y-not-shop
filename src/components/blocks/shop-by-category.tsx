@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
 import { Display, Eyebrow } from "@/components/ui/typography";
+import { BLUR_DARK } from "@/lib/image-placeholders";
 
 export interface ShopByCategoryItem {
   slug: string;
@@ -50,6 +51,9 @@ export function ShopByCategory({ items, eyebrow, heading }: ShopByCategoryProps)
                     alt={item.name}
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                    placeholder="blur"
+                    blurDataURL={BLUR_DARK}
+                    quality={75}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : null}
