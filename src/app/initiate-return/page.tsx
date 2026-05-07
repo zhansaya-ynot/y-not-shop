@@ -15,7 +15,7 @@ import { FindOrderForm } from "@/components/returns/find-order-form";
 import { ReturnItemsSelector } from "@/components/returns/return-items-selector";
 import { ReturnSubmit } from "@/components/returns/return-submit";
 import { useReturnsStubStore } from "@/lib/stores/returns-stub-store";
-import { getOrderById } from "@/server/data/orders";
+import { findOrderForReturn } from "./_actions";
 import type { Order } from "@/lib/schemas";
 
 function InitiateReturnInner() {
@@ -47,7 +47,7 @@ function InitiateReturnInner() {
   React.useEffect(() => {
     if (!orderId) return;
     let active = true;
-    getOrderById(orderId).then((o) => {
+    findOrderForReturn(orderId).then((o) => {
       if (active) setFetchedOrder(o);
     });
     return () => {
@@ -59,7 +59,7 @@ function InitiateReturnInner() {
   const order = fetchedOrder && fetchedOrder.id === orderId ? fetchedOrder : null;
 
   const handleFind = async (orderNumber: string, _contact: string) => {
-    const found = await getOrderById(orderNumber);
+    const found = await findOrderForReturn(orderNumber);
     if (!found) {
       setFindError("We couldn't find an order with those details.");
       return;
