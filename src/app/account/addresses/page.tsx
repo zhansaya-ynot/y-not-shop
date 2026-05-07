@@ -35,6 +35,10 @@ export default function AccountAddressesPage() {
   }, []);
 
   React.useEffect(() => {
+    // load() flips setLoading/setAddresses inside an effect — that's the whole
+    // point (fetch on mount, render result). The new lint rule can't see past
+    // the async wrapper.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 

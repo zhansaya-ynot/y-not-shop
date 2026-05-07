@@ -58,10 +58,16 @@ export function Select({
     return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  // When opening, scroll the highlighted (or selected) option into view.
+  // When the dropdown opens, snap the highlight to the currently-selected
+  // option (or 0). The lint rule react-hooks/set-state-in-effect would
+  // prefer a ref/derived approach but neither fits — highlight is also
+  // mutated by hover + arrow-key handlers and must remain real state. The
+  // open→true transition is rare (one click) so the synchronous setState
+  // here is fine.
   React.useEffect(() => {
     if (!open) return;
     const selectedIdx = options.findIndex((o) => o.value === value);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlight(selectedIdx >= 0 ? selectedIdx : 0);
   }, [open, options, value]);
 
