@@ -66,6 +66,7 @@ export default function CheckoutPaymentPage() {
               clientSecret={order.clientSecret}
               orderId={order.orderId}
               totalLabel={totalLabel}
+              shippingAddress={address ?? null}
             />}
             {!order && !error && <p>Preparing payment…</p>}
           </div>
