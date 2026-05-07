@@ -18,6 +18,13 @@ const EnvSchema = z.object({
   // them keep parsing; required wiring is enforced at the carrier-provider
   // boundary in Group F.
   ROYAL_MAIL_API_KEY: z.string().min(1).optional(),
+  // Click & Drop service codes vary per merchant subscription tier — what
+  // each account has access to is shown in their "Manual order entry"
+  // postage dropdown. Defaults are informed guesses; override via
+  // /etc/ynot/secrets.env without a code change once the operator confirms
+  // their tier's actual codes.
+  ROYAL_MAIL_SERVICE_CODE: z.string().min(1).default('TRN48'),
+  ROYAL_MAIL_RETURNS_SERVICE_CODE: z.string().min(1).default('TRR48'),
   DHL_API_KEY: z.string().min(1).optional(),
   DHL_API_SECRET: z.string().min(1).optional(),
   DHL_ACCOUNT_NUMBER: z.string().min(1).optional(),

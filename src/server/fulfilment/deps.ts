@@ -59,6 +59,8 @@ export function buildDeps(env: Env): WorkerDeps {
   });
   const rm = new RoyalMailClickDropProvider({
     apiKey: env.ROYAL_MAIL_API_KEY ?? '',
+    serviceCode: env.ROYAL_MAIL_SERVICE_CODE,
+    returnsServiceCode: env.ROYAL_MAIL_RETURNS_SERVICE_CODE,
   });
   const storage = getLabelStorage(env);
 

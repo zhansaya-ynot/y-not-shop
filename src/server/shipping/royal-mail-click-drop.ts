@@ -25,6 +25,12 @@ const SERVICE_CODE_TRACKED_RETURNS = 'TRR48';
 
 export interface RoyalMailClickDropConfig {
   apiKey: string;
+  /** Override outbound service code — defaults to the constant above if
+   *  unset. Wire from env.ROYAL_MAIL_SERVICE_CODE so the operator can
+   *  swap codes per subscription without redeploying. */
+  serviceCode?: string;
+  /** Override returns service code — same reasoning. */
+  returnsServiceCode?: string;
   fetcher?: typeof fetch;
 }
 
@@ -112,7 +118,7 @@ export class RoyalMailClickDropProvider {
   /** POST /orders with the customer as recipient (warehouse is implicit sender). */
   async createShipment(input: CreateShipmentInput): Promise<CreateRmShipmentResult> {
     const body = {
-      items: [buildOrderPayload(input, SERVICE_CODE_TRACKED_48, input.recipient)],
+      items: [buildOrderPayload(input, this.cfg.serviceCode ?? SERVICE_CODE_TRACKED_48, input.recipient)],
     };
 
     const resp = await this.fetcher(`${RM_BASE}/orders`, {
@@ -151,7 +157,7 @@ export class RoyalMailClickDropProvider {
       items: [
         buildOrderPayload(
           input,
-          SERVICE_CODE_TRACKED_RETURNS,
+          this.cfg.returnsServiceCode ?? SERVICE_CODE_TRACKED_RETURNS,
           // recipient = warehouse
           {
             fullName: WAREHOUSE.fullName,
