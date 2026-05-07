@@ -817,3 +817,26 @@ model StripeEvent {
   @@index([createdAt])
   @@index([type])
 }
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+}
+
+/// Inbound /contact form submissions. Persisted so the operator can triage
+/// them in /admin/messages instead of relying on email forwarding alone.
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  subject   String               @default("")
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now())
+  readAt    DateTime?
+  repliedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+}

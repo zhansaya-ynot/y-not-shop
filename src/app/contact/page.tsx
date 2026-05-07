@@ -6,6 +6,7 @@ import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { PageHero } from "@/components/static/page-hero";
+import { ContactForm } from "@/components/contact/contact-form";
 
 export const metadata = {
   title: "Contact · YNOT London",
@@ -49,6 +50,20 @@ export default function ContactPage() {
                 </a>
               </div>
             </div>
+          </Container>
+        </Section>
+
+        <Section padding="lg" background="cream">
+          <Container size="narrow">
+            <div className="text-center mb-10 text-foreground-on-cream">
+              <h2 className="text-[12px] font-semibold uppercase tracking-[0.25em] mb-3">
+                Send us a message
+              </h2>
+              <p className="text-[15px] text-foreground-on-cream/70 max-w-[420px] mx-auto">
+                We read every message. Replies within 24 hours, Monday to Friday.
+              </p>
+            </div>
+            <ContactForm />
           </Container>
         </Section>
       </main>
