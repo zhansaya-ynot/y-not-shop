@@ -10,12 +10,7 @@ import {
   Text,
 } from "@react-email/components";
 import type { ReactNode } from "react";
-
-// Email clients fetch images by absolute URL — relative paths don't resolve.
-// Read from the same env that powers the rest of the site so a staging
-// render points at staging.ynotlondon.com and prod at ynotlondon.com.
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://ynotlondon.com";
+import { YNOT_LOGO_DATA_URL } from "./_logo-data-url";
 
 export interface EmailLayoutProps {
   previewText: string;
@@ -47,8 +42,12 @@ export function EmailLayout({ previewText, children }: EmailLayoutProps) {
       >
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "32px 24px" }}>
           <Section style={{ paddingBottom: 32, textAlign: "center" as const }}>
+            {/* Logo is inlined as a base64 data URL so the image renders
+                regardless of the staging/prod domain DNS state, Gmail's
+                image proxy availability, or any future CDN swap. ~8 KB
+                wire payload — well below Gmail's 102 KB clip threshold. */}
             <Img
-              src={`${SITE_URL}/brand/ynot-logo-black.png`}
+              src={YNOT_LOGO_DATA_URL}
               alt="YNOT London"
               width={140}
               height={80}
