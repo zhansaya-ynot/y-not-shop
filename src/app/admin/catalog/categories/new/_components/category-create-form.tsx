@@ -3,28 +3,21 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-export interface ParentOption {
-  id: string;
-  name: string;
-  depth: number;
-}
-
-interface Props {
-  parentOptions: ParentOption[];
-}
-
 /**
- * Minimal create form: the rich editing happens on the detail page so this
- * collects the bare minimum (name, optional slug, parent, description) and
- * redirects to the detail editor on success.
+ * Minimal create form: the rich editing (banner image, archive) happens on
+ * the detail page after creation, so this collects only the bare minimum
+ * needed to spawn a row (name, optional slug, description) and then
+ * redirects to /admin/catalog/categories/[id] for the rest.
+ *
+ * Parent / hierarchy is intentionally omitted — YNOT's catalog is flat
+ * and exposing it here just confused the operator.
  */
-export function CategoryCreateForm({ parentOptions }: Props): React.ReactElement {
+export function CategoryCreateForm(): React.ReactElement {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
   const [name, setName] = React.useState('');
   const [slug, setSlug] = React.useState('');
-  const [parentId, setParentId] = React.useState('');
   const [description, setDescription] = React.useState('');
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
@@ -41,7 +34,6 @@ export function CategoryCreateForm({ parentOptions }: Props): React.ReactElement
         body: JSON.stringify({
           name,
           slug: slug || undefined,
-          parentId: parentId || null,
           description,
         }),
       });
@@ -78,23 +70,6 @@ export function CategoryCreateForm({ parentOptions }: Props): React.ReactElement
           maxLength={100}
           className="border border-neutral-300 rounded px-3 py-2 font-mono"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-xs uppercase tracking-wider text-neutral-600">Parent</span>
-        <select
-          value={parentId}
-          onChange={(e) => setParentId(e.target.value)}
-          className="border border-neutral-300 rounded px-3 py-2 bg-white"
-        >
-          <option value="">— None (root) —</option>
-          {parentOptions.map((opt) => (
-            <option key={opt.id} value={opt.id}>
-              {'  '.repeat(opt.depth)}
-              {opt.depth > 0 ? '↳ ' : ''}
-              {opt.name}
-            </option>
-          ))}
-        </select>
       </label>
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-xs uppercase tracking-wider text-neutral-600">Description</span>

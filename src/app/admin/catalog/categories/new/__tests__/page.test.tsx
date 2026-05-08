@@ -14,19 +14,11 @@ describe('<CategoryCreateForm>', () => {
     (globalThis as any).fetch = vi.fn();
   });
 
-  it('renders required fields + parent select with options', () => {
-    render(
-      <CategoryCreateForm
-        parentOptions={[
-          { id: 'p1', name: 'Outerwear', depth: 0 },
-          { id: 'c1', name: 'Coats', depth: 1 },
-        ]}
-      />,
-    );
+  it('renders the minimum fields (name / slug / description) and create button', () => {
+    render(<CategoryCreateForm />);
     expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Parent')).toBeInTheDocument();
-    expect(screen.getByText(/None \(root\)/)).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /Outerwear/ })).toBeInTheDocument();
+    expect(screen.getByText(/Slug/)).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create category/i })).toBeInTheDocument();
   });
 
@@ -37,7 +29,7 @@ describe('<CategoryCreateForm>', () => {
       status: 201,
       json: async () => ({ id: 'cat123' }),
     });
-    render(<CategoryCreateForm parentOptions={[]} />);
+    render(<CategoryCreateForm />);
     fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'Outerwear' } });
     fireEvent.click(screen.getByRole('button', { name: /create category/i }));
 
@@ -58,7 +50,7 @@ describe('<CategoryCreateForm>', () => {
       ok: false,
       status: 400,
     });
-    render(<CategoryCreateForm parentOptions={[]} />);
+    render(<CategoryCreateForm />);
     fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'X' } });
     fireEvent.click(screen.getByRole('button', { name: /create category/i }));
 
