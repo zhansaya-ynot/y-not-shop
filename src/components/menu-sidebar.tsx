@@ -104,13 +104,13 @@ export function MenuSidebar({ categories }: MenuSidebarProps) {
         <Link
           href="/"
           onClick={close}
-          className="relative block h-16 w-[160px] -ml-2"
+          className="relative block h-9 w-[140px] -ml-1"
         >
           <Image
             src={logoWhite}
             alt="YNOT London"
             fill
-            sizes="160px"
+            sizes="140px"
             priority
             className="object-contain object-left"
           />

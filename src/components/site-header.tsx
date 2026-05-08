@@ -132,14 +132,14 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
           <Link
             href="/"
             aria-label="YNOT London"
-            className="relative block h-9 w-[140px] md:w-[160px]"
+            className="relative block h-7 w-[110px] md:h-9 md:w-[160px]"
           >
             <Image
               src={logoWhite}
               alt=""
               priority
               fill
-              sizes="(min-width: 768px) 160px, 140px"
+              sizes="(min-width: 768px) 160px, 110px"
               className="object-contain"
               style={{ opacity: overHero ? 1 - progress : 0 }}
             />
@@ -148,7 +148,7 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
               alt="YNOT London"
               priority
               fill
-              sizes="(min-width: 768px) 160px, 140px"
+              sizes="(min-width: 768px) 160px, 110px"
               className="object-contain"
               style={{ opacity: overHero ? progress : 1 }}
             />
