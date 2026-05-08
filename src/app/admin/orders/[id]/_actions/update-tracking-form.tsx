@@ -9,6 +9,9 @@ interface Shipment {
   trackingNumber: string | null;
   carrier: string;
   shippedAt: Date | string | null;
+  /** Set the moment the carrier returned a label PDF — we use it to gate
+   *  the form so unlabelled (still in retry) shipments aren't selectable. */
+  labelGeneratedAt: Date | string | null;
 }
 
 const STATUSES = [
@@ -26,16 +29,27 @@ const STATUSES = [
 export function UpdateTrackingForm({ shipments }: { shipments: Shipment[] }) {
   const router = useRouter();
   const toast = useToast();
-  const eligible = shipments.filter((s) => s.shippedAt && s.trackingNumber);
+  // A shipment becomes update-able as soon as the carrier returned a label
+  // — at that point the operator either marks it IN_TRANSIT (sets
+  // shippedAt + sends tracking email) or jumps later statuses if the
+  // physical handoff is already done. Previously the filter required
+  // shippedAt, which trapped fresh shipments in 'no despatched shipments
+  // to update' limbo.
+  const eligible = shipments.filter((s) => s.labelGeneratedAt && s.trackingNumber);
   const [shipmentId, setShipmentId] = React.useState(eligible[0]?.id ?? "");
-  const [status, setStatus] = React.useState<typeof STATUSES[number]>("DELIVERED");
+  // Default status depends on whether the shipment is already on its way.
+  // A newly-labelled shipment likely needs IN_TRANSIT first; an already
+  // shipped one is more often being marked DELIVERED.
+  const initialStatus: typeof STATUSES[number] =
+    eligible[0] && !eligible[0].shippedAt ? "IN_TRANSIT" : "DELIVERED";
+  const [status, setStatus] = React.useState<typeof STATUSES[number]>(initialStatus);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   if (eligible.length === 0) {
     return (
       <p className="text-xs text-neutral-500">
-        No despatched shipments to update.
+        No labelled shipments to update yet.
       </p>
     );
   }
