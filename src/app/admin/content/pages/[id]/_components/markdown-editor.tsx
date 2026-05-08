@@ -8,13 +8,19 @@ import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { OurStoryExtrasEditor } from './our-story-extras';
 import { ContactExtrasEditor } from './contact-extras';
 import { ShippingExtrasEditor } from './shipping-extras';
+import { SustainabilityExtrasEditor } from './sustainability-extras';
+import { CareExtrasEditor } from './care-extras';
 import {
   parseOurStoryExtras,
   parseContactExtras,
   parseShippingReturnsExtras,
+  parseSustainabilityExtras,
+  parseProductCareExtras,
   type OurStoryExtras,
   type ContactExtras,
   type ShippingReturnsExtras,
+  type SustainabilityExtras,
+  type ProductCareExtras,
 } from '@/lib/cms/page-extras';
 
 interface Props {
@@ -64,6 +70,26 @@ const SHIPPING_DEFAULT_EXTRAS: ShippingReturnsExtras = {
   },
 };
 
+const SUSTAINABILITY_DEFAULT_EXTRAS: SustainabilityExtras = {
+  hero: {
+    eyebrow: 'Sustainability & Animal Welfare',
+    title: 'Responsibility, woven in.',
+    description: '',
+  },
+  stats: [],
+  approachHeading: 'Our approach',
+  approaches: [],
+};
+
+const PRODUCT_CARE_DEFAULT_EXTRAS: ProductCareExtras = {
+  hero: {
+    eyebrow: 'Product Care',
+    title: 'Made to last.',
+    description: '',
+  },
+  materials: [],
+};
+
 /**
  * WYSIWYG page editor. Stores TipTap-rendered HTML in the existing
  * `bodyMarkdown` column — column name kept for migration tractability;
@@ -97,10 +123,18 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [shippingExtras, setShippingExtras] = React.useState<ShippingReturnsExtras>(
     () => parseShippingReturnsExtras(initial.extras ?? null) ?? SHIPPING_DEFAULT_EXTRAS,
   );
+  const [sustainabilityExtras, setSustainabilityExtras] = React.useState<SustainabilityExtras>(
+    () => parseSustainabilityExtras(initial.extras ?? null) ?? SUSTAINABILITY_DEFAULT_EXTRAS,
+  );
+  const [careExtras, setCareExtras] = React.useState<ProductCareExtras>(
+    () => parseProductCareExtras(initial.extras ?? null) ?? PRODUCT_CARE_DEFAULT_EXTRAS,
+  );
 
   const isOurStory = initial.slug === 'our-story';
   const isContact = initial.slug === 'contact';
   const isShipping = initial.slug === 'shipping-returns';
+  const isSustainability = initial.slug === 'sustainability';
+  const isProductCare = initial.slug === 'product-care';
 
   function onSave(): void {
     setError(null);
@@ -117,6 +151,8 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
       if (isOurStory) payload.extras = ourStoryExtras;
       else if (isContact) payload.extras = contactExtras;
       else if (isShipping) payload.extras = shippingExtras;
+      else if (isSustainability) payload.extras = sustainabilityExtras;
+      else if (isProductCare) payload.extras = careExtras;
 
       const res = await fetch(`/api/admin/content/pages/${id}`, {
         method: 'PATCH',
@@ -203,6 +239,12 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
       )}
       {isShipping && (
         <ShippingExtrasEditor value={shippingExtras} onChange={setShippingExtras} />
+      )}
+      {isSustainability && (
+        <SustainabilityExtrasEditor value={sustainabilityExtras} onChange={setSustainabilityExtras} />
+      )}
+      {isProductCare && (
+        <CareExtrasEditor value={careExtras} onChange={setCareExtras} />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

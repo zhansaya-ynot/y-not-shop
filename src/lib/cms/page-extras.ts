@@ -120,6 +120,86 @@ export function parseShippingReturnsExtras(raw: unknown): ShippingReturnsExtras 
   return result.success ? result.data : null;
 }
 
+// ─── Sustainability ──────────────────────────────────────────────────
+
+export const StatItemSchema = z.object({
+  value: z.string().max(40).default(''),
+  label: z.string().max(120).default(''),
+});
+
+export const ApproachItemSchema = z.object({
+  title: z.string().max(120).default(''),
+  body: z.string().max(800).default(''),
+});
+
+export const SustainabilityExtrasSchema = z.object({
+  hero: z
+    .object({
+      eyebrow: z.string().max(120).default('Sustainability & Animal Welfare'),
+      title: z.string().max(200).default('Responsibility, woven in.'),
+      description: z.string().max(800).default(''),
+    })
+    .default({
+      eyebrow: 'Sustainability & Animal Welfare',
+      title: 'Responsibility, woven in.',
+      description: '',
+    }),
+  stats: z.array(StatItemSchema).max(6).default([]),
+  approachHeading: z.string().max(120).default('Our approach'),
+  approaches: z.array(ApproachItemSchema).max(12).default([]),
+});
+
+export type StatItem = z.infer<typeof StatItemSchema>;
+export type ApproachItem = z.infer<typeof ApproachItemSchema>;
+export type SustainabilityExtras = z.infer<typeof SustainabilityExtrasSchema>;
+
+export function parseSustainabilityExtras(raw: unknown): SustainabilityExtras | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const result = SustainabilityExtrasSchema.safeParse(raw);
+  return result.success ? result.data : null;
+}
+
+// ─── Product Care ────────────────────────────────────────────────────
+
+export const CareSectionSchema = z.object({
+  title: z.string().max(120).default(''),
+  body: z.string().max(1200).default(''),
+});
+
+export const CareMaterialSchema = z.object({
+  /** Tab slug used as key — only stable identifier so React keys stay
+   *  consistent across re-renders even when the operator renames a tab. */
+  value: z.string().max(60).default(''),
+  label: z.string().max(60).default(''),
+  intro: z.string().max(800).default(''),
+  sections: z.array(CareSectionSchema).max(10).default([]),
+});
+
+export const ProductCareExtrasSchema = z.object({
+  hero: z
+    .object({
+      eyebrow: z.string().max(120).default('Product Care'),
+      title: z.string().max(200).default('Made to last.'),
+      description: z.string().max(800).default(''),
+    })
+    .default({
+      eyebrow: 'Product Care',
+      title: 'Made to last.',
+      description: '',
+    }),
+  materials: z.array(CareMaterialSchema).max(12).default([]),
+});
+
+export type CareSection = z.infer<typeof CareSectionSchema>;
+export type CareMaterial = z.infer<typeof CareMaterialSchema>;
+export type ProductCareExtras = z.infer<typeof ProductCareExtrasSchema>;
+
+export function parseProductCareExtras(raw: unknown): ProductCareExtras | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const result = ProductCareExtrasSchema.safeParse(raw);
+  return result.success ? result.data : null;
+}
+
 /**
  * Defensive parse: tolerates legacy rows where `extras` is null or carries
  * a partial shape. Returns the parsed extras for the slug or null if the
