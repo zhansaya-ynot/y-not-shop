@@ -35,6 +35,41 @@ export type ValueCallouts = z.infer<typeof ValueCalloutsSchema>;
 export type PullQuote = z.infer<typeof PullQuoteSchema>;
 export type OurStoryExtras = z.infer<typeof OurStoryExtrasSchema>;
 
+// ─── Contact ─────────────────────────────────────────────────────────
+
+export const ContactInfoBlockSchema = z.object({
+  title: z.string().max(120).default(''),
+  body: z.string().max(600).default(''),
+  /** Optional accent link (e.g. mailto: or tel:) rendered above the body. */
+  linkHref: z.string().max(400).default(''),
+  linkLabel: z.string().max(200).default(''),
+});
+
+export const ContactExtrasSchema = z.object({
+  hero: z
+    .object({
+      eyebrow: z.string().max(120).default('Get in touch'),
+      title: z.string().max(200).default("We'd love to hear from you."),
+    })
+    .default({ eyebrow: 'Get in touch', title: "We'd love to hear from you." }),
+  infoBlocks: z.array(ContactInfoBlockSchema).max(8).default([]),
+  formSection: z
+    .object({
+      heading: z.string().max(120).default('Send us a message'),
+      body: z.string().max(400).default(''),
+    })
+    .default({ heading: 'Send us a message', body: '' }),
+});
+
+export type ContactInfoBlock = z.infer<typeof ContactInfoBlockSchema>;
+export type ContactExtras = z.infer<typeof ContactExtrasSchema>;
+
+export function parseContactExtras(raw: unknown): ContactExtras | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const result = ContactExtrasSchema.safeParse(raw);
+  return result.success ? result.data : null;
+}
+
 /**
  * Defensive parse: tolerates legacy rows where `extras` is null or carries
  * a partial shape. Returns the parsed extras for the slug or null if the
@@ -45,3 +80,4 @@ export function parseOurStoryExtras(raw: unknown): OurStoryExtras | null {
   const result = OurStoryExtrasSchema.safeParse(raw);
   return result.success ? result.data : null;
 }
+

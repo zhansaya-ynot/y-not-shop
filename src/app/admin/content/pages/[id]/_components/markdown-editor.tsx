@@ -6,7 +6,13 @@ import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { OurStoryExtrasEditor } from './our-story-extras';
-import { parseOurStoryExtras, type OurStoryExtras } from '@/lib/cms/page-extras';
+import { ContactExtrasEditor } from './contact-extras';
+import {
+  parseOurStoryExtras,
+  parseContactExtras,
+  type OurStoryExtras,
+  type ContactExtras,
+} from '@/lib/cms/page-extras';
 
 interface Props {
   id: string;
@@ -38,6 +44,12 @@ const OUR_STORY_DEFAULT_EXTRAS: OurStoryExtras = {
   pullQuote: { quote: '', attribution: '' },
 };
 
+const CONTACT_DEFAULT_EXTRAS: ContactExtras = {
+  hero: { eyebrow: 'Get in touch', title: "We'd love to hear from you." },
+  infoBlocks: [],
+  formSection: { heading: 'Send us a message', body: '' },
+};
+
 /**
  * WYSIWYG page editor. Stores TipTap-rendered HTML in the existing
  * `bodyMarkdown` column — column name kept for migration tractability;
@@ -65,8 +77,12 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [ourStoryExtras, setOurStoryExtras] = React.useState<OurStoryExtras>(
     () => parseOurStoryExtras(initial.extras ?? null) ?? OUR_STORY_DEFAULT_EXTRAS,
   );
+  const [contactExtras, setContactExtras] = React.useState<ContactExtras>(
+    () => parseContactExtras(initial.extras ?? null) ?? CONTACT_DEFAULT_EXTRAS,
+  );
 
   const isOurStory = initial.slug === 'our-story';
+  const isContact = initial.slug === 'contact';
 
   function onSave(): void {
     setError(null);
@@ -81,6 +97,7 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
         heroImage: heroImage.trim() || null,
       };
       if (isOurStory) payload.extras = ourStoryExtras;
+      else if (isContact) payload.extras = contactExtras;
 
       const res = await fetch(`/api/admin/content/pages/${id}`, {
         method: 'PATCH',
@@ -161,6 +178,9 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
 
       {isOurStory && (
         <OurStoryExtrasEditor value={ourStoryExtras} onChange={setOurStoryExtras} />
+      )}
+      {isContact && (
+        <ContactExtrasEditor value={contactExtras} onChange={setContactExtras} />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
