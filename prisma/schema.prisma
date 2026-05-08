@@ -831,6 +831,7 @@ enum ContactMessageStatus {
   REPLIED
 }
 
+
 /// Inbound /contact form submissions. Persisted so the operator can triage
 /// them in /admin/messages instead of relying on email forwarding alone.
 model ContactMessage {
