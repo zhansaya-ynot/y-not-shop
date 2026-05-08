@@ -3,6 +3,7 @@ import { auth } from '@/server/auth/nextauth';
 import { requireOwner, AuthorizationError } from '@/server/auth/guards';
 import { releaseBatchForShipping } from '@/server/preorders/service';
 import { buildDeps } from '@/server/fulfilment/deps';
+import { applyManualShipmentStatus } from '@/server/fulfilment/shipment-events';
 import { env } from '@/server/env';
 import { prisma } from '@/server/db/client';
 import { splitOrderIntoShipments } from '@/server/orders/shipments';
@@ -26,12 +27,14 @@ interface Ctx {
  * iterate over.
  */
 export async function POST(_req: Request, ctx: Ctx): Promise<Response> {
+  let session;
   try {
-    requireOwner(await auth());
+    session = requireOwner(await auth());
   } catch (e) {
     if (e instanceof AuthorizationError) return new Response('Forbidden', { status: 403 });
     throw e;
   }
+  const actorId = session.user?.id ?? 'unknown';
   const { id } = await ctx.params;
 
   // 1. Backfill: every paid order with items in this batch and no shipment
@@ -89,6 +92,23 @@ export async function POST(_req: Request, ctx: Ctx): Promise<Response> {
       tryCreateShipment: (shipmentId) => deps.tryCreateShipment(shipmentId),
       shipmentDeps: {} as never,
     });
+
+    // Releasing a preorder batch is the operator's signal that "stock has
+    // arrived and we're shipping it now" — auto-flip every successfully
+    // labelled shipment to IN_TRANSIT (sets shippedAt, fires tracking
+    // email, bubbles order status to SHIPPED). Matches the behaviour the
+    // operator had pre-Phase 8 where Release also marked the batch as
+    // despatched. Failures are swallowed so a single broken shipment
+    // doesn't block status updates for the rest of the batch.
+    for (const r of result.results) {
+      if (!r.result.ok) continue;
+      try {
+        await applyManualShipmentStatus(r.shipmentId, 'IN_TRANSIT', actorId);
+      } catch {
+        // Logged via shipment-events under the hood; carry on.
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       batchId: result.batchId,
