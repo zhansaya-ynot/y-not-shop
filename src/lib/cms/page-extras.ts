@@ -70,6 +70,56 @@ export function parseContactExtras(raw: unknown): ContactExtras | null {
   return result.success ? result.data : null;
 }
 
+// ─── Shipping & Returns ──────────────────────────────────────────────
+
+export const ShippingRowSchema = z.object({
+  destination: z.string().max(120).default(''),
+  time: z.string().max(120).default(''),
+  carrier: z.string().max(120).default(''),
+  cost: z.string().max(120).default(''),
+});
+
+export const ShippingReturnsExtrasSchema = z.object({
+  hero: z
+    .object({
+      eyebrow: z.string().max(120).default('Shipping & Returns'),
+      title: z.string().max(200).default('Easy returns within 14 days.'),
+    })
+    .default({
+      eyebrow: 'Shipping & Returns',
+      title: 'Easy returns within 14 days.',
+    }),
+  delivery: z
+    .object({
+      intro: z.string().max(2000).default(''),
+      rows: z.array(ShippingRowSchema).max(20).default([]),
+      note: z.string().max(2000).default(''),
+    })
+    .default({ intro: '', rows: [], note: '' }),
+  returns: z
+    .object({
+      intro: z.string().max(2000).default(''),
+      bullets: z.array(z.string().max(400)).max(20).default([]),
+      ctaLabel: z.string().max(120).default('Start your return'),
+      ctaHref: z.string().max(400).default('/initiate-return'),
+    })
+    .default({
+      intro: '',
+      bullets: [],
+      ctaLabel: 'Start your return',
+      ctaHref: '/initiate-return',
+    }),
+});
+
+export type ShippingRow = z.infer<typeof ShippingRowSchema>;
+export type ShippingReturnsExtras = z.infer<typeof ShippingReturnsExtrasSchema>;
+
+export function parseShippingReturnsExtras(raw: unknown): ShippingReturnsExtras | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const result = ShippingReturnsExtrasSchema.safeParse(raw);
+  return result.success ? result.data : null;
+}
+
 /**
  * Defensive parse: tolerates legacy rows where `extras` is null or carries
  * a partial shape. Returns the parsed extras for the slug or null if the

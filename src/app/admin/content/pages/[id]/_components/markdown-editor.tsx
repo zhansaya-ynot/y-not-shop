@@ -7,11 +7,14 @@ import { SingleImageUpload } from '@/app/admin/content/_components/single-image-
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { OurStoryExtrasEditor } from './our-story-extras';
 import { ContactExtrasEditor } from './contact-extras';
+import { ShippingExtrasEditor } from './shipping-extras';
 import {
   parseOurStoryExtras,
   parseContactExtras,
+  parseShippingReturnsExtras,
   type OurStoryExtras,
   type ContactExtras,
+  type ShippingReturnsExtras,
 } from '@/lib/cms/page-extras';
 
 interface Props {
@@ -50,6 +53,17 @@ const CONTACT_DEFAULT_EXTRAS: ContactExtras = {
   formSection: { heading: 'Send us a message', body: '' },
 };
 
+const SHIPPING_DEFAULT_EXTRAS: ShippingReturnsExtras = {
+  hero: { eyebrow: 'Shipping & Returns', title: 'Easy returns within 14 days.' },
+  delivery: { intro: '', rows: [], note: '' },
+  returns: {
+    intro: '',
+    bullets: [],
+    ctaLabel: 'Start your return',
+    ctaHref: '/initiate-return',
+  },
+};
+
 /**
  * WYSIWYG page editor. Stores TipTap-rendered HTML in the existing
  * `bodyMarkdown` column — column name kept for migration tractability;
@@ -80,9 +94,13 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [contactExtras, setContactExtras] = React.useState<ContactExtras>(
     () => parseContactExtras(initial.extras ?? null) ?? CONTACT_DEFAULT_EXTRAS,
   );
+  const [shippingExtras, setShippingExtras] = React.useState<ShippingReturnsExtras>(
+    () => parseShippingReturnsExtras(initial.extras ?? null) ?? SHIPPING_DEFAULT_EXTRAS,
+  );
 
   const isOurStory = initial.slug === 'our-story';
   const isContact = initial.slug === 'contact';
+  const isShipping = initial.slug === 'shipping-returns';
 
   function onSave(): void {
     setError(null);
@@ -98,6 +116,7 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
       };
       if (isOurStory) payload.extras = ourStoryExtras;
       else if (isContact) payload.extras = contactExtras;
+      else if (isShipping) payload.extras = shippingExtras;
 
       const res = await fetch(`/api/admin/content/pages/${id}`, {
         method: 'PATCH',
@@ -181,6 +200,9 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
       )}
       {isContact && (
         <ContactExtrasEditor value={contactExtras} onChange={setContactExtras} />
+      )}
+      {isShipping && (
+        <ShippingExtrasEditor value={shippingExtras} onChange={setShippingExtras} />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
