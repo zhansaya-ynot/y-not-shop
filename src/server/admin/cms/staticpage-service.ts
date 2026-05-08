@@ -35,6 +35,7 @@ export async function createStaticPage(opts: CreateStaticPageOptions) {
           bodyMarkdown: input.bodyMarkdown ?? '',
           metaTitle: input.metaTitle ?? '',
           metaDescription: input.metaDescription ?? '',
+          heroImage: input.heroImage ?? null,
         },
       }),
   );
@@ -77,6 +78,7 @@ export async function updateStaticPage(opts: UpdateStaticPageOptions) {
           bodyMarkdown: input.bodyMarkdown,
           metaTitle: input.metaTitle,
           metaDescription: input.metaDescription,
+          ...(input.heroImage !== undefined ? { heroImage: input.heroImage } : {}),
         },
       }),
   );

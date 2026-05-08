@@ -33,6 +33,7 @@ export default async function AdminStaticPageDetailPage({
           bodyMarkdown: page.bodyMarkdown,
           metaTitle: page.metaTitle,
           metaDescription: page.metaDescription,
+          heroImage: page.heroImage,
         }}
       />
     </div>

@@ -4,6 +4,7 @@ import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useRouter } from 'next/navigation';
+import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 
 interface Props {
   id: string;
@@ -13,6 +14,7 @@ interface Props {
     bodyMarkdown: string;
     metaTitle: string;
     metaDescription: string;
+    heroImage: string | null;
   };
 }
 
@@ -31,6 +33,7 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [body, setBody] = React.useState(initial.bodyMarkdown);
   const [metaTitle, setMetaTitle] = React.useState(initial.metaTitle);
   const [metaDescription, setMetaDescription] = React.useState(initial.metaDescription);
+  const [heroImage, setHeroImage] = React.useState<string>(initial.heroImage ?? '');
 
   function onSave(): void {
     setError(null);
@@ -45,6 +48,7 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
           bodyMarkdown: body,
           metaTitle,
           metaDescription,
+          heroImage: heroImage.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -91,6 +95,17 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
             className="border border-neutral-300 rounded px-3 py-2 font-mono"
           />
         </label>
+      </div>
+
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Hero image (wide banner above the title)
+        </span>
+        <SingleImageUpload prefix="pages" value={heroImage} onChange={setHeroImage} />
+        <span className="text-[11px] text-neutral-500">
+          Shown at the top of /<code>{slug}</code>. Use a landscape image —
+          recommended ~1920×800 px JPG. Empty = page renders without a hero.
+        </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[480px]">

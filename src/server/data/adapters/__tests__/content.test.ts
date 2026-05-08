@@ -78,6 +78,7 @@ describe("toStaticPage", () => {
       bodyMarkdown: "# Our Story",
       metaTitle: "Our Story · YNOT",
       metaDescription: "About us.",
+      heroImage: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

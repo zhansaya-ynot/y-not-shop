@@ -12,6 +12,7 @@ const initial = {
   bodyMarkdown: '# Hello',
   metaTitle: '',
   metaDescription: '',
+  heroImage: null as string | null,
 };
 
 describe('<MarkdownEditor>', () => {

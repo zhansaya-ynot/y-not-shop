@@ -11,6 +11,9 @@ export const StaticPageCreateSchema = z.object({
   bodyMarkdown: z.string().max(100_000).default(''),
   metaTitle: z.string().max(200).default(''),
   metaDescription: z.string().max(500).default(''),
+  /** Optional URL/storage path for the wide hero banner above the page
+   *  title. Empty string is treated as null at the service layer. */
+  heroImage: z.string().nullable().optional(),
 });
 
 export const StaticPageUpdateSchema = StaticPageCreateSchema.partial();

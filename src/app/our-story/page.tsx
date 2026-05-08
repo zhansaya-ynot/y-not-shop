@@ -9,6 +9,9 @@ import { Display } from "@/components/ui/typography";
 import { PageHero } from "@/components/static/page-hero";
 import { ValueCallouts } from "@/components/static/value-callouts";
 import { PullQuote } from "@/components/static/pull-quote";
+import { prisma } from "@/server/db/client";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Our Story · YNOT London",
@@ -22,16 +25,21 @@ const VALUES = [
   { title: "London & Istanbul", body: "Designed in our London studio. Made by skilled craftspeople between London and Istanbul." },
 ];
 
-export default function OurStoryPage() {
+// Bundled stub used until the operator uploads a custom hero in
+// /admin/content/pages → Our Story. Pre-populated on the StaticPage
+// row at migration time so the admin form already shows it as
+// "currently uploaded" (Replace / Clear) instead of an empty dropzone.
+const FALLBACK_HERO = "/cms/our-story/hero.jpg";
+
+export default async function OurStoryPage() {
+  const page = await prisma.staticPage.findUnique({ where: { slug: "our-story" } });
+  const heroImage = page?.heroImage || FALLBACK_HERO;
   return (
     <>
       <AnnouncementBar />
       <SiteHeader />
       <main className="flex-1">
-        <PageHero
-          title="Our Story"
-          image="/cms/our-story/hero.jpg"
-        />
+        <PageHero title="Our Story" image={heroImage} />
 
         <Section padding="lg">
           <Container size="narrow">

@@ -288,6 +288,10 @@ model StaticPage {
   slug            String   @unique
   title           String
   bodyMarkdown    String
+  /// Optional URL/storage path for a wide hero banner shown above the
+  /// title on /<slug>. When null the storefront page renders without a
+  /// hero or, in the case of Our Story, falls back to the bundled stub.
+  heroImage       String?
   metaTitle       String   @default("")
   metaDescription String   @default("")
   createdAt       DateTime @default(now())
