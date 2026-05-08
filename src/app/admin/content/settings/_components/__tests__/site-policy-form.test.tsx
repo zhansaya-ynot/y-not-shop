@@ -14,6 +14,9 @@ const initial = {
   whatsappNumber: '',
   authSignInImage: null as string | null,
   authRegisterImage: null as string | null,
+  brandStatementPrimary: '',
+  brandStatementSecondary: '',
+  brandStatementTertiary: '',
 };
 
 describe('<SitePolicyForm>', () => {

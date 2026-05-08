@@ -46,6 +46,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
           ...(input.whatsappNumber !== undefined ? { whatsappNumber: input.whatsappNumber } : {}),
           ...(input.authSignInImage !== undefined ? { authSignInImage: input.authSignInImage } : {}),
           ...(input.authRegisterImage !== undefined ? { authRegisterImage: input.authRegisterImage } : {}),
+          ...(input.brandStatementPrimary !== undefined ? { brandStatementPrimary: input.brandStatementPrimary } : {}),
+          ...(input.brandStatementSecondary !== undefined ? { brandStatementSecondary: input.brandStatementSecondary } : {}),
+          ...(input.brandStatementTertiary !== undefined ? { brandStatementTertiary: input.brandStatementTertiary } : {}),
         },
         update: {
           ...(input.defaultCurrency !== undefined ? { defaultCurrency: input.defaultCurrency } : {}),
@@ -57,6 +60,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
           ...(input.whatsappNumber !== undefined ? { whatsappNumber: input.whatsappNumber } : {}),
           ...(input.authSignInImage !== undefined ? { authSignInImage: input.authSignInImage } : {}),
           ...(input.authRegisterImage !== undefined ? { authRegisterImage: input.authRegisterImage } : {}),
+          ...(input.brandStatementPrimary !== undefined ? { brandStatementPrimary: input.brandStatementPrimary } : {}),
+          ...(input.brandStatementSecondary !== undefined ? { brandStatementSecondary: input.brandStatementSecondary } : {}),
+          ...(input.brandStatementTertiary !== undefined ? { brandStatementTertiary: input.brandStatementTertiary } : {}),
         },
       }),
   );

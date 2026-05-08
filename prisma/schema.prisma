@@ -311,6 +311,13 @@ model SitePolicy {
   authSignInImage        String?
   /// Same as authSignInImage but for /register.
   authRegisterImage      String?
+  /// Three-line brand statement shown between the hero and Shop-by-Category
+  /// on the homepage. Empty string treated as 'use the bundled fallback'
+  /// at render time so the page never renders blank if a column is
+  /// accidentally cleared.
+  brandStatementPrimary   String   @default("")
+  brandStatementSecondary String   @default("")
+  brandStatementTertiary  String   @default("")
   updatedAt              DateTime @updatedAt
 }
 

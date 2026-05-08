@@ -12,6 +12,9 @@ interface Initial {
   whatsappNumber: string;
   authSignInImage: string | null;
   authRegisterImage: string | null;
+  brandStatementPrimary: string;
+  brandStatementSecondary: string;
+  brandStatementTertiary: string;
 }
 
 interface Props {
@@ -37,6 +40,9 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
   const [whatsappNumber, setWhatsappNumber] = React.useState(initial.whatsappNumber);
   const [authSignInImage, setAuthSignInImage] = React.useState<string>(initial.authSignInImage ?? '');
   const [authRegisterImage, setAuthRegisterImage] = React.useState<string>(initial.authRegisterImage ?? '');
+  const [brandPrimary, setBrandPrimary] = React.useState<string>(initial.brandStatementPrimary);
+  const [brandSecondary, setBrandSecondary] = React.useState<string>(initial.brandStatementSecondary);
+  const [brandTertiary, setBrandTertiary] = React.useState<string>(initial.brandStatementTertiary);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -59,6 +65,9 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           whatsappNumber,
           authSignInImage: authSignInImage.trim() || null,
           authRegisterImage: authRegisterImage.trim() || null,
+          brandStatementPrimary: brandPrimary.trim(),
+          brandStatementSecondary: brandSecondary.trim(),
+          brandStatementTertiary: brandTertiary.trim(),
         }),
       });
       if (!res.ok) {
@@ -138,6 +147,54 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           placeholder="e.g. +44 20 1234 5678"
         />
       </label>
+      <fieldset className="flex flex-col gap-3 text-sm pt-4 border-t border-neutral-200">
+        <legend className="text-xs uppercase tracking-wider text-neutral-600 mb-1">
+          Brand statement (homepage)
+        </legend>
+        <p className="text-[11px] text-neutral-500 -mt-2 mb-1">
+          Three-line block shown between the hero image and the &lsquo;Shop by
+          Category&rsquo; grid on the homepage. Line 1 is the display heading,
+          lines 2 &amp; 3 are short eyebrow lines.
+        </p>
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] uppercase tracking-wider text-neutral-500">
+            Primary line (display heading)
+          </span>
+          <textarea
+            rows={2}
+            value={brandPrimary}
+            onChange={(e) => setBrandPrimary(e.target.value)}
+            maxLength={280}
+            className="border border-neutral-300 rounded px-3 py-2"
+          />
+        </label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1">
+            <span className="text-[11px] uppercase tracking-wider text-neutral-500">
+              Secondary line
+            </span>
+            <input
+              type="text"
+              value={brandSecondary}
+              onChange={(e) => setBrandSecondary(e.target.value)}
+              maxLength={80}
+              className="border border-neutral-300 rounded px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-[11px] uppercase tracking-wider text-neutral-500">
+              Tertiary line
+            </span>
+            <input
+              type="text"
+              value={brandTertiary}
+              onChange={(e) => setBrandTertiary(e.target.value)}
+              maxLength={80}
+              className="border border-neutral-300 rounded px-3 py-2"
+            />
+          </label>
+        </div>
+      </fieldset>
       <div className="flex flex-col gap-2 text-sm pt-4 border-t border-neutral-200">
         <span className="text-xs uppercase tracking-wider text-neutral-600">
           Sign-in side image
