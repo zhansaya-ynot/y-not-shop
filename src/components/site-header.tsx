@@ -116,7 +116,7 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
       )}
       style={headerStyle}
     >
-      <div className="grid h-12 grid-cols-3 items-center px-5 md:h-14 md:px-8">
+      <div className="grid h-14 grid-cols-3 items-center px-5 md:h-20 md:px-8">
         <div className="flex items-center">
           <button
             type="button"
@@ -132,14 +132,14 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
           <Link
             href="/"
             aria-label="YNOT London"
-            className="relative block h-12 w-[110px] md:h-14 md:w-[140px]"
+            className="relative block h-12 w-[150px] md:h-16 md:w-[200px]"
           >
             <Image
               src={logoWhite}
               alt=""
               priority
               fill
-              sizes="(min-width: 768px) 140px, 110px"
+              sizes="(min-width: 768px) 200px, 150px"
               className="object-contain"
               style={{ opacity: overHero ? 1 - progress : 0 }}
             />
@@ -148,7 +148,7 @@ export function SiteHeader({ overHero = false }: SiteHeaderProps) {
               alt="YNOT London"
               priority
               fill
-              sizes="(min-width: 768px) 140px, 110px"
+              sizes="(min-width: 768px) 200px, 150px"
               className="object-contain"
               style={{ opacity: overHero ? progress : 1 }}
             />
