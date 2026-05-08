@@ -7,20 +7,39 @@ describe('admin sidebar NAV_SECTIONS', () => {
     expect(headings).toEqual([
       'DASHBOARD',
       'ORDERS',
+      'CUSTOMERS',
+      'MESSAGES',
       'CATALOG',
-      'CONTENT',
+      'PAGES',
+      'GLOBAL',
       'MARKETING',
       'SHIPPING',
     ]);
   });
 
-  it('includes every CONTENT child page', () => {
-    const content = NAV_SECTIONS.find((s) => s.heading === 'CONTENT');
-    expect(content?.items.map((i) => i.href)).toEqual([
+  it('PAGES section has a direct link per migrated storefront page', () => {
+    const pages = NAV_SECTIONS.find((s) => s.heading === 'PAGES');
+    const hrefs = pages?.items.map((i) => i.href) ?? [];
+    // Hero is its own admin route (not StaticPage-driven yet); the rest
+    // resolve via the by-slug redirect so the operator never has to
+    // remember a cuid.
+    expect(hrefs).toEqual([
       '/admin/content/hero',
+      '/admin/content/pages/by-slug/our-story',
+      '/admin/content/pages/by-slug/contact',
+      '/admin/content/pages/by-slug/shipping-returns',
+      '/admin/content/pages/by-slug/sustainability',
+      '/admin/content/pages/by-slug/product-care',
+      '/admin/content/pages',
+    ]);
+  });
+
+  it('GLOBAL section covers announcement bar, lookbook, site settings', () => {
+    const global = NAV_SECTIONS.find((s) => s.heading === 'GLOBAL');
+    const hrefs = global?.items.map((i) => i.href) ?? [];
+    expect(hrefs).toEqual([
       '/admin/content/announcements',
       '/admin/content/lookbook',
-      '/admin/content/pages',
       '/admin/content/settings',
     ]);
   });
@@ -32,9 +51,7 @@ describe('admin sidebar NAV_SECTIONS', () => {
     expect(hrefs).toContain('/admin/catalog/categories');
   });
 
-  it('includes the (still-pending) promo codes link', () => {
-    // /admin/marketing/promos will 404 until Group M lands; the link is
-    // wired up in advance so the IA is stable.
+  it('keeps promo codes link wired up', () => {
     const marketing = NAV_SECTIONS.find((s) => s.heading === 'MARKETING');
     expect(marketing?.items[0].href).toBe('/admin/marketing/promos');
   });
