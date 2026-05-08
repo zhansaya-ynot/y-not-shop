@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
+    // CMS-uploaded media (categories, hero, lookbook) is stored locally and
+    // served at /api/media/<key>. Next.js's <Image> optimizer rejects any
+    // src not listed here with HTTP 400, so we explicitly allow our own
+    // public domains. Wildcard subdomain handles staging + future preview
+    // hosts; adding the bare apex covers the post-DNS-cutover URL too.
+    remotePatterns: [
+      { protocol: "https", hostname: "ynotlondon.com" },
+      { protocol: "https", hostname: "**.ynotlondon.com" },
+    ],
   },
 };
 
