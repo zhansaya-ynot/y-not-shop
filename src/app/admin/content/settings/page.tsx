@@ -18,6 +18,7 @@ const DEFAULTS = {
     'Urban outerwear designed to move with you, for any occasion — from street to statement.',
   brandStatementSecondary: 'Why not.',
   brandStatementTertiary: 'A way of living.',
+  footerJson: null as unknown,
 };
 
 export default async function AdminSettingsPage(): Promise<React.ReactElement> {
@@ -37,6 +38,7 @@ export default async function AdminSettingsPage(): Promise<React.ReactElement> {
         brandStatementPrimary: policy.brandStatementPrimary,
         brandStatementSecondary: policy.brandStatementSecondary,
         brandStatementTertiary: policy.brandStatementTertiary,
+        footerJson: policy.footerJson as unknown,
       }
     : DEFAULTS;
 

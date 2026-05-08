@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteFooterStatic, STATIC_FOOTER_FALLBACK } from "@/components/site-footer";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
@@ -136,7 +136,7 @@ export default function InitiateReturnPage() {
       <React.Suspense fallback={null}>
         <InitiateReturnInner />
       </React.Suspense>
-      <SiteFooter />
+      <SiteFooterStatic content={STATIC_FOOTER_FALLBACK} />
       <WhatsAppWidget phone="+44 7000 000000" message="Hi YNOT, I have a question about my return." />
     </>
   );

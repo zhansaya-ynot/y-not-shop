@@ -3,6 +3,12 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
+import { FooterEditor } from './footer-editor';
+import {
+  parseFooterContent,
+  FOOTER_FALLBACK,
+  type FooterContent,
+} from '@/lib/cms/footer-content';
 
 interface Initial {
   defaultCurrency: 'GBP' | 'USD' | 'EUR';
@@ -15,6 +21,7 @@ interface Initial {
   brandStatementPrimary: string;
   brandStatementSecondary: string;
   brandStatementTertiary: string;
+  footerJson: unknown;
 }
 
 interface Props {
@@ -43,6 +50,9 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
   const [brandPrimary, setBrandPrimary] = React.useState<string>(initial.brandStatementPrimary);
   const [brandSecondary, setBrandSecondary] = React.useState<string>(initial.brandStatementSecondary);
   const [brandTertiary, setBrandTertiary] = React.useState<string>(initial.brandStatementTertiary);
+  const [footerContent, setFooterContent] = React.useState<FooterContent>(
+    () => parseFooterContent(initial.footerJson) || FOOTER_FALLBACK,
+  );
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -68,6 +78,7 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           brandStatementPrimary: brandPrimary.trim(),
           brandStatementSecondary: brandSecondary.trim(),
           brandStatementTertiary: brandTertiary.trim(),
+          footerJson: footerContent,
         }),
       });
       if (!res.ok) {
@@ -221,6 +232,12 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           Shown next to the form on /register. Same format as sign-in.
         </span>
       </div>
+      <fieldset className="flex flex-col gap-2 pt-4 border-t border-neutral-200">
+        <legend className="text-xs uppercase tracking-wider text-neutral-600 mb-2">
+          Footer
+        </legend>
+        <FooterEditor value={footerContent} onChange={setFooterContent} />
+      </fieldset>
       {error && <p className="text-sm text-red-700">{error}</p>}
       {saved && <p className="text-sm text-green-700">Saved.</p>}
       <div className="flex gap-3 mt-2">

@@ -17,6 +17,7 @@ const initial = {
   brandStatementPrimary: '',
   brandStatementSecondary: '',
   brandStatementTertiary: '',
+  footerJson: null as unknown,
 };
 
 describe('<SitePolicyForm>', () => {

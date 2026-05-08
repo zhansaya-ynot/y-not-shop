@@ -323,6 +323,12 @@ model SitePolicy {
   brandStatementPrimary   String   @default("")
   brandStatementSecondary String   @default("")
   brandStatementTertiary  String   @default("")
+  /// Footer content: column titles + links, social URL, copyright,
+  /// tagline. Shape is `FooterContent` in `@/lib/cms/footer-content`.
+  /// Null on legacy rows — the storefront falls back to bundled
+  /// defaults so a fresh install renders the footer correctly before
+  /// the seed migration runs.
+  footerJson              Json?
   updatedAt              DateTime @updatedAt
 }
 

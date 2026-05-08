@@ -3,7 +3,7 @@
 import * as React from "react";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { ProductCard } from "@/components/product-card";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteFooterStatic, STATIC_FOOTER_FALLBACK } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -555,7 +555,7 @@ function UIKitPage() {
         </Container>
       </main>
 
-      <SiteFooter />
+      <SiteFooterStatic content={STATIC_FOOTER_FALLBACK} />
     </>
   );
 }

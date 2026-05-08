@@ -19,6 +19,11 @@ export const SitePolicyUpdateSchema = z.object({
   brandStatementPrimary: z.string().max(280).optional(),
   brandStatementSecondary: z.string().max(80).optional(),
   brandStatementTertiary: z.string().max(80).optional(),
+  /** Footer content (columns, social, copyright, tagline) — schema in
+   *  `@/lib/cms/footer-content`. Stored verbatim as JSON; the storefront
+   *  parses it defensively and falls back to bundled defaults on
+   *  validation failure. */
+  footerJson: z.unknown().optional(),
 });
 
 export type SitePolicyUpdateInput = z.infer<typeof SitePolicyUpdateSchema>;

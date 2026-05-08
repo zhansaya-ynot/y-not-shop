@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/server/db/client';
 import { withAudit } from '../audit';
 import type { SitePolicyUpdateInput } from '@/lib/schemas/admin-sitepolicy';
@@ -49,6 +50,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
           ...(input.brandStatementPrimary !== undefined ? { brandStatementPrimary: input.brandStatementPrimary } : {}),
           ...(input.brandStatementSecondary !== undefined ? { brandStatementSecondary: input.brandStatementSecondary } : {}),
           ...(input.brandStatementTertiary !== undefined ? { brandStatementTertiary: input.brandStatementTertiary } : {}),
+          ...(input.footerJson !== undefined
+            ? { footerJson: input.footerJson as Prisma.InputJsonValue }
+            : {}),
         },
         update: {
           ...(input.defaultCurrency !== undefined ? { defaultCurrency: input.defaultCurrency } : {}),
@@ -63,6 +67,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
           ...(input.brandStatementPrimary !== undefined ? { brandStatementPrimary: input.brandStatementPrimary } : {}),
           ...(input.brandStatementSecondary !== undefined ? { brandStatementSecondary: input.brandStatementSecondary } : {}),
           ...(input.brandStatementTertiary !== undefined ? { brandStatementTertiary: input.brandStatementTertiary } : {}),
+          ...(input.footerJson !== undefined
+            ? { footerJson: input.footerJson as Prisma.InputJsonValue }
+            : {}),
         },
       }),
   );
