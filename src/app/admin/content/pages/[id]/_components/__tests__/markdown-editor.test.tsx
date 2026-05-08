@@ -6,6 +6,8 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
+// TipTap requires a real document — happy-dom is enough but we still need
+// to silence the immediatelyRender warning by passing immediatelyRender:false.
 const initial = {
   slug: 'about',
   title: 'About',
@@ -21,18 +23,9 @@ describe('<MarkdownEditor>', () => {
     (globalThis as any).fetch = vi.fn();
   });
 
-  it('renders preview that reflects body markdown', () => {
+  it('renders the title input pre-filled', () => {
     render(<MarkdownEditor id="p1" initial={initial} />);
-    const preview = screen.getByTestId('markdown-preview');
-    expect(preview.querySelector('h1')?.textContent).toBe('Hello');
-  });
-
-  it('updates preview as the textarea changes', () => {
-    render(<MarkdownEditor id="p1" initial={initial} />);
-    const textarea = screen.getByTestId('markdown-textarea');
-    fireEvent.change(textarea, { target: { value: '## New heading' } });
-    const preview = screen.getByTestId('markdown-preview');
-    expect(preview.querySelector('h2')?.textContent).toBe('New heading');
+    expect(screen.getByDisplayValue('About')).toBeTruthy();
   });
 
   it('saves via PATCH', async () => {

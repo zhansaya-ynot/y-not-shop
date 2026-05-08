@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { marked } from 'marked';
 import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
+import { RichTextEditor } from '@/components/admin/rich-text-editor';
 
 interface Props {
   id: string;
@@ -19,9 +19,22 @@ interface Props {
 }
 
 /**
- * 50/50 split editor: textarea on the left, react-markdown preview on the
- * right re-rendering on every keystroke. The slug + meta fields share the
- * same PATCH payload so a single Save button handles everything.
+ * Detect whether a stored body is HTML (TipTap output, the new format)
+ * versus legacy Markdown. Heuristic: a body that opens with a tag we know
+ * the editor emits is HTML — anything else is treated as markdown and
+ * up-converted on load. Older rows authored with the markdown textarea
+ * survive without a backfill migration.
+ */
+function looksLikeHtml(body: string): boolean {
+  const trimmed = body.trimStart();
+  return /^<(p|h[1-6]|ul|ol|blockquote|div|table|hr|figure|br)\b/i.test(trimmed);
+}
+
+/**
+ * WYSIWYG page editor. Stores TipTap-rendered HTML in the existing
+ * `bodyMarkdown` column — column name kept for migration tractability;
+ * the storefront renderer detects HTML vs markdown via the same
+ * heuristic above. Title, slug, hero image, meta tags share one Save.
  */
 export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const router = useRouter();
@@ -30,7 +43,13 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [saved, setSaved] = React.useState(false);
   const [title, setTitle] = React.useState(initial.title);
   const [slug, setSlug] = React.useState(initial.slug);
-  const [body, setBody] = React.useState(initial.bodyMarkdown);
+  // First-time HTML coercion: legacy markdown rows render through `marked`
+  // so the visual editor sees the same formatting the storefront did.
+  const [body, setBody] = React.useState(() =>
+    looksLikeHtml(initial.bodyMarkdown)
+      ? initial.bodyMarkdown
+      : marked.parse(initial.bodyMarkdown ?? '', { async: false }) as string,
+  );
   const [metaTitle, setMetaTitle] = React.useState(initial.metaTitle);
   const [metaDescription, setMetaDescription] = React.useState(initial.metaDescription);
   const [heroImage, setHeroImage] = React.useState<string>(initial.heroImage ?? '');
@@ -108,27 +127,19 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[480px]">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">
-            Body (Markdown)
-          </span>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="border border-neutral-300 rounded px-3 py-2 font-mono text-sm flex-1 min-h-[480px]"
-            data-testid="markdown-textarea"
-          />
-        </label>
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">Preview</span>
-          <div
-            className="prose prose-sm max-w-none border border-neutral-200 rounded px-4 py-3 bg-white overflow-auto min-h-[480px]"
-            data-testid="markdown-preview"
-          >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
-          </div>
-        </div>
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">Body</span>
+        <RichTextEditor
+          value={body}
+          onChange={setBody}
+          minHeight={420}
+          placeholder="Start writing the page body…"
+        />
+        <span className="text-[11px] text-neutral-500" data-testid="markdown-preview">
+          Tip: paste from Word or Google Docs and formatting (headings,
+          bold, lists) is preserved. The page on the live site uses the
+          same typography you see here.
+        </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
