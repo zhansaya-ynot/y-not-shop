@@ -305,6 +305,12 @@ model SitePolicy {
   freeShipThresholdCents Int      @default(20000)
   contactEmail           String   @default("hello@ynot.london")
   whatsappNumber         String   @default("")
+  /// Side-image URL/storage path for /sign-in. Surfaced in the admin
+  /// Settings form via SingleImageUpload. Pre-populated with the bundled
+  /// asset so the form opens with a 'currently uploaded' preview.
+  authSignInImage        String?
+  /// Same as authSignInImage but for /register.
+  authRegisterImage      String?
   updatedAt              DateTime @updatedAt
 }
 

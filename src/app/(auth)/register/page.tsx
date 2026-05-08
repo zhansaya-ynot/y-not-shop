@@ -1,64 +1,12 @@
-"use client";
+import { prisma } from "@/server/db/client";
+import { RegisterClient } from "./register-client";
 
-import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { AuthCard } from "@/components/auth/auth-card";
-import { RegisterForm, type RegisterFormSubmit } from "@/components/auth/register-form";
-import { ToastProvider, useToast } from "@/components/ui/toast";
-import { authFetch } from "@/lib/auth-fetch";
+export const dynamic = "force-dynamic";
 
-function RegisterPageInner() {
-  const router = useRouter();
-  const toast = useToast();
+const FALLBACK = "/cms/auth/register.jpg";
 
-  const handleSubmit = async (data: RegisterFormSubmit) => {
-    const res = await authFetch("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password,
-        name: `${data.firstName} ${data.lastName}`.trim(),
-      }),
-    });
-    if (res.status === 409) {
-      toast.show("That email is already registered.");
-      return;
-    }
-    if (!res.ok) {
-      toast.show("We could not create your account. Please try again.");
-      return;
-    }
-    toast.show("Check your email for the verification code.");
-    router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-  };
-
-  return (
-    <AuthCard
-      title="Create account"
-      subtitle="Join YNOT London for early access and members-only releases."
-      sideImage={{ src: "/cms/auth/register.jpg", alt: "YNOT editorial" }}
-      footer={
-        <>
-          Already have an account?{" "}
-          <Link
-            href="/sign-in"
-            className="underline underline-offset-2 hover:text-foreground-primary"
-          >
-            Sign in
-          </Link>
-        </>
-      }
-    >
-      <RegisterForm onSubmit={handleSubmit} />
-    </AuthCard>
-  );
-}
-
-export default function RegisterPage() {
-  return (
-    <ToastProvider>
-      <RegisterPageInner />
-    </ToastProvider>
-  );
+export default async function RegisterPage() {
+  const policy = await prisma.sitePolicy.findUnique({ where: { id: "singleton" } });
+  const sideImageUrl = policy?.authRegisterImage || FALLBACK;
+  return <RegisterClient sideImageUrl={sideImageUrl} />;
 }

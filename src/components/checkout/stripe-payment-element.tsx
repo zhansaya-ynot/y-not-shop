@@ -72,10 +72,32 @@ function PayForm({
     if (!stripe || !elements) return;
     setSubmitting(true);
     setError(null);
+    // When fields.billingDetails === 'never' Stripe REQUIRES the customer's
+    // name + address inside confirmParams.payment_method_data.billing_details
+    // — otherwise it throws an IntegrationError at confirmPayment time.
+    // defaultValues populates the rendered UI but is NOT what gets sent.
+    const billingDetails = shippingAddress
+      ? {
+          name: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+          email: shippingAddress.email,
+          phone: shippingAddress.phone,
+          address: {
+            line1: shippingAddress.line1,
+            line2: shippingAddress.line2 ?? '',
+            city: shippingAddress.city,
+            postal_code: shippingAddress.postcode,
+            country: shippingAddress.countryCode,
+            state: '',
+          },
+        }
+      : undefined;
     const { error: stripeError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/checkout/success/${orderId}`,
+        ...(billingDetails
+          ? { payment_method_data: { billing_details: billingDetails } }
+          : {}),
       },
     });
     if (stripeError) {

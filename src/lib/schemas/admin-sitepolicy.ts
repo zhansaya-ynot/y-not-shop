@@ -11,6 +11,10 @@ export const SitePolicyUpdateSchema = z.object({
   freeShipThresholdCents: z.number().int().min(0).optional(),
   contactEmail: z.string().email().optional(),
   whatsappNumber: z.string().max(40).optional(),
+  /** URL/storage path for the side image on /sign-in. */
+  authSignInImage: z.string().nullable().optional(),
+  /** URL/storage path for the side image on /register. */
+  authRegisterImage: z.string().nullable().optional(),
 });
 
 export type SitePolicyUpdateInput = z.infer<typeof SitePolicyUpdateSchema>;

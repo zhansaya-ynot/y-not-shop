@@ -44,6 +44,8 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
             : {}),
           ...(input.contactEmail !== undefined ? { contactEmail: input.contactEmail } : {}),
           ...(input.whatsappNumber !== undefined ? { whatsappNumber: input.whatsappNumber } : {}),
+          ...(input.authSignInImage !== undefined ? { authSignInImage: input.authSignInImage } : {}),
+          ...(input.authRegisterImage !== undefined ? { authRegisterImage: input.authRegisterImage } : {}),
         },
         update: {
           ...(input.defaultCurrency !== undefined ? { defaultCurrency: input.defaultCurrency } : {}),
@@ -53,6 +55,8 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
             : {}),
           ...(input.contactEmail !== undefined ? { contactEmail: input.contactEmail } : {}),
           ...(input.whatsappNumber !== undefined ? { whatsappNumber: input.whatsappNumber } : {}),
+          ...(input.authSignInImage !== undefined ? { authSignInImage: input.authSignInImage } : {}),
+          ...(input.authRegisterImage !== undefined ? { authRegisterImage: input.authRegisterImage } : {}),
         },
       }),
   );

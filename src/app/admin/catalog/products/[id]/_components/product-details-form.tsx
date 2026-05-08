@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 
 export interface ProductDetailsInitial {
   name: string;
@@ -181,16 +182,14 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         />
         <span>One size — hide the size picker on this product</span>
       </label>
-      <Field label="Size guide image URL" className="md:col-span-2">
-        <input
-          type="text"
+      <Field label="Size guide image" className="md:col-span-2">
+        <SingleImageUpload
+          prefix="size-guides"
           value={state.sizeGuideImage ?? ''}
-          onChange={(e) => update('sizeGuideImage', e.target.value || null)}
-          placeholder="/cms/size-guides/jacket-fit.jpg"
-          className="border border-neutral-300 rounded px-3 py-2 w-full text-sm"
+          onChange={(url) => update('sizeGuideImage', url || null)}
         />
         <p className="text-[11px] text-neutral-500 mt-1">
-          Upload the image elsewhere (e.g. via Hero / Lookbook media manager) and paste the URL or storage path here. The PDP shows a "Size guide" link on the size picker that opens this image in a modal.
+          Drag in a JPG/PNG of the sizing chart — file is stored under <code>/media/size-guides/</code>. The PDP shows a &quot;Size guide&quot; link on the size picker that opens this image in a modal. Empty = no link.
         </p>
       </Field>
 

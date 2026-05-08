@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 
 interface Initial {
   defaultCurrency: 'GBP' | 'USD' | 'EUR';
@@ -9,6 +10,8 @@ interface Initial {
   freeShipThresholdCents: number;
   contactEmail: string;
   whatsappNumber: string;
+  authSignInImage: string | null;
+  authRegisterImage: string | null;
 }
 
 interface Props {
@@ -32,6 +35,8 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
   );
   const [contactEmail, setContactEmail] = React.useState(initial.contactEmail);
   const [whatsappNumber, setWhatsappNumber] = React.useState(initial.whatsappNumber);
+  const [authSignInImage, setAuthSignInImage] = React.useState<string>(initial.authSignInImage ?? '');
+  const [authRegisterImage, setAuthRegisterImage] = React.useState<string>(initial.authRegisterImage ?? '');
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -52,6 +57,8 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           freeShipThresholdCents: threshold,
           contactEmail,
           whatsappNumber,
+          authSignInImage: authSignInImage.trim() || null,
+          authRegisterImage: authRegisterImage.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -131,6 +138,32 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           placeholder="e.g. +44 20 1234 5678"
         />
       </label>
+      <div className="flex flex-col gap-2 text-sm pt-4 border-t border-neutral-200">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Sign-in side image
+        </span>
+        <SingleImageUpload
+          prefix="auth"
+          value={authSignInImage}
+          onChange={setAuthSignInImage}
+        />
+        <span className="text-[11px] text-neutral-500">
+          Shown next to the form on /sign-in. Recommended portrait/square JPG.
+        </span>
+      </div>
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Register side image
+        </span>
+        <SingleImageUpload
+          prefix="auth"
+          value={authRegisterImage}
+          onChange={setAuthRegisterImage}
+        />
+        <span className="text-[11px] text-neutral-500">
+          Shown next to the form on /register. Same format as sign-in.
+        </span>
+      </div>
       {error && <p className="text-sm text-red-700">{error}</p>}
       {saved && <p className="text-sm text-green-700">Saved.</p>}
       <div className="flex gap-3 mt-2">

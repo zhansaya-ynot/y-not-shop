@@ -12,6 +12,8 @@ const initial = {
   freeShipThresholdCents: 20000,
   contactEmail: 'hello@ynot.london',
   whatsappNumber: '',
+  authSignInImage: null as string | null,
+  authRegisterImage: null as string | null,
 };
 
 describe('<SitePolicyForm>', () => {
