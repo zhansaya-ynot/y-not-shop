@@ -15,6 +15,8 @@ export const SitePolicyUpdateSchema = z.object({
   authSignInImage: z.string().nullable().optional(),
   /** URL/storage path for the side image on /register. */
   authRegisterImage: z.string().nullable().optional(),
+  /** Pre-filled WhatsApp chat message body. */
+  whatsappMessage: z.string().max(400).optional(),
   /** Three-line brand statement shown between hero and Shop-by-Category. */
   brandStatementPrimary: z.string().max(280).optional(),
   brandStatementSecondary: z.string().max(80).optional(),

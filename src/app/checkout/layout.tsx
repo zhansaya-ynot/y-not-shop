@@ -23,7 +23,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
-      <WhatsAppWidget phone="+44 7000 000000" message="I have a question about my order." />
+      <WhatsAppWidget />
     </>
   );
 }

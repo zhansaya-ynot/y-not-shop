@@ -43,10 +43,7 @@ export default async function AccountLayoutShell({
         </Section>
       </main>
       <SiteFooter />
-      <WhatsAppWidget
-        phone="+44 7000 000000"
-        message="Hi YNOT, I have a question about my account."
-      />
+      <WhatsAppWidget />
     </SessionProvider>
   );
 }

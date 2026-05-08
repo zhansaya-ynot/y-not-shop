@@ -94,7 +94,7 @@ export default async function CollectionPage({ params, searchParams }: PageProps
       </main>
 
       <SiteFooter />
-      <WhatsAppWidget phone="+44 7000 000000" message="Hi YNOT, I have a question." />
+      <WhatsAppWidget />
     </>
   );
 }

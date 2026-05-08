@@ -12,6 +12,7 @@ const initial = {
   freeShipThresholdCents: 20000,
   contactEmail: 'hello@ynot.london',
   whatsappNumber: '',
+  whatsappMessage: 'Hi YNOT, I have a question.',
   authSignInImage: null as string | null,
   authRegisterImage: null as string | null,
   brandStatementPrimary: '',

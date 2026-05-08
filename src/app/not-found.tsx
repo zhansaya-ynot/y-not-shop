@@ -31,7 +31,7 @@ export default function NotFound() {
         </Section>
       </main>
       <SiteFooter />
-      <WhatsAppWidget phone="+44 7000 000000" message="Hi YNOT, I have a question." />
+      <WhatsAppWidget />
     </>
   );
 }

@@ -16,6 +16,7 @@ interface Initial {
   freeShipThresholdCents: number;
   contactEmail: string;
   whatsappNumber: string;
+  whatsappMessage: string;
   authSignInImage: string | null;
   authRegisterImage: string | null;
   brandStatementPrimary: string;
@@ -45,6 +46,7 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
   );
   const [contactEmail, setContactEmail] = React.useState(initial.contactEmail);
   const [whatsappNumber, setWhatsappNumber] = React.useState(initial.whatsappNumber);
+  const [whatsappMessage, setWhatsappMessage] = React.useState(initial.whatsappMessage);
   const [authSignInImage, setAuthSignInImage] = React.useState<string>(initial.authSignInImage ?? '');
   const [authRegisterImage, setAuthRegisterImage] = React.useState<string>(initial.authRegisterImage ?? '');
   const [brandPrimary, setBrandPrimary] = React.useState<string>(initial.brandStatementPrimary);
@@ -73,6 +75,7 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           freeShipThresholdCents: threshold,
           contactEmail,
           whatsappNumber,
+          whatsappMessage,
           authSignInImage: authSignInImage.trim() || null,
           authRegisterImage: authRegisterImage.trim() || null,
           brandStatementPrimary: brandPrimary.trim(),
@@ -157,6 +160,26 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           className="border border-neutral-300 rounded px-3 py-2 max-w-md font-mono text-sm"
           placeholder="e.g. +44 20 1234 5678"
         />
+        <span className="text-[11px] text-neutral-500">
+          Empty hides the floating WhatsApp button site-wide.
+        </span>
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          WhatsApp pre-filled message
+        </span>
+        <input
+          type="text"
+          value={whatsappMessage}
+          onChange={(e) => setWhatsappMessage(e.target.value)}
+          maxLength={400}
+          className="border border-neutral-300 rounded px-3 py-2 max-w-md text-sm"
+          placeholder="Hi YNOT, I have a question."
+        />
+        <span className="text-[11px] text-neutral-500">
+          Pre-filled in the chat input when a customer taps the floating
+          WhatsApp button.
+        </span>
       </label>
       <fieldset className="flex flex-col gap-3 text-sm pt-4 border-t border-neutral-200">
         <legend className="text-xs uppercase tracking-wider text-neutral-600 mb-1">

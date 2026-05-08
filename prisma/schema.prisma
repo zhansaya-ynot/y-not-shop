@@ -329,6 +329,11 @@ model SitePolicy {
   /// defaults so a fresh install renders the footer correctly before
   /// the seed migration runs.
   footerJson              Json?
+  /// Pre-filled WhatsApp message body. The contact phone number is
+  /// already in `whatsappNumber`. Empty = no `?text=` query string,
+  /// just opens an empty chat. Empty `whatsappNumber` hides the
+  /// floating widget entirely.
+  whatsappMessage         String   @default("Hi YNOT, I have a question.")
   updatedAt              DateTime @updatedAt
 }
 

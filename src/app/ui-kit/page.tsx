@@ -28,7 +28,7 @@ import { Modal } from "@/components/ui/modal";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { Tabs } from "@/components/ui/tabs";
 import { Accordion } from "@/components/ui/accordion";
-import { WhatsAppWidget } from "@/components/whatsapp-widget";
+import { WhatsAppWidgetStatic } from "@/components/whatsapp-widget";
 import { MenuIcon, BagIcon } from "@/components/icons";
 
 const COLORS = [
@@ -564,7 +564,7 @@ export default function UIKitPageWrapper() {
   return (
     <ToastProvider>
       <UIKitPage />
-      <WhatsAppWidget phone="+44 7000 000000" message="Hi YNOT, I have a question." />
+      <WhatsAppWidgetStatic phone="+44 7000 000000" message="Hi YNOT, I have a question." />
     </ToastProvider>
   );
 }

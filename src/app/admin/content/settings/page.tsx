@@ -12,6 +12,7 @@ const DEFAULTS = {
   freeShipThresholdCents: 20000,
   contactEmail: 'hello@ynot.london',
   whatsappNumber: '',
+  whatsappMessage: 'Hi YNOT, I have a question.',
   authSignInImage: '/cms/auth/sign-in.jpg' as string | null,
   authRegisterImage: '/cms/auth/register.jpg' as string | null,
   brandStatementPrimary:
@@ -33,6 +34,7 @@ export default async function AdminSettingsPage(): Promise<React.ReactElement> {
         freeShipThresholdCents: policy.freeShipThresholdCents,
         contactEmail: policy.contactEmail,
         whatsappNumber: policy.whatsappNumber,
+        whatsappMessage: policy.whatsappMessage,
         authSignInImage: policy.authSignInImage,
         authRegisterImage: policy.authRegisterImage,
         brandStatementPrimary: policy.brandStatementPrimary,

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooterStatic, STATIC_FOOTER_FALLBACK } from "@/components/site-footer";
-import { WhatsAppWidget } from "@/components/whatsapp-widget";
+import { WhatsAppWidgetStatic } from "@/components/whatsapp-widget";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Display } from "@/components/ui/typography";
@@ -137,7 +137,7 @@ export default function InitiateReturnPage() {
         <InitiateReturnInner />
       </React.Suspense>
       <SiteFooterStatic content={STATIC_FOOTER_FALLBACK} />
-      <WhatsAppWidget phone="+44 7000 000000" message="Hi YNOT, I have a question about my return." />
+      <WhatsAppWidgetStatic phone="+44 7000 000000" message="Hi YNOT, I have a question about my return." />
     </>
   );
 }
