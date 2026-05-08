@@ -64,7 +64,11 @@ export default async function CollectionPage({ params, searchParams }: PageProps
       <SiteHeader />
 
       <main className="flex-1">
-        <CategoryHeader title={cat.name} description={cat.description} bannerImage={cat.bannerImage} />
+        <CategoryHeader
+          title={cat.name}
+          description={cat.description}
+          bannerImage={cat.heroImage ?? cat.bannerImage}
+        />
 
         <Section padding="md">
           <Container size="wide">

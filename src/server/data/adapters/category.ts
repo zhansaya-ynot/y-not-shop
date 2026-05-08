@@ -7,6 +7,7 @@ export function toCategory(row: PrismaCategory): ZodCategory {
     name: row.name,
     description: row.description,
     bannerImage: row.bannerImage,
+    heroImage: row.heroImage,
     sortOrder: row.sortOrder,
     meta: {
       title: row.metaTitle,

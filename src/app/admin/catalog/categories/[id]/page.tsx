@@ -32,6 +32,7 @@ export default async function AdminCategoryEditPage({
           slug: category.slug,
           description: category.description,
           bannerImage: category.bannerImage,
+          heroImage: category.heroImage,
         }}
       />
     </div>

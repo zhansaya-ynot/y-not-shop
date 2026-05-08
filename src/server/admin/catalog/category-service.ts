@@ -33,6 +33,7 @@ export async function createCategory(opts: CreateCategoryOptions) {
           description: input.description ?? '',
           parentId: input.parentId ?? null,
           bannerImage: input.bannerImage ?? null,
+          heroImage: input.heroImage ?? null,
         },
       }),
   );
@@ -81,6 +82,7 @@ export async function updateCategory(opts: UpdateCategoryOptions) {
           // `partial()` callers don't accidentally flatten the tree.
           ...(input.parentId !== undefined ? { parentId: input.parentId ?? null } : {}),
           ...(input.bannerImage !== undefined ? { bannerImage: input.bannerImage } : {}),
+          ...(input.heroImage !== undefined ? { heroImage: input.heroImage } : {}),
         },
       }),
   );

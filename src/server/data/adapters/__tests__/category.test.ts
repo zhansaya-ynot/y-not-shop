@@ -8,6 +8,7 @@ const fixture = {
   name: "Jackets",
   description: "Outerwear staples.",
   bannerImage: "/cms/jackets.jpg",
+  heroImage: null as string | null,
   sortOrder: 0,
   metaTitle: "Jackets · YNOT",
   metaDescription: "Premium jackets.",

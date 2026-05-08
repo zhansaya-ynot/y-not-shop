@@ -213,7 +213,14 @@ model Category {
   slug            String            @unique
   name            String
   description     String            @default("")
+  /// Portrait/square image used on the homepage Shop-by-Category grid
+  /// (rendered inside a 3:4 card with object-cover).
   bannerImage     String?
+  /// Wide/landscape image used as the full-width hero on /collection/<slug>.
+  /// Falls back to `bannerImage` when null, but the cropping of a portrait
+  /// into a 40vh full-width band looks ugly so the operator should upload
+  /// a dedicated landscape variant.
+  heroImage       String?
   sortOrder       Int               @default(0)
   metaTitle       String            @default("")
   metaDescription String            @default("")

@@ -19,6 +19,7 @@ const initial = {
   slug: 'outerwear',
   description: 'd',
   bannerImage: null as string | null,
+  heroImage: null as string | null,
 };
 
 describe('<CategoryEditForm>', () => {

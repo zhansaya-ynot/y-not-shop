@@ -11,6 +11,7 @@ interface Props {
     slug: string;
     description: string;
     bannerImage: string | null;
+    heroImage: string | null;
   };
 }
 
@@ -29,6 +30,7 @@ export function CategoryEditForm({ categoryId, initial }: Props): React.ReactEle
   const [slug, setSlug] = React.useState(initial.slug);
   const [description, setDescription] = React.useState(initial.description);
   const [bannerImage, setBannerImage] = React.useState<string>(initial.bannerImage ?? '');
+  const [heroImage, setHeroImage] = React.useState<string>(initial.heroImage ?? '');
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -46,6 +48,7 @@ export function CategoryEditForm({ categoryId, initial }: Props): React.ReactEle
           slug,
           description,
           bannerImage: bannerImage.trim() || null,
+          heroImage: heroImage.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -101,15 +104,32 @@ export function CategoryEditForm({ categoryId, initial }: Props): React.ReactEle
         />
       </label>
       <div className="flex flex-col gap-2 text-sm">
-        <span className="text-xs uppercase tracking-wider text-neutral-600">Banner image</span>
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Card image (portrait, 3:4)
+        </span>
         <SingleImageUpload
           prefix="categories"
           value={bannerImage}
           onChange={setBannerImage}
         />
         <span className="text-[11px] text-neutral-500">
-          Shown on the homepage Shop-by-Category grid. Drag in a JPG/PNG or
-          click to upload — file is stored under <code>/media/categories/</code>.
+          Shown on the homepage Shop-by-Category grid. Use a portrait/square
+          image — recommended ~800×1066 px JPG.
+        </span>
+      </div>
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Hero image (wide, 16:9 or wider)
+        </span>
+        <SingleImageUpload
+          prefix="categories"
+          value={heroImage}
+          onChange={setHeroImage}
+        />
+        <span className="text-[11px] text-neutral-500">
+          Full-width banner at the top of /collection/{slug}. Use a landscape
+          image — recommended ~1920×800 px JPG. Falls back to the card image
+          when empty (looks cropped).
         </span>
       </div>
       {error && <p className="text-sm text-red-700">{error}</p>}
