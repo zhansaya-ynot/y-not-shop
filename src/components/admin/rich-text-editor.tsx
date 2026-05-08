@@ -6,6 +6,20 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import { marked } from 'marked';
+
+/**
+ * Pasted text often contains markdown markers (operator copies copy
+ * doc, AI generated content, etc). Detect heading / list / bold
+ * patterns and convert via `marked` so the editor sees structured
+ * HTML rather than literal `#` characters.
+ */
+function looksLikeMarkdown(text: string): boolean {
+  if (/(^|\n)\s*#{1,3}\s\S/.test(text)) return true;
+  if (/\*\*[^*\n]+\*\*/.test(text)) return true;
+  if (/(^|\n)\s*[-*]\s+\S/.test(text)) return true;
+  return false;
+}
 
 interface Props {
   /** Stored as HTML — TipTap's `getHTML()` output. */
@@ -30,6 +44,10 @@ export function RichTextEditor({
   placeholder = 'Write here…',
   minHeight = 280,
 }: Props): React.ReactElement {
+  // Editor isn't in scope inside the editorProps closure (chicken/egg
+  // with useEditor), so we capture it in a ref and dereference at
+  // paste time. The ref is populated by the time any paste fires.
+  const editorRef = React.useRef<Editor | null>(null);
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -52,6 +70,30 @@ export function RichTextEditor({
           'prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[var(--rte-min)]',
         style: `--rte-min:${minHeight}px`,
       },
+      // Intercept pastes. If the clipboard carries plain text that
+      // looks like markdown (operator pasted from a copy doc), run it
+      // through `marked` and insert the resulting HTML so the editor
+      // sees real headings/lists/bold rather than literal `#` chars.
+      // HTML pastes (Word, Google Docs, web pages) skip this branch
+      // and use TipTap's default HTML parser.
+      handlePaste(_view, event): boolean {
+        const ed = editorRef.current;
+        if (!ed) return false;
+        const cd = event.clipboardData;
+        if (!cd) return false;
+        const html = cd.getData('text/html');
+        const text = cd.getData('text/plain');
+        if (html) return false;
+        if (!text || !looksLikeMarkdown(text)) return false;
+        event.preventDefault();
+        try {
+          const converted = marked.parse(text, { async: false }) as string;
+          ed.commands.insertContent(converted);
+        } catch {
+          ed.commands.insertContent(text);
+        }
+        return true;
+      },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
@@ -63,6 +105,13 @@ export function RichTextEditor({
     if (editor.getHTML() === value) return;
     editor.commands.setContent(value || '', { emitUpdate: false });
   }, [editor, value]);
+
+  // Keep the ref pointing at the live editor instance for the paste
+  // handler defined inside editorProps (which can't close over `editor`
+  // directly because useEditor returns it).
+  React.useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
 
   if (!editor) {
     return (

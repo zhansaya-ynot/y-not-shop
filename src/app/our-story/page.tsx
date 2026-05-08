@@ -11,6 +11,7 @@ import { ValueCallouts } from "@/components/static/value-callouts";
 import { PullQuote } from "@/components/static/pull-quote";
 import { prisma } from "@/server/db/client";
 import { parseOurStoryExtras } from "@/lib/cms/page-extras";
+import { renderRichBodyHtml } from "@/lib/cms/render-content";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,12 @@ export async function generateMetadata() {
 export default async function OurStoryPage() {
   const page = await prisma.staticPage.findUnique({ where: { slug: "our-story" } });
   const heroImage = page?.heroImage || FALLBACK_HERO;
-  const bodyHtml = page?.bodyMarkdown?.trim() || FALLBACK_BODY_HTML;
+  // Coerce markdown-pasted content to real HTML before render. If the
+  // operator typed `# Header` instead of clicking the H2 button, TipTap
+  // stored it as literal text — renderRichBodyHtml runs it through
+  // marked so the storefront still sees proper headings, lists, and
+  // bold spans rather than literal `#` characters.
+  const bodyHtml = renderRichBodyHtml(page?.bodyMarkdown?.trim() || FALLBACK_BODY_HTML);
   const extras = parseOurStoryExtras(page?.extras ?? null);
   const valueCallouts = extras?.valueCallouts ?? FALLBACK_VALUE_CALLOUTS;
   const pullQuote = extras?.pullQuote ?? FALLBACK_PULL_QUOTE;
