@@ -17,16 +17,16 @@ describe('/admin/content/pages/[id] markdown editor page', () => {
     await resetDb();
   });
 
-  it('renders editor with body markdown rendered in preview', async () => {
+  it('renders the rich-text editor pre-filled with the page body', async () => {
     const p = await prisma.staticPage.create({
       data: { slug: 'about', title: 'About us', bodyMarkdown: '# Hello world' },
     });
     const el = await AdminStaticPageDetailPage({ params: Promise.resolve({ id: p.id }) });
     const html = renderToString(el);
     expect(html).toContain('About us');
-    expect(html).toContain('Hello world');
-    // textarea + preview both rendered
-    expect(html).toContain('markdown-textarea');
+    // TipTap initialises client-side, so SSR doesn't render the body
+    // content itself, but the slug and tip text should be present.
+    expect(html).toContain('about');
     expect(html).toContain('markdown-preview');
   });
 });

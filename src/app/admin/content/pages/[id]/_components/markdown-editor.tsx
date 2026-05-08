@@ -5,6 +5,8 @@ import { marked } from 'marked';
 import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 import { RichTextEditor } from '@/components/admin/rich-text-editor';
+import { OurStoryExtrasEditor } from './our-story-extras';
+import { parseOurStoryExtras, type OurStoryExtras } from '@/lib/cms/page-extras';
 
 interface Props {
   id: string;
@@ -15,6 +17,7 @@ interface Props {
     metaTitle: string;
     metaDescription: string;
     heroImage: string | null;
+    extras?: Record<string, unknown> | null;
   };
 }
 
@@ -30,11 +33,17 @@ function looksLikeHtml(body: string): boolean {
   return /^<(p|h[1-6]|ul|ol|blockquote|div|table|hr|figure|br)\b/i.test(trimmed);
 }
 
+const OUR_STORY_DEFAULT_EXTRAS: OurStoryExtras = {
+  valueCallouts: { heading: 'What we stand for', items: [] },
+  pullQuote: { quote: '', attribution: '' },
+};
+
 /**
  * WYSIWYG page editor. Stores TipTap-rendered HTML in the existing
  * `bodyMarkdown` column — column name kept for migration tractability;
  * the storefront renderer detects HTML vs markdown via the same
- * heuristic above. Title, slug, hero image, meta tags share one Save.
+ * heuristic above. Title, slug, hero image, meta tags, and (for known
+ * slugs) page-specific structured extras share one Save.
  */
 export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const router = useRouter();
@@ -53,22 +62,30 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
   const [metaTitle, setMetaTitle] = React.useState(initial.metaTitle);
   const [metaDescription, setMetaDescription] = React.useState(initial.metaDescription);
   const [heroImage, setHeroImage] = React.useState<string>(initial.heroImage ?? '');
+  const [ourStoryExtras, setOurStoryExtras] = React.useState<OurStoryExtras>(
+    () => parseOurStoryExtras(initial.extras ?? null) ?? OUR_STORY_DEFAULT_EXTRAS,
+  );
+
+  const isOurStory = initial.slug === 'our-story';
 
   function onSave(): void {
     setError(null);
     setSaved(false);
     startTransition(async () => {
+      const payload: Record<string, unknown> = {
+        title,
+        slug,
+        bodyMarkdown: body,
+        metaTitle,
+        metaDescription,
+        heroImage: heroImage.trim() || null,
+      };
+      if (isOurStory) payload.extras = ourStoryExtras;
+
       const res = await fetch(`/api/admin/content/pages/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          slug,
-          bodyMarkdown: body,
-          metaTitle,
-          metaDescription,
-          heroImage: heroImage.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         setError(`Save failed (${res.status})`);
@@ -141,6 +158,10 @@ export function MarkdownEditor({ id, initial }: Props): React.ReactElement {
           same typography you see here.
         </span>
       </div>
+
+      {isOurStory && (
+        <OurStoryExtrasEditor value={ourStoryExtras} onChange={setOurStoryExtras} />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1 text-sm">

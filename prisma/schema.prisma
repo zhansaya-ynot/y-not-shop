@@ -294,6 +294,11 @@ model StaticPage {
   heroImage       String?
   metaTitle       String   @default("")
   metaDescription String   @default("")
+  /// Page-specific structured content beyond the body — value callouts,
+  /// pull quotes, info grids, shipping tables, etc. Shape is per-slug
+  /// (typed in @/lib/cms/page-extras) so each migrated page carries
+  /// only the fields it actually renders. Null on legacy rows.
+  extras          Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

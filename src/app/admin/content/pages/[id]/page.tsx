@@ -34,6 +34,9 @@ export default async function AdminStaticPageDetailPage({
           metaTitle: page.metaTitle,
           metaDescription: page.metaDescription,
           heroImage: page.heroImage,
+          // Cast through unknown — Prisma types `extras` as JsonValue,
+          // and the editor parses with its own zod schema before use.
+          extras: (page.extras ?? null) as unknown as Record<string, unknown> | null,
         }}
       />
     </div>

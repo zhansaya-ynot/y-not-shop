@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/server/db/client';
 import { withAudit } from '../audit';
 import { ensureUniqueSlug } from '../catalog/slug-service';
@@ -36,6 +37,10 @@ export async function createStaticPage(opts: CreateStaticPageOptions) {
           metaTitle: input.metaTitle ?? '',
           metaDescription: input.metaDescription ?? '',
           heroImage: input.heroImage ?? null,
+          extras:
+            input.extras === undefined
+              ? Prisma.JsonNull
+              : (input.extras as Prisma.InputJsonValue),
         },
       }),
   );
@@ -79,6 +84,11 @@ export async function updateStaticPage(opts: UpdateStaticPageOptions) {
           metaTitle: input.metaTitle,
           metaDescription: input.metaDescription,
           ...(input.heroImage !== undefined ? { heroImage: input.heroImage } : {}),
+          // Json column quirk: undefined = "don't touch", null sentinel
+          // = "set to SQL NULL", any other value = stored verbatim.
+          ...(input.extras !== undefined
+            ? { extras: input.extras as Prisma.InputJsonValue }
+            : {}),
         },
       }),
   );
