@@ -334,6 +334,10 @@ model SitePolicy {
   /// just opens an empty chat. Empty `whatsappNumber` hides the
   /// floating widget entirely.
   whatsappMessage         String   @default("Hi YNOT, I have a question.")
+  /// 'Timeless Collection' editorial block on the homepage. Shape is
+  /// `HomeEditorialContent` in `@/lib/cms/home-editorial`. Null on legacy
+  /// rows — the storefront falls back to bundled defaults.
+  homeEditorialJson       Json?
   updatedAt              DateTime @updatedAt
 }
 

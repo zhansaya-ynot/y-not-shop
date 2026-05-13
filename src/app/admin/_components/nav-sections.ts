@@ -49,6 +49,7 @@ export const NAV_SECTIONS: NavSection[] = [
     heading: 'PAGES',
     items: [
       { href: '/admin/content/hero', label: 'Home — Hero' },
+      { href: '/admin/content/editorial', label: 'Home — Timeless block' },
       { href: '/admin/content/pages/by-slug/our-story', label: 'Our Story' },
       { href: '/admin/content/pages/by-slug/contact', label: 'Contact' },
       { href: '/admin/content/pages/by-slug/shipping-returns', label: 'Shipping & Returns' },

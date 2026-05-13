@@ -26,6 +26,11 @@ export const SitePolicyUpdateSchema = z.object({
    *  parses it defensively and falls back to bundled defaults on
    *  validation failure. */
   footerJson: z.unknown().optional(),
+  /** 'Timeless Collection' editorial block on the homepage — schema in
+   *  `@/lib/cms/home-editorial`. Stored verbatim as JSON; the storefront
+   *  parses it defensively and falls back to bundled defaults on
+   *  validation failure. */
+  homeEditorialJson: z.unknown().optional(),
 });
 
 export type SitePolicyUpdateInput = z.infer<typeof SitePolicyUpdateSchema>;

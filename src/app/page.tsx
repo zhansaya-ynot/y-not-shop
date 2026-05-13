@@ -13,6 +13,7 @@ import { NewsletterSignup } from "@/components/blocks/newsletter-signup";
 import { getHero, getLookbook } from "@/server/data/content";
 import { getNewArrivals } from "@/server/data/products";
 import { prisma } from "@/server/db/client";
+import { getHomeEditorial } from "@/lib/cms/home-editorial";
 
 // Hardcoded as last-resort if SitePolicy hasn't been seeded yet — keeps
 // the homepage from rendering blank lines on a fresh install.
@@ -45,15 +46,14 @@ async function getBrandStatement() {
 }
 
 export default async function Home() {
-  const [hero, lookbook, newArrivals, categories, brandStatement] = await Promise.all([
+  const [hero, lookbook, newArrivals, categories, brandStatement, editorial] = await Promise.all([
     getHero(),
     getLookbook(),
     getNewArrivals(4),
     getTopLevelCategories(),
     getBrandStatement(),
+    getHomeEditorial(),
   ]);
-
-  const timelessImage = "/cms/timeless.jpg";
 
   return (
     <>
@@ -83,11 +83,11 @@ export default async function Home() {
         </FadeUpOnScroll>
         <FadeUpOnScroll>
           <EditorialOverlay
-            title="Timeless Collection"
-            body="Signature silhouettes that anchor the collection, crafted with ease and refinement for continual wear."
-            image={timelessImage}
-            ctaHref="/collection/jackets"
-            ctaLabel="Explore"
+            title={editorial.title}
+            body={editorial.body}
+            image={editorial.imageUrl}
+            ctaHref={editorial.ctaHref || undefined}
+            ctaLabel={editorial.ctaLabel || undefined}
           />
         </FadeUpOnScroll>
         <FadeUpOnScroll>
