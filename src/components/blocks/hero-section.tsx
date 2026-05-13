@@ -54,10 +54,13 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center text-center text-foreground-inverse px-6">
         <motion.p
-          // Script wordmark — italic, no caps, light tracking. Falls back
-          // to Italianno (Google) when Englische Schreibschrift isn't
-          // installed locally; Helvetica italic as final fallback.
-          className="font-script italic text-[64px] leading-none md:text-[120px]"
+          // Sized 1:1 with the Nour Hammour reference: 24px base, a
+          // viewport-relative ramp from 375px up, capped at 36px past
+          // 1300px. font-weight stays 400 (the only weight the script
+          // family ships). Letting the family render its native slant
+          // — no `italic` utility, which would synthesise an oblique
+          // on top and overshoot the curve.
+          className="font-script font-normal leading-[1.2] text-[24px] min-[375px]:text-[calc(19.14px+1.3vw)] min-[1300px]:text-[36px]"
           initial={{ y: 20, opacity: 0 }}
           animate={{
             y: 0,
