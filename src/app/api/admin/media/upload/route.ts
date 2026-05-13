@@ -4,14 +4,22 @@ import { getMediaStorage, publicUrlFor } from '@/server/media/factory';
 import { extFromContentType } from '@/server/media/content-type';
 import { requireOwner, AuthorizationError } from '@/server/auth/guards';
 
-const ACCEPTED = new Set([
+const ACCEPTED_IMAGE = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/avif',
-  'video/mp4',
 ]);
-const MAX_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_VIDEO = new Set([
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+]);
+// Per-kind size limits — images stay tight (Next/Image optimises further),
+// videos get more headroom because hero loops at 1080p easily land in the
+// 5–15MB range even with sane bitrates.
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
 
 /**
  * Admin-only multipart upload. Validates MIME + size per file, generates
@@ -43,12 +51,16 @@ export async function POST(req: Request): Promise<Response> {
   const rejected: Array<{ filename: string; reason: string }> = [];
 
   for (const file of files) {
-    if (!ACCEPTED.has(file.type)) {
+    const isImage = ACCEPTED_IMAGE.has(file.type);
+    const isVideo = ACCEPTED_VIDEO.has(file.type);
+    if (!isImage && !isVideo) {
       rejected.push({ filename: file.name, reason: `Unsupported MIME type: ${file.type}` });
       continue;
     }
-    if (file.size > MAX_BYTES) {
-      rejected.push({ filename: file.name, reason: 'File exceeds 5MB limit' });
+    const limit = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+    if (file.size > limit) {
+      const mb = Math.round(limit / 1024 / 1024);
+      rejected.push({ filename: file.name, reason: `File exceeds ${mb}MB limit` });
       continue;
     }
     const ext = extFromContentType(file.type);
