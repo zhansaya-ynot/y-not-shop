@@ -28,12 +28,24 @@ const BRAND = {
 // Gmail + Outlook web strip `data:` URLs from <img> tags as a security
 // measure — only http(s) URLs survive their HTML sanitiser. So the
 // logo has to live at a real public URL the client can fetch (Gmail
-// proxies it through googleusercontent.com). NEXT_PUBLIC_SITE_URL
-// drives this: on the staging VPS it's https://staging.ynotlondon.com,
-// on the eventual prod cutover it'll be https://ynotlondon.com. The
-// fallback matches the live domain so worker scripts without an env
-// file still produce a clickable logo.
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://staging.ynotlondon.com").replace(/\/$/, "");
+// proxies it through googleusercontent.com).
+//
+// We read APP_URL *first* because Next inlines NEXT_PUBLIC_* into the
+// build artefact — any email rendered from a Next-served route
+// (Stripe webhook, API handler) keeps pointing at whatever URL was
+// active when the docker image was built, even after secrets.env on
+// the VPS changes. APP_URL is a plain server var Next leaves alone,
+// so it tracks runtime config. Worker processes (BullMQ jobs) read
+// either var fresh, so they're fine; the fallback chain just keeps
+// both code paths in sync.
+function resolveSiteUrl(): string {
+  const raw =
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://staging.ynotlondon.com";
+  return raw.replace(/\/$/, "");
+}
+const SITE_URL = resolveSiteUrl();
 const LOGO_URL = `${SITE_URL}/brand/ynot-logo-black.png`;
 
 export function EmailLayout({ previewText, children }: EmailLayoutProps) {

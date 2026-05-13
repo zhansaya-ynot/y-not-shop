@@ -8,6 +8,16 @@ const EnvSchema = z.object({
   // by downgrading the build to a dev React bundle).
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   NEXT_PUBLIC_SITE_URL: z.url(),
+  /** Server-only public URL of the live site. Mirrors NEXT_PUBLIC_SITE_URL
+   *  but lives outside the NEXT_PUBLIC_ namespace so it's NOT baked into
+   *  the build at `pnpm build` time — Next inlines NEXT_PUBLIC_* as
+   *  literal strings during webpack compile, which means anything sent
+   *  from a Next-served handler (Stripe webhooks, API routes) keeps
+   *  pointing at whatever URL was active during docker build, ignoring
+   *  the value in secrets.env at runtime. APP_URL is read fresh on
+   *  every container start, so a staging/prod cutover only needs a
+   *  container restart, no rebuild. */
+  APP_URL: z.url().optional(),
   NEXTAUTH_SECRET: z.string().min(32),
   STRIPE_SECRET_KEY: z.string().min(1, 'STRIPE_SECRET_KEY is required'),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1, 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is required'),
