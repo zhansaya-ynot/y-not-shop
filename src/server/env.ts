@@ -34,6 +34,10 @@ const EnvSchema = z.object({
   DHL_API_ENV: z.enum(['prod', 'test']).default('prod'),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM: z.string().min(1).optional(), // accepts "Display Name <email>" Resend sender format
+  // Reply-to header on every outbound. Sends are 'from' hello@ynotlondon.com
+  // but customer replies route to the founder's inbox so we don't lose
+  // mail until Cloudflare Email Routing is wired up.
+  RESEND_REPLY_TO: z.string().min(1).default('zhansaya@ynotlondon.com'),
   // Phase 5 — label storage backend.
   LABEL_STORAGE: z.enum(['local', 's3', 'r2']).default('local'),
   LABEL_STORAGE_PATH: z.string().default('/var/lib/ynot/labels'),

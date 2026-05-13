@@ -9,6 +9,9 @@ export { ResendEmailService } from "./resend";
 interface FactoryEnv {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
+  /** Reply-to header applied to every outbound. Optional — when unset
+   *  recipients reply to the From address (the brand alias). */
+  RESEND_REPLY_TO?: string;
   NODE_ENV?: string;
 }
 
@@ -32,7 +35,7 @@ function announce(implName: string, env: FactoryEnv): void {
 export function createEmailService(env: FactoryEnv): EmailService {
   if (env.RESEND_API_KEY && env.RESEND_FROM) {
     announce("ResendEmailService", env);
-    return new ResendEmailService(env.RESEND_API_KEY, env.RESEND_FROM);
+    return new ResendEmailService(env.RESEND_API_KEY, env.RESEND_FROM, env.RESEND_REPLY_TO);
   }
   announce("ConsoleEmailService", env);
   return new ConsoleEmailService();
