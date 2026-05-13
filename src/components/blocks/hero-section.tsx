@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import type { HeroBlock } from "@/lib/schemas";
-import { Button } from "@/components/ui/button";
 import { duration, ease } from "@/lib/motion";
 import { BLUR_DARK } from "@/lib/image-placeholders";
 
@@ -55,7 +54,10 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center text-center text-foreground-inverse px-6">
         <motion.p
-          className="font-heading text-[24px] uppercase tracking-[0.3em] md:text-[56px] md:tracking-[0.55em]"
+          // Script wordmark — italic, no caps, light tracking. Falls back
+          // to Italianno (Google) when Englische Schreibschrift isn't
+          // installed locally; Helvetica italic as final fallback.
+          className="font-script italic text-[64px] leading-none md:text-[120px]"
           initial={{ y: 20, opacity: 0 }}
           animate={{
             y: 0,
@@ -72,15 +74,13 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
             opacity: 1,
             transition: { duration: duration.slow, ease: ease.out, delay: 0.7 },
           }}
+          className="mt-6"
         >
-          <Link href={hero.ctaHref} className="mt-12 inline-block">
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-transparent text-foreground-inverse border-foreground-inverse hover:bg-foreground-inverse hover:text-foreground-primary px-12"
-            >
-              {hero.ctaLabel}
-            </Button>
+          <Link
+            href={hero.ctaHref}
+            className="inline-block text-[13px] font-body tracking-[0.05em] text-foreground-inverse border-b border-foreground-inverse/80 pb-0.5 hover:border-foreground-inverse transition-colors"
+          >
+            {hero.ctaLabel}
           </Link>
         </motion.div>
       </div>
