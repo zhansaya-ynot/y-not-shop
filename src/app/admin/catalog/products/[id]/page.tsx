@@ -113,6 +113,7 @@ export default async function AdminProductDetailPage({
         <StockEditor
           productId={product.id}
           initial={product.sizes.map((s) => ({ size: s.size, stock: s.stock }))}
+          isOneSize={product.isOneSize}
         />
       </section>
 
