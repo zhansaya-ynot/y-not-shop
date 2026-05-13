@@ -57,6 +57,12 @@ describe('admin sidebar NAV_SECTIONS', () => {
     expect(marketing?.items[0].href).toBe('/admin/marketing/promos');
   });
 
+  it('exposes the newsletter broadcast tool', () => {
+    const marketing = NAV_SECTIONS.find((s) => s.heading === 'MARKETING');
+    const hrefs = marketing?.items.map((i) => i.href) ?? [];
+    expect(hrefs).toContain('/admin/marketing/newsletter');
+  });
+
   it('all hrefs are unique', () => {
     const all = NAV_SECTIONS.flatMap((s) => s.items.map((i) => i.href));
     expect(new Set(all).size).toBe(all.length);

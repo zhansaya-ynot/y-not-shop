@@ -68,7 +68,10 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     heading: 'MARKETING',
-    items: [{ href: '/admin/marketing/promos', label: 'Promo codes' }],
+    items: [
+      { href: '/admin/marketing/promos', label: 'Promo codes' },
+      { href: '/admin/marketing/newsletter', label: 'Newsletter' },
+    ],
   },
   {
     heading: 'SHIPPING',
