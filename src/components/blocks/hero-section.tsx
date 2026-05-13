@@ -77,11 +77,13 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
             opacity: 1,
             transition: { duration: duration.slow, ease: ease.out, delay: 0.7 },
           }}
-          className="mt-6"
         >
           <Link
             href={hero.ctaHref}
-            className="inline-block text-[13px] font-body tracking-[0.05em] text-foreground-inverse border-b border-foreground-inverse/80 pb-0.5 hover:border-foreground-inverse transition-colors"
+            // Reference sizes: 12px / 400 / line-height 1.35 / underline
+            // offset 0.2em. Using text-decoration (not border-b) so the
+            // offset utility actually applies.
+            className="inline-block font-body text-[12px] font-normal leading-[1.35] text-foreground-inverse underline underline-offset-[0.2em]"
           >
             {hero.ctaLabel}
           </Link>
