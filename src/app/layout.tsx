@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Italianno } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { SiteOverlays } from "@/components/site-overlays";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -23,15 +24,16 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-// Free Google Font that mimics the script weight of Englische
-// Schreibschrift (a paid German typography family we can't license for
-// the web). The CSS font-stack still lists Englische Schreibschrift
-// first so any browser with it installed picks it up; everyone else
-// falls back to Italianno, then Helvetica.
-const italianno = Italianno({
+// Self-hosted Englische Schreibschrift BQ Regular (paid foundry font,
+// licensed copy provided by the team). Next emits it under
+// /_next/static/media/ with long-term cache headers; the CSS-variable
+// pattern matches Inter/Playfair so Tailwind's font-script utility
+// picks it up automatically.
+const englischeSchreibschrift = localFont({
+  src: "../../public/fonts/EnglischeSchreibschriftBQ-Regular.otf",
   variable: "--font-script",
-  subsets: ["latin"],
   weight: "400",
+  style: "normal",
   display: "swap",
 });
 
@@ -85,7 +87,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable} ${italianno.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} ${englischeSchreibschrift.variable} h-full antialiased`}
     >
       <body className="min-h-screen bg-surface-primary text-foreground-primary font-body">
         {children}

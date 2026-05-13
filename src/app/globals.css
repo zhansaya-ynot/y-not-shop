@@ -18,10 +18,11 @@
   /* Fonts */
   --font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-heading), ui-serif, Georgia, serif;
-  /* Script weight for hero eyebrow. Englische Schreibschrift is the
-     reference Nour Hammour ships, but it's a paid foundry font we
-     can't embed; Italianno (Google Fonts) is the closest free match. */
-  --font-script: "Englische Schreibschrift", var(--font-script), Helvetica, sans-serif;
+  /* Script weight for hero eyebrow. --font-script is set by next/font
+     to the self-hosted Englische Schreibschrift BQ (see layout.tsx).
+     Helvetica + sans-serif round out the stack so the page stays
+     readable while the font swaps in. */
+  --font-script: var(--font-script), "Englische Schreibschrift", Helvetica, sans-serif;
 
   /* Foreground (text) */
   --color-foreground-primary: #1a1a1a;
