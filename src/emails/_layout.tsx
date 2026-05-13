@@ -10,7 +10,6 @@ import {
   Text,
 } from "@react-email/components";
 import type { ReactNode } from "react";
-import { YNOT_LOGO_DATA_URL } from "./_logo-data-url";
 
 export interface EmailLayoutProps {
   previewText: string;
@@ -25,6 +24,17 @@ const BRAND = {
   fontHeading: "Playfair Display, Georgia, serif",
   fontBody: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
 };
+
+// Gmail + Outlook web strip `data:` URLs from <img> tags as a security
+// measure — only http(s) URLs survive their HTML sanitiser. So the
+// logo has to live at a real public URL the client can fetch (Gmail
+// proxies it through googleusercontent.com). NEXT_PUBLIC_SITE_URL
+// drives this: on the staging VPS it's https://staging.ynotlondon.com,
+// on the eventual prod cutover it'll be https://ynotlondon.com. The
+// fallback matches the live domain so worker scripts without an env
+// file still produce a clickable logo.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://staging.ynotlondon.com").replace(/\/$/, "");
+const LOGO_URL = `${SITE_URL}/brand/ynot-logo-black.png`;
 
 export function EmailLayout({ previewText, children }: EmailLayoutProps) {
   return (
@@ -42,15 +52,11 @@ export function EmailLayout({ previewText, children }: EmailLayoutProps) {
       >
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "32px 24px" }}>
           <Section style={{ paddingBottom: 32, textAlign: "center" as const }}>
-            {/* Logo is inlined as a base64 data URL so the image renders
-                regardless of the staging/prod domain DNS state, Gmail's
-                image proxy availability, or any future CDN swap. ~8 KB
-                wire payload — well below Gmail's 102 KB clip threshold. */}
             <Img
-              src={YNOT_LOGO_DATA_URL}
+              src={LOGO_URL}
               alt="YNOT London"
               width={140}
-              height={80}
+              height={36}
               style={{ display: "inline-block", height: "auto", maxWidth: "140px" }}
             />
           </Section>
@@ -59,8 +65,8 @@ export function EmailLayout({ previewText, children }: EmailLayoutProps) {
           <Section>
             <Text style={{ color: BRAND.muted, fontSize: 12, lineHeight: 1.5, margin: 0 }}>
               YNOT London &middot; 13 Elvaston Place, Flat 1, London SW7 5QG &middot;{" "}
-              <a href="https://ynotlondon.com" style={{ color: BRAND.muted }}>
-                ynotlondon.com
+              <a href={SITE_URL} style={{ color: BRAND.muted }}>
+                {SITE_URL.replace(/^https?:\/\//, "")}
               </a>
             </Text>
           </Section>
