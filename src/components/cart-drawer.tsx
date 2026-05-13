@@ -62,7 +62,7 @@ export function CartDrawer() {
           <p className="text-[14px] text-foreground-secondary">
             Your bag is empty
           </p>
-          <Link href="/collection/jackets" onClick={close}>
+          <Link href="/shop" onClick={close}>
             <Button variant="outline" size="md">
               Continue shopping
             </Button>

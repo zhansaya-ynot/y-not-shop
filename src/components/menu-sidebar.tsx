@@ -179,7 +179,7 @@ function MenuLinks({
           }
         >
           <div className="pb-3 pl-1">
-            <Link href="/collection/jackets" onClick={close} className={subLinkClass}>
+            <Link href="/shop" onClick={close} className={subLinkClass}>
               All
             </Link>
             {categories.map((c) => (

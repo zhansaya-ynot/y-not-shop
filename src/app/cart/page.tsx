@@ -40,7 +40,7 @@ export default function CartPage() {
           <p className="text-[14px] text-foreground-secondary mb-8">
             Looks like you haven&apos;t added anything yet.
           </p>
-          <Link href="/collection/jackets">
+          <Link href="/shop">
             <Button variant="outline" size="md">Continue shopping</Button>
           </Link>
         </Container>
