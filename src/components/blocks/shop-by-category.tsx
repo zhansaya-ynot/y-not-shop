@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Section } from "@/components/ui/section";
-import { Display, Eyebrow } from "@/components/ui/typography";
+import { Display } from "@/components/ui/typography";
 import { BLUR_DARK } from "@/lib/image-placeholders";
 
 export interface ShopByCategoryItem {
@@ -14,9 +14,7 @@ export interface ShopByCategoryItem {
 
 export interface ShopByCategoryProps {
   items: ShopByCategoryItem[];
-  /** Eyebrow label above the heading. Defaults to 'Browse Collections'. */
-  eyebrow?: string;
-  /** Display heading; defaults to 'Shop by Category'. */
+  /** Display heading; defaults to 'Browse Collections'. */
   heading?: string;
 }
 
@@ -28,14 +26,13 @@ export interface ShopByCategoryProps {
  * responds to viewport width via vw units so 2 fit on phone, 3 on tablet,
  * ~4 on desktop without breaking out into a grid.
  */
-export function ShopByCategory({ items, eyebrow, heading }: ShopByCategoryProps) {
+export function ShopByCategory({ items, heading }: ShopByCategoryProps) {
   if (items.length === 0) return null;
   return (
     <Section padding="lg">
       <div className="text-center mb-10 px-6">
-        <Eyebrow className="mb-3">{eyebrow ?? "Browse Collections"}</Eyebrow>
         <Display level="md" as="h2">
-          {heading ?? "Shop by Category"}
+          {heading ?? "Browse Collections"}
         </Display>
       </div>
       <ul

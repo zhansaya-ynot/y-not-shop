@@ -97,17 +97,16 @@ export default async function Home() {
             ctaHref="/collection/jackets"
           />
         </FadeUpOnScroll>
-        {/* Lookbook + newsletter only on tablet+ — mobile design (per
-            ynot.pen) intentionally omits both blocks to keep the homepage
-            short on phone screens. */}
+        {/* Lookbook stays tablet+ only (carousel is large), but newsletter
+            ships on every breakpoint per Жансая's review. */}
         <div className="hidden md:block">
           <FadeUpOnScroll>
             <LookbookCarousel lookbook={lookbook} />
           </FadeUpOnScroll>
-          <FadeUpOnScroll>
-            <NewsletterSignup />
-          </FadeUpOnScroll>
         </div>
+        <FadeUpOnScroll>
+          <NewsletterSignup />
+        </FadeUpOnScroll>
       </main>
 
       <SiteFooter />

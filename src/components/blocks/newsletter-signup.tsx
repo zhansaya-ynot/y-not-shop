@@ -7,8 +7,8 @@ import { Display } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 
 /**
- * 'Stay in the loop' email-capture block on the homepage. Hidden on mobile
- * via the parent's responsive wrapper — design only ships this on tablet+.
+ * 'Stay in the loop' email-capture block on the homepage. Renders on every
+ * breakpoint.
  *
  * Posts to /api/newsletter/subscribe and shows a quiet confirmation in
  * place of the form on success. No toast: the surrounding section is
