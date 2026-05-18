@@ -7,6 +7,8 @@ export interface RelatedOption {
   id: string;
   name: string;
   slug: string;
+  /** First product image, or null when the product has none. */
+  image: string | null;
 }
 
 interface Props {
@@ -121,14 +123,24 @@ export function RelatedProductsPicker({
               const checked = selected.includes(o.id);
               return (
                 <li key={o.id} className="border-b border-neutral-100 last:border-0">
-                  <label className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-neutral-50">
+                  <label className="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-neutral-50">
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggle(o.id)}
                       data-testid={`related-${o.id}`}
                     />
-                    <span>{o.name}</span>
+                    {o.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={o.image}
+                        alt=""
+                        className="h-12 w-10 flex-shrink-0 rounded object-cover bg-neutral-100"
+                      />
+                    ) : (
+                      <span className="h-12 w-10 flex-shrink-0 rounded bg-neutral-100" />
+                    )}
+                    <span className="flex-1">{o.name}</span>
                     <span className="text-xs text-neutral-400 font-mono">/{o.slug}</span>
                   </label>
                 </li>

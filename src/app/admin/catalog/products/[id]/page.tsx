@@ -46,11 +46,22 @@ export default async function AdminProductDetailPage({
   });
 
   // Every other product is a candidate for the "Complete the look" picker.
-  const relatedOptions = await prisma.product.findMany({
+  const relatedRows = await prisma.product.findMany({
     where: { deletedAt: null, id: { not: id } },
     orderBy: { name: 'asc' },
-    select: { id: true, name: true, slug: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      images: { orderBy: { sortOrder: 'asc' }, take: 1, select: { url: true } },
+    },
   });
+  const relatedOptions = relatedRows.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    image: p.images[0]?.url ?? null,
+  }));
 
   return (
     <div className="max-w-4xl">
