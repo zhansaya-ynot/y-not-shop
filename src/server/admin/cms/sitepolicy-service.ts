@@ -57,6 +57,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
           ...(input.homeEditorialJson !== undefined
             ? { homeEditorialJson: input.homeEditorialJson as Prisma.InputJsonValue }
             : {}),
+          ...(input.collectionPagesJson !== undefined
+            ? { collectionPagesJson: input.collectionPagesJson as Prisma.InputJsonValue }
+            : {}),
         },
         update: {
           ...(input.defaultCurrency !== undefined ? { defaultCurrency: input.defaultCurrency } : {}),
@@ -77,6 +80,9 @@ export async function updateSitePolicy(opts: UpdateSitePolicyOptions) {
             : {}),
           ...(input.homeEditorialJson !== undefined
             ? { homeEditorialJson: input.homeEditorialJson as Prisma.InputJsonValue }
+            : {}),
+          ...(input.collectionPagesJson !== undefined
+            ? { collectionPagesJson: input.collectionPagesJson as Prisma.InputJsonValue }
             : {}),
         },
       }),

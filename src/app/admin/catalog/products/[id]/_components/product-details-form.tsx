@@ -4,6 +4,12 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
 
+export type HomeCollectionValue =
+  | 'NEW_COLLECTION'
+  | 'TIMELESS'
+  | 'NEW_ARRIVALS'
+  | null;
+
 export interface ProductDetailsInitial {
   name: string;
   slug: string;
@@ -18,7 +24,15 @@ export interface ProductDetailsInitial {
   preOrder: boolean;
   isOneSize: boolean;
   sizeGuideImage: string | null;
+  homeCollection: HomeCollectionValue;
 }
+
+const HOME_COLLECTION_OPTIONS: Array<{ value: HomeCollectionValue; label: string }> = [
+  { value: null, label: 'None — not in a collection page' },
+  { value: 'NEW_COLLECTION', label: 'New Collection' },
+  { value: 'TIMELESS', label: 'Timeless' },
+  { value: 'NEW_ARRIVALS', label: 'New Arrivals' },
+];
 
 interface Props {
   productId: string;
@@ -56,6 +70,7 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         preOrder: state.preOrder,
         isOneSize: state.isOneSize,
         sizeGuideImage: state.sizeGuideImage,
+        homeCollection: state.homeCollection,
       };
       if (state.weightGrams) body.weightGrams = state.weightGrams;
       if (state.hsCode) body.hsCode = state.hsCode;
@@ -182,6 +197,27 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         />
         <span>One size — hide the size picker on this product</span>
       </label>
+
+      <fieldset className="md:col-span-2 flex flex-col gap-2">
+        <legend className="text-xs uppercase tracking-wider text-neutral-600 mb-1">
+          Homepage collection
+        </legend>
+        <p className="text-[11px] text-neutral-500 -mt-1 mb-1">
+          Controls which collection landing page this product appears on
+          (/new-collection, /timeless, /new-arrivals). Pick one.
+        </p>
+        {HOME_COLLECTION_OPTIONS.map((opt) => (
+          <label key={opt.value ?? 'none'} className="flex items-center gap-2 text-sm">
+            <input
+              type="radio"
+              name="homeCollection"
+              checked={state.homeCollection === opt.value}
+              onChange={() => update('homeCollection', opt.value)}
+            />
+            <span>{opt.label}</span>
+          </label>
+        ))}
+      </fieldset>
       <Field label="Size guide image" className="md:col-span-2">
         <SingleImageUpload
           prefix="size-guides"

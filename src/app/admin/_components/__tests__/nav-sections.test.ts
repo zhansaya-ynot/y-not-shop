@@ -26,6 +26,7 @@ describe('admin sidebar NAV_SECTIONS', () => {
     expect(hrefs).toEqual([
       '/admin/content/hero',
       '/admin/content/editorial',
+      '/admin/content/collections',
       '/admin/content/pages/by-slug/our-story',
       '/admin/content/pages/by-slug/contact',
       '/admin/content/pages/by-slug/shipping-returns',

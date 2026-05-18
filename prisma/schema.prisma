@@ -24,6 +24,15 @@ enum Size {
   L
 }
 
+/// Homepage collection grouping. A product belongs to at most one — the
+/// storefront has a dedicated landing page per value (/new-collection,
+/// /timeless, /new-arrivals). Null = not featured in any collection page.
+enum HomeCollection {
+  NEW_COLLECTION
+  TIMELESS
+  NEW_ARRIVALS
+}
+
 enum Currency {
   GBP
 }
@@ -148,6 +157,10 @@ model Product {
   /// limited drops). When true the storefront hides the size picker and
   /// there's a single implicit "ONE_SIZE" variant.
   isOneSize   Boolean   @default(false)
+  /// Optional homepage collection grouping — drives the per-collection
+  /// landing pages (/new-collection, /timeless, /new-arrivals). Null when
+  /// the product isn't featured in any collection page.
+  homeCollection      HomeCollection?
   /// Storage key (or absolute URL) of an uploaded size guide image. Shown
   /// inside a modal triggered from the PDP "Size guide" link.
   sizeGuideImage      String?
@@ -336,6 +349,10 @@ model SitePolicy {
   /// `HomeEditorialContent` in `@/lib/cms/home-editorial`. Null on legacy
   /// rows — the storefront falls back to bundled defaults.
   homeEditorialJson       Json?
+  /// Title + intro copy for the three collection landing pages
+  /// (/new-collection, /timeless, /new-arrivals). Shape is
+  /// `CollectionPagesContent` in `@/lib/cms/collection-pages`.
+  collectionPagesJson     Json?
   updatedAt              DateTime @updatedAt
 }
 

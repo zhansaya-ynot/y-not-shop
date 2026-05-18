@@ -102,6 +102,7 @@ export default async function AdminProductDetailPage({
             preOrder: product.preOrder,
             isOneSize: product.isOneSize,
             sizeGuideImage: product.sizeGuideImage,
+            homeCollection: product.homeCollection,
           }}
         />
       </section>

@@ -1,8 +1,10 @@
+import type { HomeCollection } from "@prisma/client";
 import type { Product } from "@/lib/schemas";
 import {
   findProductBySlug,
   listProducts,
   listProductsByCategory,
+  listProductsByHomeCollection,
   listNewArrivals,
   listRecommendations,
 } from "@/server/repositories/product.repo";
@@ -22,6 +24,13 @@ export async function getProductsByCategory(
   categorySlug: string,
 ): Promise<Product[]> {
   const rows = await listProductsByCategory(categorySlug);
+  return rows.map(toProduct);
+}
+
+export async function getProductsByHomeCollection(
+  collection: HomeCollection,
+): Promise<Product[]> {
+  const rows = await listProductsByHomeCollection(collection);
   return rows.map(toProduct);
 }
 

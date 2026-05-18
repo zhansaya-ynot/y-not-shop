@@ -31,6 +31,10 @@ export const SitePolicyUpdateSchema = z.object({
    *  parses it defensively and falls back to bundled defaults on
    *  validation failure. */
   homeEditorialJson: z.unknown().optional(),
+  /** Title + intro copy for the three collection landing pages — schema
+   *  in `@/lib/cms/collection-pages`. Parsed defensively on the
+   *  storefront. */
+  collectionPagesJson: z.unknown().optional(),
 });
 
 export type SitePolicyUpdateInput = z.infer<typeof SitePolicyUpdateSchema>;

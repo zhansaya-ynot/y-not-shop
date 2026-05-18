@@ -94,7 +94,7 @@ export default async function Home() {
           <ProductsRow
             title="New Arrivals"
             products={newArrivals}
-            ctaHref="/shop"
+            ctaHref="/new-arrivals"
           />
         </FadeUpOnScroll>
         {/* Lookbook stays tablet+ only (carousel is large), but newsletter

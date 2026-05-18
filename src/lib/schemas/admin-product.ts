@@ -22,6 +22,12 @@ export const ProductCreateSchema = z.object({
   /** Optional URL or storage path for the size guide image shown in the
    *  PDP modal. Empty string is normalised to null at the service layer. */
   sizeGuideImage: z.string().nullable().optional(),
+  /** Homepage collection grouping — drives the per-collection landing
+   *  pages. Null = not featured in any collection. */
+  homeCollection: z
+    .enum(['NEW_COLLECTION', 'TIMELESS', 'NEW_ARRIVALS'])
+    .nullable()
+    .optional(),
 });
 
 export const ProductUpdateSchema = ProductCreateSchema.partial().extend({

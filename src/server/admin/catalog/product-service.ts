@@ -48,6 +48,7 @@ export async function createProduct(opts: CreateProductOptions) {
           preOrder: input.preOrder,
           isOneSize: input.isOneSize,
           sizeGuideImage: input.sizeGuideImage,
+          homeCollection: input.homeCollection,
           status: 'DRAFT',
         },
       });
@@ -94,6 +95,7 @@ export async function updateProduct(opts: UpdateProductOptions) {
             preOrder: input.preOrder,
             isOneSize: input.isOneSize,
             sizeGuideImage: input.sizeGuideImage,
+            homeCollection: input.homeCollection,
           },
         });
         // Re-link categories when explicitly provided. We treat undefined as

@@ -1,4 +1,4 @@
-import type { Product } from "@prisma/client";
+import type { Product, HomeCollection } from "@prisma/client";
 import { prisma } from "../db/client";
 
 export type ProductWithRelations = Product & {
@@ -48,6 +48,17 @@ export async function listProductsByCategory(
       ...storefrontVisible,
       categories: { some: { category: { slug: categorySlug } } },
     },
+    orderBy: { createdAt: "desc" },
+    include,
+  });
+  return products as ProductWithRelations[];
+}
+
+export async function listProductsByHomeCollection(
+  collection: HomeCollection,
+): Promise<ProductWithRelations[]> {
+  const products = await prisma.product.findMany({
+    where: { ...storefrontVisible, homeCollection: collection },
     orderBy: { createdAt: "desc" },
     include,
   });
