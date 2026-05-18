@@ -75,6 +75,24 @@ export async function listNewArrivals(limit: number): Promise<ProductWithRelatio
   return products as ProductWithRelations[];
 }
 
+/**
+ * Operator-curated related products for a product, in the order the
+ * operator set. Soft-deleted / non-published suggestions are dropped so
+ * the storefront never links to a hidden product.
+ */
+export async function listRelatedProducts(
+  productId: string,
+): Promise<ProductWithRelations[]> {
+  const relations = await prisma.productRelation.findMany({
+    where: { productId },
+    orderBy: { sortOrder: "asc" },
+    include: { related: { include } },
+  });
+  return relations
+    .map((r) => r.related)
+    .filter((p) => p.status === "PUBLISHED" && p.deletedAt === null) as ProductWithRelations[];
+}
+
 export async function listRecommendations(
   excludeSlug: string,
   limit: number,

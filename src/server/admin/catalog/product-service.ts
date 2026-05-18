@@ -112,6 +112,21 @@ export async function updateProduct(opts: UpdateProductOptions) {
             });
           }
         }
+        // Re-link related products. Same undefined/[] semantics as
+        // categories; self-references are dropped defensively.
+        if (input.relatedProductIds !== undefined) {
+          await tx.productRelation.deleteMany({ where: { productId: id } });
+          const relatedIds = input.relatedProductIds.filter((rid) => rid !== id);
+          if (relatedIds.length > 0) {
+            await tx.productRelation.createMany({
+              data: relatedIds.map((relatedId, sortOrder) => ({
+                productId: id,
+                relatedId,
+                sortOrder,
+              })),
+            });
+          }
+        }
         return updated;
       }),
   );

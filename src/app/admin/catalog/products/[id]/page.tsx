@@ -9,6 +9,7 @@ import { ImageGridReorder } from './_components/image-grid-reorder';
 import { StockEditor } from './_components/stock-editor';
 import { ColourEditor } from './_components/colour-editor';
 import { CategoryMultiselect } from './_components/category-multiselect';
+import { RelatedProductsPicker } from './_components/related-products-picker';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,7 @@ export default async function AdminProductDetailPage({
       sizes: true,
       colours: { orderBy: { sortOrder: 'asc' } },
       categories: { include: { category: true } },
+      relatedProducts: { orderBy: { sortOrder: 'asc' } },
     },
   });
   if (!product) notFound();
@@ -41,6 +43,13 @@ export default async function AdminProductDetailPage({
     where: { deletedAt: null },
     orderBy: [{ parentId: 'asc' }, { sortOrder: 'asc' }],
     select: { id: true, name: true, slug: true, parentId: true },
+  });
+
+  // Every other product is a candidate for the "Complete the look" picker.
+  const relatedOptions = await prisma.product.findMany({
+    where: { deletedAt: null, id: { not: id } },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true, slug: true },
   });
 
   return (
@@ -136,6 +145,21 @@ export default async function AdminProductDetailPage({
           productId={product.id}
           categories={allCategories}
           selectedIds={product.categories.map((pc) => pc.categoryId)}
+        />
+      </section>
+
+      <section className="mb-10">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+          Complete the look
+        </h3>
+        <p className="text-xs text-neutral-500 mb-4">
+          Up to 5 products suggested on this product&apos;s page. Leave empty
+          to fall back to automatic recommendations.
+        </p>
+        <RelatedProductsPicker
+          productId={product.id}
+          options={relatedOptions}
+          selectedIds={product.relatedProducts.map((r) => r.relatedId)}
         />
       </section>
     </div>

@@ -11,7 +11,7 @@ import { ProductInfoPanel } from "@/components/pdp/product-info-panel";
 import { AddToBagSection } from "@/components/pdp/add-to-bag-section";
 import { ProductDetailsAccordion } from "@/components/pdp/product-details-accordion";
 import { RecommendedProducts } from "@/components/pdp/recommended-products";
-import { getProductBySlug, getRecommendations } from "@/server/data/products";
+import { getProductBySlug, getRelatedProducts } from "@/server/data/products";
 import { getCategoryBySlug } from "@/server/data/categories";
 import { buildProductJsonLd } from "@/lib/seo/product-jsonld";
 
@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: PageProps) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const recommendations = await getRecommendations(product.slug, 4);
+  const recommendations = await getRelatedProducts(product.id, product.slug, 4);
   const primaryCategorySlug = product.categorySlugs[0];
   const primaryCategory = primaryCategorySlug
     ? await getCategoryBySlug(primaryCategorySlug)

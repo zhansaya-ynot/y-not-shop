@@ -5,6 +5,7 @@ import {
   listProducts,
   listProductsByCategory,
   listProductsByHomeCollection,
+  listRelatedProducts,
   listNewArrivals,
   listRecommendations,
 } from "@/server/repositories/product.repo";
@@ -45,4 +46,20 @@ export async function getRecommendations(
 ): Promise<Product[]> {
   const rows = await listRecommendations(excludeSlug, limit);
   return rows.map(toProduct);
+}
+
+/**
+ * "Complete the look" products for a PDP. Returns the operator-curated
+ * list when set; otherwise falls back to the auto recommendations so the
+ * section is never empty.
+ */
+export async function getRelatedProducts(
+  productId: string,
+  excludeSlug: string,
+  fallbackLimit = 4,
+): Promise<Product[]> {
+  const curated = await listRelatedProducts(productId);
+  if (curated.length > 0) return curated.map(toProduct);
+  const auto = await listRecommendations(excludeSlug, fallbackLimit);
+  return auto.map(toProduct);
 }

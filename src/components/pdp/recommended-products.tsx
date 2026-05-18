@@ -12,7 +12,7 @@ export function RecommendedProducts({ products }: { products: Product[] }) {
     <Section padding="lg">
       <Container size="wide">
         <Display level="md" as="h2" className="mb-12 text-center">
-          We think you might like
+          Complete the look
         </Display>
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
           {products.map((p) => (

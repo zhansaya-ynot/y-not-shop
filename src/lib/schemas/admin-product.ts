@@ -32,6 +32,9 @@ export const ProductCreateSchema = z.object({
 
 export const ProductUpdateSchema = ProductCreateSchema.partial().extend({
   categoryIds: z.array(z.string().min(1)).optional(),
+  /** Curated "Complete the look" suggestions — up to 5 other product
+   *  ids, in display order. Undefined = no change; [] = clear. */
+  relatedProductIds: z.array(z.string().min(1)).max(5).optional(),
 });
 
 export const ProductImagesAddSchema = z.object({

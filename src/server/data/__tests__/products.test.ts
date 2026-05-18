@@ -6,6 +6,7 @@ import {
   getProductsByCategory,
   getNewArrivals,
   getRecommendations,
+  getRelatedProducts,
 } from "@/server/data/products";
 import { resetDb } from "@/server/__tests__/helpers/reset-db";
 
@@ -79,6 +80,30 @@ describe("server/data/products", () => {
   it("getRecommendations excludes the named slug", async () => {
     await seedTwo();
     const result = await getRecommendations("leather-jacket");
+    expect(result.map((p) => p.slug)).toEqual(["silk-dress"]);
+  });
+
+  it("getRelatedProducts returns the curated list when set", async () => {
+    await seedTwo();
+    const jacket = await prisma.product.findUniqueOrThrow({
+      where: { slug: "leather-jacket" },
+    });
+    const dress = await prisma.product.findUniqueOrThrow({
+      where: { slug: "silk-dress" },
+    });
+    await prisma.productRelation.create({
+      data: { productId: jacket.id, relatedId: dress.id, sortOrder: 0 },
+    });
+    const result = await getRelatedProducts(jacket.id, jacket.slug);
+    expect(result.map((p) => p.slug)).toEqual(["silk-dress"]);
+  });
+
+  it("getRelatedProducts falls back to auto recs when none curated", async () => {
+    await seedTwo();
+    const jacket = await prisma.product.findUniqueOrThrow({
+      where: { slug: "leather-jacket" },
+    });
+    const result = await getRelatedProducts(jacket.id, jacket.slug);
     expect(result.map((p) => p.slug)).toEqual(["silk-dress"]);
   });
 });

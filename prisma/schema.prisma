@@ -182,6 +182,11 @@ model Product {
   cartItems       CartItem[]
   reviews         Review[]
   preorderBatches PreorderBatch[]
+  /// Operator-curated "Complete the look" suggestions shown on this
+  /// product's page.
+  relatedProducts   ProductRelation[] @relation("ProductRelatedFrom")
+  /// Inverse side — rows where this product is the suggestion.
+  relatedToProducts ProductRelation[] @relation("ProductRelatedTo")
 
   @@index([deletedAt])
   @@index([createdAt])
@@ -197,6 +202,21 @@ model ProductImage {
   sortOrder Int     @default(0)
 
   @@index([productId, sortOrder])
+}
+
+/// Operator-curated related-product links ("Complete the look"). A
+/// product points at up to ~5 others; ordering is explicit via
+/// sortOrder. Directional — A→B does not imply B→A.
+model ProductRelation {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation("ProductRelatedFrom", fields: [productId], references: [id], onDelete: Cascade)
+  relatedId String
+  related   Product @relation("ProductRelatedTo", fields: [relatedId], references: [id], onDelete: Cascade)
+  sortOrder Int     @default(0)
+
+  @@unique([productId, relatedId])
+  @@index([productId])
 }
 
 model ProductSize {
