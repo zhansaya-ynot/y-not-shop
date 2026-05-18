@@ -22,7 +22,7 @@ export function RecommendedProducts({ products }: { products: Product[] }) {
       <ul
         className="
           flex gap-4 overflow-x-auto snap-x snap-mandatory
-          px-6 md:px-10 md:gap-8
+          px-8 md:px-12 md:gap-8
           [scrollbar-width:thin]
           pb-2
         "
