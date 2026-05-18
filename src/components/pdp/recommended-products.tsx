@@ -23,7 +23,6 @@ export function RecommendedProducts({ products }: { products: Product[] }) {
               price={formatPrice(p.price, "GBP")}
               image={p.images[0]}
               hoverImage={p.images[1]}
-              badge={p.preOrder ? "pre-order" : undefined}
             />
           ))}
         </div>
