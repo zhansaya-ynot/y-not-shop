@@ -14,19 +14,38 @@ export function RecommendedProducts({ products }: { products: Product[] }) {
         <Display level="md" as="h2" className="mb-12 text-center">
           Complete the look
         </Display>
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
-          {products.map((p) => (
+      </Container>
+      {/* Horizontal-scroll carousel — same behaviour on mobile and
+          desktop. snap-x gives a tile-to-tile scroll; each card is a
+          fixed-width column sized by vw so ~2 fit on phone, ~4 on
+          desktop without breaking into a grid. */}
+      <ul
+        className="
+          flex gap-4 overflow-x-auto snap-x snap-mandatory
+          px-6 md:px-10 md:gap-8
+          [scrollbar-width:thin]
+          pb-2
+        "
+      >
+        {products.map((p) => (
+          <li
+            key={p.id}
+            className="
+              flex-shrink-0 snap-start
+              w-[60vw] sm:w-[40vw] md:w-[30vw] lg:w-[22vw]
+              max-w-[340px]
+            "
+          >
             <ProductCard
-              key={p.id}
               href={`/products/${p.slug}`}
               name={p.name}
               price={formatPrice(p.price, "GBP")}
               image={p.images[0]}
               hoverImage={p.images[1]}
             />
-          ))}
-        </div>
-      </Container>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
