@@ -47,7 +47,7 @@ export const ProductSizesUpdateSchema = z.object({
   sizes: z
     .array(
       z.object({
-        size: z.enum(['XS', 'S', 'M', 'L', 'XL']),
+        size: z.enum(['S', 'M', 'L']),
         stock: z.number().int().min(0),
       }),
     )

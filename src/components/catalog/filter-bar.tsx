@@ -10,11 +10,9 @@ interface FilterOption {
 }
 
 const SIZE_OPTIONS: FilterOption[] = [
-  { value: "XS", label: "XS" },
   { value: "S", label: "S" },
   { value: "M", label: "M" },
   { value: "L", label: "L" },
-  { value: "XL", label: "XL" },
 ];
 
 const PRICE_OPTIONS: FilterOption[] = [

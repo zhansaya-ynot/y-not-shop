@@ -58,7 +58,7 @@ describe('PATCH /api/admin/products/[id]/sizes', () => {
       method: 'PATCH',
       body: JSON.stringify({
         sizes: [
-          { size: 'XS', stock: 1 },
+          { size: 'S', stock: 1 },
           { size: 'M', stock: 5 },
         ],
       }),

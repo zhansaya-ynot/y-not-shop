@@ -12,9 +12,9 @@ describe("ProductSchema", () => {
       description: "A timeless field jacket.",
       images: ["/images/products/belted/1.webp"],
       colour: "Chocolate Brown",
-      sizes: ["XS", "S", "M", "L", "XL"],
+      sizes: ["S", "M", "L"],
       categorySlugs: ["jackets", "suede"],
-      stock: { XS: 0, S: 5, M: 3, L: 0, XL: 2 },
+      stock: { S: 5, M: 3, L: 0 },
       preOrder: false,
       details: {
         materials: "100% suede",

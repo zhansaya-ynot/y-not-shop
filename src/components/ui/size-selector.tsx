@@ -3,10 +3,10 @@ import { cn } from "@/lib/cn";
 import type { Size } from "@/lib/schemas";
 
 // Canonical small-to-large order. Whatever order the API hands us — we
-// always render XS → S → M → L → XL so the picker is never out of sequence
-// (operator was seeing 'XS XL S L M' on a recent product because variants
+// always render S → M → L so the picker is never out of sequence
+// (operator was seeing 'XL S L M' on a recent product because variants
 // were inserted in a non-deterministic order in the DB).
-const SIZE_ORDER: Size[] = ["XS", "S", "M", "L", "XL"];
+const SIZE_ORDER: Size[] = ["S", "M", "L"];
 
 function sortSizes(sizes: Size[]): Size[] {
   return [...sizes].sort(

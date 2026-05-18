@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SizeSchema = z.enum(["XS", "S", "M", "L", "XL"]);
+export const SizeSchema = z.enum(["S", "M", "L"]);
 export type Size = z.infer<typeof SizeSchema>;
 
 export const ProductDetailsSchema = z.object({

@@ -12,22 +12,18 @@
     ],
     "colour": "Chocolate Brown",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "jackets",
       "suede"
     ],
     "stock": {
-      "XS": 3,
       "S": 5,
       "M": 0,
-      "L": 2,
-      "XL": 1
+      "L": 2
     },
     "preOrder": false,
     "details": {
@@ -59,22 +55,18 @@
     ],
     "colour": "Charcoal",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "coats",
       "wool"
     ],
     "stock": {
-      "XS": 0,
       "S": 4,
       "M": 6,
-      "L": 3,
-      "XL": 0
+      "L": 3
     },
     "preOrder": false,
     "details": {
@@ -96,22 +88,18 @@
     ],
     "colour": "Black",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "jackets",
       "leather"
     ],
     "stock": {
-      "XS": 2,
       "S": 3,
       "M": 4,
-      "L": 2,
-      "XL": 1
+      "L": 2
     },
     "preOrder": false,
     "details": {
@@ -143,22 +131,18 @@
     ],
     "colour": "Olive",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "jackets",
       "cotton"
     ],
     "stock": {
-      "XS": 0,
       "S": 0,
       "M": 0,
-      "L": 0,
-      "XL": 0
+      "L": 0
     },
     "preOrder": true,
     "details": {
@@ -206,29 +190,25 @@
     "name": "The Chelsea Jacket",
     "price": 69500,
     "currency": "GBP",
-    "description": "Our signature mid-length jacket \u2014 refined tailoring with everyday wearability.",
+    "description": "Our signature mid-length jacket — refined tailoring with everyday wearability.",
     "images": [
       "/cms/lookbook/02.jpg",
       "/cms/products/01.jpg"
     ],
     "colour": "Navy",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "jackets",
       "wool"
     ],
     "stock": {
-      "XS": 4,
       "S": 6,
       "M": 5,
-      "L": 4,
-      "XL": 2
+      "L": 4
     },
     "preOrder": false,
     "details": {
@@ -264,22 +244,18 @@
     ],
     "colour": "Black",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "blazers",
       "wool"
     ],
     "stock": {
-      "XS": 2,
       "S": 3,
       "M": 4,
-      "L": 3,
-      "XL": 1
+      "L": 3
     },
     "preOrder": false,
     "details": {
@@ -294,29 +270,25 @@
     "name": "The Notting Hill Bomber",
     "price": 72500,
     "currency": "GBP",
-    "description": "An elevated take on the bomber \u2014 leather body, ribbed knit cuffs and hem.",
+    "description": "An elevated take on the bomber — leather body, ribbed knit cuffs and hem.",
     "images": [
       "/cms/lookbook/01.jpg",
       "/cms/lookbook/04.jpg"
     ],
     "colour": "Cognac",
     "sizes": [
-      "XS",
       "S",
       "M",
-      "L",
-      "XL"
+      "L"
     ],
     "categorySlugs": [
       "bombers",
       "leather"
     ],
     "stock": {
-      "XS": 1,
       "S": 2,
       "M": 3,
-      "L": 2,
-      "XL": 0
+      "L": 2
     },
     "preOrder": false,
     "details": {

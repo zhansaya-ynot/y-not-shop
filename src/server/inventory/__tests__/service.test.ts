@@ -11,7 +11,7 @@ import {
 
 async function seedProduct(opts: {
   name: string;
-  sizes: Array<{ size: 'XS' | 'S' | 'M' | 'L' | 'XL'; stock: number }>;
+  sizes: Array<{ size: 'S' | 'M' | 'L'; stock: number }>;
   deleted?: boolean;
 }) {
   const slug = opts.name.toLowerCase().replace(/\s+/g, '-') + '-' +
@@ -68,7 +68,7 @@ describe('listInventoryForAdmin', () => {
     const rows = await listInventoryForAdmin({});
     expect(rows).toHaveLength(3);
     // Sorted by product name asc, then size asc (enum declaration order:
-    // XS, S, M, L, XL → Postgres asc on the enum honours declaration order).
+    // S, M, L → Postgres asc on the enum honours declaration order).
     expect(rows.map((r) => `${r.productName}/${r.size}`)).toEqual([
       'Alpha Coat/S',
       'Alpha Coat/M',

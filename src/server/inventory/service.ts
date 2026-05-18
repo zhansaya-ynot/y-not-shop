@@ -19,7 +19,7 @@ export interface DecodedVariantId {
 }
 
 const VALID_SIZES: ReadonlySet<string> = new Set([
-  'XS', 'S', 'M', 'L', 'XL',
+  'S', 'M', 'L',
 ] satisfies Size[]);
 
 export function decodeVariantId(raw: string): DecodedVariantId | null {

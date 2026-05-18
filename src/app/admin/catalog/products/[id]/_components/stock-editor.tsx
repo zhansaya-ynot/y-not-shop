@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL'] as const;
+const SIZES = ['S', 'M', 'L'] as const;
 type Size = (typeof SIZES)[number];
 
 // Storefront cart records one-size purchases under this token (see
@@ -103,7 +103,7 @@ export function StockEditor({ productId, initial, isOneSize }: Props): React.Rea
           </span>
         </label>
       ) : (
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {rows.map((r) => (
             <label key={r.size} className="flex flex-col gap-1 text-sm">
               <span className="text-xs uppercase tracking-wider text-neutral-600">

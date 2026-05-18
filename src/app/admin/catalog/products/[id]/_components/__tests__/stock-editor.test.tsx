@@ -12,13 +12,11 @@ describe('<StockEditor>', () => {
     (globalThis as any).fetch = vi.fn();
   });
 
-  it('sized product — renders 5 rows for XS S M L XL', () => {
+  it('sized product — renders 3 rows for S M L', () => {
     render(<StockEditor productId="p1" initial={[]} isOneSize={false} />);
-    expect(screen.getByTestId('stock-XS')).toBeInTheDocument();
     expect(screen.getByTestId('stock-S')).toBeInTheDocument();
     expect(screen.getByTestId('stock-M')).toBeInTheDocument();
     expect(screen.getByTestId('stock-L')).toBeInTheDocument();
-    expect(screen.getByTestId('stock-XL')).toBeInTheDocument();
     expect(screen.queryByTestId('stock-one-size')).not.toBeInTheDocument();
   });
 
@@ -26,10 +24,8 @@ describe('<StockEditor>', () => {
     render(<StockEditor productId="p1" initial={[{ size: 'M', stock: 4 }]} isOneSize />);
     expect(screen.getByTestId('stock-one-size')).toBeInTheDocument();
     expect((screen.getByTestId('stock-one-size') as HTMLInputElement).value).toBe('4');
-    expect(screen.queryByTestId('stock-XS')).not.toBeInTheDocument();
     expect(screen.queryByTestId('stock-S')).not.toBeInTheDocument();
     expect(screen.queryByTestId('stock-L')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('stock-XL')).not.toBeInTheDocument();
   });
 
   it('preloads initial stock', () => {
@@ -52,7 +48,7 @@ describe('<StockEditor>', () => {
       );
     });
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sizes).toHaveLength(5);
+    expect(body.sizes).toHaveLength(3);
     const m = body.sizes.find((s: { size: string }) => s.size === 'M');
     expect(m.stock).toBe(5);
   });
@@ -65,7 +61,7 @@ describe('<StockEditor>', () => {
       <StockEditor
         productId="p1"
         initial={[
-          { size: 'XS', stock: 99 },
+          { size: 'S', stock: 99 },
           { size: 'M', stock: 1 },
         ]}
         isOneSize
@@ -77,14 +73,12 @@ describe('<StockEditor>', () => {
       expect(fetchMock).toHaveBeenCalled();
     });
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sizes).toHaveLength(5);
+    expect(body.sizes).toHaveLength(3);
     const stockBy = Object.fromEntries(
       (body.sizes as Array<{ size: string; stock: number }>).map((s) => [s.size, s.stock]),
     );
     expect(stockBy.M).toBe(12);
-    expect(stockBy.XS).toBe(0);
     expect(stockBy.S).toBe(0);
     expect(stockBy.L).toBe(0);
-    expect(stockBy.XL).toBe(0);
   });
 });

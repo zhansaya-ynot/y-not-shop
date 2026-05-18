@@ -58,13 +58,12 @@ async function seedDashboardFixtures() {
     },
   });
 
-  // Low-stock alerts: ProductSize.stock <= 2 → 3 sizes seeded
+  // Low-stock alerts: ProductSize.stock <= 2 → all 3 sizes are low here
   await prisma.productSize.createMany({
     data: [
       { productId: published.id, size: 'S', stock: 0 },
       { productId: published.id, size: 'M', stock: 2 },
       { productId: published.id, size: 'L', stock: 1 },
-      { productId: published.id, size: 'XL', stock: 8 },
     ],
   });
 
