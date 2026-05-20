@@ -18,9 +18,12 @@ export function ProductDetailsAccordion({ product }: { product: Product }) {
           content: <p>{product.details.materials}</p>,
         },
         {
+          // Care is its own page (/product-care) — the row links there
+          // instead of expanding inline. Per-product `details.care` copy
+          // is no longer surfaced on the PDP.
           value: "care",
           title: "Care",
-          content: <p>{product.details.care}</p>,
+          href: "/product-care",
         },
         {
           value: "sizing",

@@ -1,15 +1,31 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/cn";
 import { duration, ease } from "@/lib/motion";
 
-export interface AccordionItem {
-  value: string;
-  title: React.ReactNode;
-  content: React.ReactNode;
-}
+/**
+ * Accordion items are either:
+ * - regular collapsible rows (default): clicking toggles `content`.
+ * - link rows (`href` supplied): the row navigates to that page and
+ *   renders a `›` chevron instead of the `+`/`×` toggle. Use this for
+ *   sections whose content lives on its own page (e.g. Care → /product-care).
+ */
+export type AccordionItem =
+  | {
+      value: string;
+      title: React.ReactNode;
+      content: React.ReactNode;
+      href?: undefined;
+    }
+  | {
+      value: string;
+      title: React.ReactNode;
+      href: string;
+      content?: undefined;
+    };
 
 export interface AccordionProps {
   items: AccordionItem[];
@@ -36,6 +52,28 @@ export function Accordion({
   return (
     <div className={cn("border-t border-border-light", className)}>
       {items.map((it) => {
+        // Link variant — render as <Link>, no toggle state, chevron-right
+        // icon matches the visual weight of the `+` so the row reads as
+        // part of the same list.
+        if (it.href) {
+          return (
+            <div key={it.value} className="border-b border-border-light">
+              <Link
+                href={it.href}
+                className={cn(
+                  "w-full flex items-center justify-between py-5",
+                  "text-left text-[13px] font-semibold uppercase tracking-[0.15em] text-foreground-primary",
+                )}
+              >
+                <span>{it.title}</span>
+                <span aria-hidden className="text-[18px] font-light leading-none">
+                  ›
+                </span>
+              </Link>
+            </div>
+          );
+        }
+
         const isOpen = open.includes(it.value);
         return (
           <div key={it.value} className="border-b border-border-light">
