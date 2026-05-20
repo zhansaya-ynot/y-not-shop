@@ -11,7 +11,7 @@ describe("ProductInfoPanel pre-order eyebrow", () => {
       </ProductInfoPanel>,
     );
     expect(
-      screen.getByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.getByText(/Pre-order — ships in 3 weeks/i),
     ).toBeInTheDocument();
   });
 
@@ -22,7 +22,7 @@ describe("ProductInfoPanel pre-order eyebrow", () => {
       </ProductInfoPanel>,
     );
     expect(
-      screen.queryByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.queryByText(/Pre-order — ships in 3 weeks/i),
     ).toBeNull();
   });
 
@@ -33,7 +33,7 @@ describe("ProductInfoPanel pre-order eyebrow", () => {
       </ProductInfoPanel>,
     );
     expect(
-      screen.queryByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.queryByText(/Pre-order — ships in 3 weeks/i),
     ).toBeNull();
   });
 });

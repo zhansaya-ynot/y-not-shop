@@ -122,7 +122,7 @@ export function AddToBagSection({ product }: AddToBagSectionProps) {
         onClick={onAdd}
         disabled={!size}
       >
-        {isPreOrderForSelection ? "Pre-order (3-4 weeks)" : "Add to bag"}
+        {isPreOrderForSelection ? "Pre-order (3 weeks)" : "Add to bag"}
       </Button>
 
       {product.sizeGuideImage && (
