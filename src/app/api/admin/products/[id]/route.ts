@@ -34,7 +34,18 @@ export async function PATCH(req: Request, ctx: Ctx): Promise<Response> {
   const body = await req.json().catch(() => null);
   const parsed = ProductUpdateSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: parsed.error.flatten() }, { status: 400 });
+    // Temporary diagnostics: surface exactly which field(s) failed
+    // validation so a 400 from a stale client bundle is debuggable from
+    // `docker logs ynot-app` without devtools.
+    const flat = parsed.error.flatten();
+    process.stderr.write(
+      `[admin/products PATCH 400] id=${id} fieldErrors=${JSON.stringify(
+        flat.fieldErrors,
+      )} formErrors=${JSON.stringify(flat.formErrors)} bodyKeys=${JSON.stringify(
+        body && typeof body === 'object' ? Object.keys(body) : null,
+      )}\n`,
+    );
+    return Response.json({ error: flat }, { status: 400 });
   }
 
   const product = await updateProduct({

@@ -23,7 +23,16 @@ export async function PATCH(req: Request, ctx: Ctx): Promise<Response> {
   const body = await req.json().catch(() => null);
   const parsed = ProductSizesUpdateSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: parsed.error.flatten() }, { status: 400 });
+    // Temporary diagnostics — a stale client bundle still sending XS/XL
+    // sizes would 400 here; log the offending payload so it's visible in
+    // `docker logs ynot-app`.
+    const flat = parsed.error.flatten();
+    process.stderr.write(
+      `[admin/products/sizes PATCH 400] id=${id} fieldErrors=${JSON.stringify(
+        flat.fieldErrors,
+      )} body=${JSON.stringify(body)}\n`,
+    );
+    return Response.json({ error: flat }, { status: 400 });
   }
 
   const actorId = session.user?.id;
