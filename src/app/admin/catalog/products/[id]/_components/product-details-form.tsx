@@ -167,10 +167,19 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
       <Field label="HS Code">
         <input
           type="text"
+          inputMode="numeric"
           value={state.hsCode ?? ''}
-          onChange={(e) => update('hsCode', e.target.value || null)}
+          // Strip everything but digits as the operator types — HS codes
+          // are 4–10 digits, no dots/spaces. Prevents the server-side
+          // /^\d{4,10}$/ check from 400-ing on '4203.10.00' etc.
+          onChange={(e) => update('hsCode', e.target.value.replace(/\D/g, '') || null)}
+          maxLength={10}
+          placeholder="e.g. 42031000"
           className="border border-neutral-300 rounded px-3 py-2 w-full font-mono text-sm"
         />
+        <span className="text-[11px] text-neutral-500 mt-1">
+          Digits only, 4–10 characters. Leave empty if unknown.
+        </span>
       </Field>
       <Field label="Country of Origin (ISO 2)">
         <input
