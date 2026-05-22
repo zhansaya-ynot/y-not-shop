@@ -16,6 +16,7 @@ export function toProduct(row: ProductWithRelations): ZodProduct {
     currency: "GBP",
     description: row.description,
     images: row.images.map((i) => i.url),
+    imageVariants: row.images.map((i) => ({ url: i.url, colour: i.colour ?? null })),
     colour: colourOptions?.[0]?.name,
     colourOptions,
     sizes: row.sizes.map((s) => s.size as Size),

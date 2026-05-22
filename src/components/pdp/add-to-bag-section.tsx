@@ -11,6 +11,10 @@ import type { Product, Size, ColourOption } from "@/lib/schemas";
 
 export interface AddToBagSectionProps {
   product: Product;
+  /** When provided, colour selection is controlled by the parent (so the
+   *  PDP gallery can react to it). Omit for standalone/internal state. */
+  colour?: ColourOption | null;
+  onColourChange?: (colour: ColourOption) => void;
 }
 
 const ONE_SIZE_TOKEN: Size = "M"; // representative size used internally for one-size products
@@ -25,16 +29,28 @@ function defaultColour(product: Product): ColourOption | null {
   return null;
 }
 
-export function AddToBagSection({ product }: AddToBagSectionProps) {
+export function AddToBagSection({
+  product,
+  colour: controlledColour,
+  onColourChange,
+}: AddToBagSectionProps) {
   // For one-size products we skip the picker and pre-select the
   // ONE_SIZE_TOKEN so the existing Add-to-bag flow keeps working without
   // a special-case branch in the cart API.
   const [size, setSize] = React.useState<Size | null>(
     product.isOneSize ? ONE_SIZE_TOKEN : null,
   );
-  const [colour, setColour] = React.useState<ColourOption | null>(() =>
-    defaultColour(product),
+  // Colour is controlled when the parent passes onColourChange (PDP gallery
+  // sync); otherwise we keep it in local state.
+  const isControlled = onColourChange !== undefined;
+  const [internalColour, setInternalColour] = React.useState<ColourOption | null>(
+    () => defaultColour(product),
   );
+  const colour = isControlled ? (controlledColour ?? null) : internalColour;
+  const setColour = (c: ColourOption) => {
+    if (isControlled) onColourChange(c);
+    else setInternalColour(c);
+  };
   const [sizeGuideOpen, setSizeGuideOpen] = React.useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const openDrawer = useCartStore((s) => s.openDrawer);

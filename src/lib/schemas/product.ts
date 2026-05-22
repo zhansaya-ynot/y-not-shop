@@ -24,6 +24,12 @@ export const ProductSchema = z.object({
   currency: z.literal("GBP"),
   description: z.string(),
   images: z.array(z.string()),
+  /** Per-image colour tags, parallel to `images`. `colour: null` means the
+   *  image shows for every colour. Optional for backwards-compat; the PDP
+   *  gallery uses it to swap photos when the customer changes colour. */
+  imageVariants: z
+    .array(z.object({ url: z.string(), colour: z.string().nullable() }))
+    .optional(),
   /** Default/primary colour name (kept for backwards-compat with existing carts). */
   colour: z.string().optional(),
   /** Optional colour swatches; when present the PDP renders a ColourPicker. */

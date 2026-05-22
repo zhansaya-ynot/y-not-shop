@@ -25,8 +25,8 @@ const fixture = {
   updatedAt: new Date(),
   deletedAt: null,
   images: [
-    { url: "/p1/a.jpg", alt: "front", sortOrder: 0 },
-    { url: "/p1/b.jpg", alt: "back", sortOrder: 1 },
+    { url: "/p1/a.jpg", alt: "front", sortOrder: 0, colour: null },
+    { url: "/p1/b.jpg", alt: "back", sortOrder: 1, colour: "Black" },
   ],
   sizes: [
     { size: "S", stock: 3 },

@@ -52,6 +52,12 @@ export const ProductImagesReorderSchema = z.object({
   order: z.array(z.string().min(1)).min(1),
 });
 
+export const ProductImageColourSchema = z.object({
+  imageId: z.string().min(1),
+  /** Empty string / null clears the colour tag. */
+  colour: z.string().max(120).nullable(),
+});
+
 export const ProductSizesUpdateSchema = z.object({
   sizes: z
     .array(

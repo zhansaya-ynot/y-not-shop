@@ -6,10 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Breadcrumb } from "@/components/catalog/breadcrumb";
-import { ProductGallery } from "@/components/pdp/product-gallery";
-import { ProductInfoPanel } from "@/components/pdp/product-info-panel";
-import { AddToBagSection } from "@/components/pdp/add-to-bag-section";
-import { ProductDetailsAccordion } from "@/components/pdp/product-details-accordion";
+import { ProductDetailMedia } from "@/components/pdp/product-detail-media";
 import { RecommendedProducts } from "@/components/pdp/recommended-products";
 import { getProductBySlug, getRelatedProducts } from "@/server/data/products";
 import { getCategoryBySlug } from "@/server/data/categories";
@@ -70,19 +67,7 @@ export default async function ProductPage({ params }: PageProps) {
 
         <Section padding="md">
           <Container size="wide">
-            <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-              <ProductGallery images={product.images} alt={product.name} />
-              <div className="flex flex-col gap-10">
-                <ProductInfoPanel
-                  name={product.name}
-                  price={product.price}
-                  preOrder={product.preOrder}
-                >
-                  <AddToBagSection product={product} />
-                </ProductInfoPanel>
-                <ProductDetailsAccordion product={product} />
-              </div>
-            </div>
+            <ProductDetailMedia product={product} />
           </Container>
         </Section>
 

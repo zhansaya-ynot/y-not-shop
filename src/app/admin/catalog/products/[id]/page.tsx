@@ -98,7 +98,9 @@ export default async function AdminProductDetailPage({
             url: i.url,
             alt: i.alt,
             sortOrder: i.sortOrder,
+            colour: i.colour,
           }))}
+          colours={product.colours.map((c) => c.name)}
         />
       </section>
 

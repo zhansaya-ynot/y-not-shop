@@ -316,6 +316,40 @@ export async function removeProductImage(opts: RemoveProductImageOptions) {
   );
 }
 
+export interface SetProductImageColourOptions {
+  productId: string;
+  imageId: string;
+  /** Colour name to tag, or null to make the image colour-agnostic. */
+  colour: string | null;
+  actorId: string;
+  ip?: string;
+  ua?: string;
+}
+
+export async function setProductImageColour(opts: SetProductImageColourOptions) {
+  const { productId, imageId, colour, actorId, ip, ua } = opts;
+  const before = await prisma.productImage.findUnique({ where: { id: imageId } });
+  if (!before || before.productId !== productId) {
+    throw new Error('Image not found on product');
+  }
+  return withAudit(
+    {
+      actorId,
+      entityType: 'product',
+      entityId: productId,
+      action: 'product.images.set_colour',
+      before,
+      ip,
+      ua,
+    },
+    async () =>
+      prisma.productImage.update({
+        where: { id: imageId },
+        data: { colour: colour && colour.length > 0 ? colour : null },
+      }),
+  );
+}
+
 export interface ReorderProductImagesOptions {
   productId: string;
   order: string[];

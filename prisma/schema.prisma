@@ -200,6 +200,10 @@ model ProductImage {
   url       String
   alt       String  @default("")
   sortOrder Int     @default(0)
+  /// Optional colour this image belongs to (matches ColourOption.name).
+  /// Null = shown for every colour. When a product has colour-tagged
+  /// images, the PDP gallery swaps to the selected colour's set.
+  colour    String?
 
   @@index([productId, sortOrder])
 }

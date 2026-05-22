@@ -2,7 +2,7 @@ import type { Product, HomeCollection } from "@prisma/client";
 import { prisma } from "../db/client";
 
 export type ProductWithRelations = Product & {
-  images: { url: string; alt: string; sortOrder: number }[];
+  images: { url: string; alt: string; sortOrder: number; colour: string | null }[];
   sizes: { size: string; stock: number }[];
   colours: { name: string; hex: string; sortOrder: number }[];
   categories: { category: { slug: string } }[];
