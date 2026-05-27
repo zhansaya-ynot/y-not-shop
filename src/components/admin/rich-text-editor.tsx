@@ -6,6 +6,10 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Table } from '@tiptap/extension-table/table';
+import { TableRow } from '@tiptap/extension-table/row';
+import { TableHeader } from '@tiptap/extension-table/header';
+import { TableCell } from '@tiptap/extension-table/cell';
 import { marked } from 'marked';
 
 /**
@@ -62,12 +66,20 @@ export function RichTextEditor({
         HTMLAttributes: { class: 'underline underline-offset-2' },
       }),
       Placeholder.configure({ placeholder }),
+      // Table support so size charts / spec tables can be edited
+      // visually. Borders are styled via the `.rte-content` CSS below;
+      // resizable false because the storefront prose styles ignore
+      // explicit widths anyway.
+      Table.configure({ resizable: false, HTMLAttributes: { class: 'rte-table' } }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value || '',
     editorProps: {
       attributes: {
         class:
-          'prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[var(--rte-min)]',
+          'rte-content prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[var(--rte-min)]',
         style: `--rte-min:${minHeight}px`,
       },
       // Intercept pastes. If the clipboard carries plain text that
@@ -152,6 +164,8 @@ function Toolbar({ editor }: { editor: Editor }): React.ReactElement {
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   }
 
+  const inTable = editor.isActive('table');
+
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-neutral-200 bg-neutral-50 px-2 py-1.5">
       <Btn label="B" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} className="font-bold" />
@@ -167,6 +181,32 @@ function Toolbar({ editor }: { editor: Editor }): React.ReactElement {
       <Btn label="❝" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
       <Sep />
       <Btn label="Link" active={editor.isActive('link')} onClick={setLink} />
+      <Sep />
+      {/* Table controls: insert a new 3×3 table outside a table; once
+          inside, the same slot exposes row / column / delete operations
+          so all table editing lives in the same toolbar instead of a
+          hidden right-click menu. */}
+      {!inTable ? (
+        <Btn
+          label="Table"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+              .run()
+          }
+        />
+      ) : (
+        <>
+          <Btn label="+Row" onClick={() => editor.chain().focus().addRowAfter().run()} />
+          <Btn label="−Row" onClick={() => editor.chain().focus().deleteRow().run()} />
+          <Btn label="+Col" onClick={() => editor.chain().focus().addColumnAfter().run()} />
+          <Btn label="−Col" onClick={() => editor.chain().focus().deleteColumn().run()} />
+          <Btn label="Header row" onClick={() => editor.chain().focus().toggleHeaderRow().run()} />
+          <Btn label="✕ Table" onClick={() => editor.chain().focus().deleteTable().run()} className="text-red-700" />
+        </>
+      )}
       <Sep />
       <Btn label="Clear" onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()} />
     </div>
