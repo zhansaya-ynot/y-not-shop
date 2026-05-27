@@ -32,6 +32,7 @@ describe('admin sidebar NAV_SECTIONS', () => {
       '/admin/content/pages/by-slug/shipping-returns',
       '/admin/content/pages/by-slug/sustainability',
       '/admin/content/pages/by-slug/product-care',
+      '/admin/content/pages/by-slug/sizing',
       '/admin/content/pages',
     ]);
   });

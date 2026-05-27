@@ -58,7 +58,7 @@ export async function listProductsByHomeCollection(
   collection: HomeCollection,
 ): Promise<ProductWithRelations[]> {
   const products = await prisma.product.findMany({
-    where: { ...storefrontVisible, homeCollection: collection },
+    where: { ...storefrontVisible, homeCollections: { has: collection } },
     orderBy: { createdAt: "desc" },
     include,
   });

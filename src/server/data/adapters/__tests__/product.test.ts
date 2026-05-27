@@ -13,7 +13,7 @@ const fixture = {
   publishedAt: null as Date | null,
   preOrder: false,
   isOneSize: false,
-  homeCollection: null as "NEW_COLLECTION" | "TIMELESS" | "NEW_ARRIVALS" | null,
+  homeCollections: [] as Array<"NEW_COLLECTION" | "TIMELESS" | "NEW_ARRIVALS">,
   sizeGuideImage: null as string | null,
   materials: "Lamb leather",
   care: "Wipe with damp cloth",

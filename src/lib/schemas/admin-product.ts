@@ -22,11 +22,11 @@ export const ProductCreateSchema = z.object({
   /** Optional URL or storage path for the size guide image shown in the
    *  PDP modal. Empty string is normalised to null at the service layer. */
   sizeGuideImage: z.string().nullable().optional(),
-  /** Homepage collection grouping — drives the per-collection landing
-   *  pages. Null = not featured in any collection. */
-  homeCollection: z
-    .enum(['NEW_COLLECTION', 'TIMELESS', 'NEW_ARRIVALS'])
-    .nullable()
+  /** Homepage collection groupings — drives the per-collection landing
+   *  pages. A product may belong to several at once. Empty array = not
+   *  featured in any collection page. */
+  homeCollections: z
+    .array(z.enum(['NEW_COLLECTION', 'TIMELESS', 'NEW_ARRIVALS']))
     .optional(),
 });
 

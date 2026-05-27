@@ -48,7 +48,9 @@ export async function createProduct(opts: CreateProductOptions) {
           preOrder: input.preOrder,
           isOneSize: input.isOneSize,
           sizeGuideImage: input.sizeGuideImage,
-          homeCollection: input.homeCollection,
+          ...(input.homeCollections !== undefined
+            ? { homeCollections: input.homeCollections }
+            : {}),
           status: 'DRAFT',
         },
       });
@@ -95,7 +97,12 @@ export async function updateProduct(opts: UpdateProductOptions) {
             preOrder: input.preOrder,
             isOneSize: input.isOneSize,
             sizeGuideImage: input.sizeGuideImage,
-            homeCollection: input.homeCollection,
+            // Treat undefined as "no change" (keep DB value), array as
+            // "replace with this list" — Prisma overwrites the whole
+            // array on `set: [...]` or plain assignment.
+            ...(input.homeCollections !== undefined
+              ? { homeCollections: { set: input.homeCollections } }
+              : {}),
           },
         });
         // Re-link categories when explicitly provided. We treat undefined as

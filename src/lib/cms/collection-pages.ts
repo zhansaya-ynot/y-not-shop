@@ -5,8 +5,9 @@ import { prisma } from '@/server/db/client';
 
 /**
  * The three homepage collection landing pages. Each maps 1:1 to a
- * Product.homeCollection enum value and has its own editable title +
- * intro copy stored on SitePolicy.collectionPagesJson.
+ * HomeCollection enum value. A product may belong to several at once
+ * via Product.homeCollections. Title + intro copy is stored on
+ * SitePolicy.collectionPagesJson.
  */
 export const COLLECTION_SLUGS = ['new-collection', 'timeless', 'new-arrivals'] as const;
 export type CollectionSlug = (typeof COLLECTION_SLUGS)[number];

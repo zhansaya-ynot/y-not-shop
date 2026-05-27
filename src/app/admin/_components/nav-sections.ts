@@ -56,6 +56,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/content/pages/by-slug/shipping-returns', label: 'Shipping & Returns' },
       { href: '/admin/content/pages/by-slug/sustainability', label: 'Sustainability' },
       { href: '/admin/content/pages/by-slug/product-care', label: 'Product Care' },
+      { href: '/admin/content/pages/by-slug/sizing', label: 'General Sizing' },
       { href: '/admin/content/pages', label: 'All pages…' },
     ],
   },

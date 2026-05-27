@@ -126,9 +126,23 @@ export function AddToBagSection({
         </div>
       )}
       {product.isOneSize && (
-        <p className="text-[12px] uppercase tracking-[0.2em] text-foreground-secondary">
-          One size
-        </p>
+        <div className="flex items-baseline justify-between">
+          <p className="text-[12px] uppercase tracking-[0.2em] text-foreground-secondary">
+            One size
+          </p>
+          {/* One-size products still get a "Size guide" link when an
+              image is uploaded — the guide is useful for measurements
+              (chest/length) even when there's no size picker. */}
+          {product.sizeGuideImage && (
+            <button
+              type="button"
+              onClick={() => setSizeGuideOpen(true)}
+              className="text-[11px] uppercase tracking-[0.2em] text-foreground-secondary underline underline-offset-4 hover:text-foreground-primary"
+            >
+              Size guide
+            </button>
+          )}
+        </div>
       )}
 
       <Button

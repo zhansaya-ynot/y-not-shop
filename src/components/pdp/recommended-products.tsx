@@ -12,7 +12,7 @@ export function RecommendedProducts({ products }: { products: Product[] }) {
     <Section padding="lg">
       <Container size="wide">
         <Display level="md" as="h2" className="mb-12 text-center">
-          Complete the look
+          You may also like
         </Display>
       </Container>
       {/* Horizontal-scroll carousel — same behaviour on mobile and

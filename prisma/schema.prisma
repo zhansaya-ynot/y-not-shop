@@ -157,10 +157,12 @@ model Product {
   /// limited drops). When true the storefront hides the size picker and
   /// there's a single implicit "ONE_SIZE" variant.
   isOneSize   Boolean   @default(false)
-  /// Optional homepage collection grouping — drives the per-collection
-  /// landing pages (/new-collection, /timeless, /new-arrivals). Null when
-  /// the product isn't featured in any collection page.
-  homeCollection      HomeCollection?
+  /// Optional homepage collection groupings — drives the per-collection
+  /// landing pages (/new-collection, /timeless, /new-arrivals). A
+  /// product may appear in several collections at once (e.g. a piece
+  /// that's both Timeless and New Arrivals). Empty array = not
+  /// featured in any collection page.
+  homeCollections     HomeCollection[]
   /// Storage key (or absolute URL) of an uploaded size guide image. Shown
   /// inside a modal triggered from the PDP "Size guide" link.
   sizeGuideImage      String?

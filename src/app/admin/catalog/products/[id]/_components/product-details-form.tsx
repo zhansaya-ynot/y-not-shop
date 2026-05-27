@@ -3,12 +3,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { SingleImageUpload } from '@/app/admin/content/_components/single-image-upload';
+import { RichTextEditor } from '@/components/admin/rich-text-editor';
 
-export type HomeCollectionValue =
-  | 'NEW_COLLECTION'
-  | 'TIMELESS'
-  | 'NEW_ARRIVALS'
-  | null;
+export type HomeCollectionValue = 'NEW_COLLECTION' | 'TIMELESS' | 'NEW_ARRIVALS';
 
 export interface ProductDetailsInitial {
   name: string;
@@ -24,11 +21,11 @@ export interface ProductDetailsInitial {
   preOrder: boolean;
   isOneSize: boolean;
   sizeGuideImage: string | null;
-  homeCollection: HomeCollectionValue;
+  /** Empty array = not featured in any collection page. */
+  homeCollections: HomeCollectionValue[];
 }
 
 const HOME_COLLECTION_OPTIONS: Array<{ value: HomeCollectionValue; label: string }> = [
-  { value: null, label: 'None — not in a collection page' },
   { value: 'NEW_COLLECTION', label: 'New Collection' },
   { value: 'TIMELESS', label: 'Timeless' },
   { value: 'NEW_ARRIVALS', label: 'New Arrivals' },
@@ -70,7 +67,7 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         preOrder: state.preOrder,
         isOneSize: state.isOneSize,
         sizeGuideImage: state.sizeGuideImage,
-        homeCollection: state.homeCollection,
+        homeCollections: state.homeCollections,
       };
       if (state.weightGrams) body.weightGrams = state.weightGrams;
       if (state.hsCode) body.hsCode = state.hsCode;
@@ -140,14 +137,19 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
           className="border border-neutral-300 rounded px-3 py-2 w-full"
         />
       </Field>
-      <Field label="Materials">
-        <textarea
-          value={state.materials}
-          onChange={(e) => update('materials', e.target.value)}
-          rows={2}
-          className="border border-neutral-300 rounded px-3 py-2 w-full"
-        />
-      </Field>
+      <div className="md:col-span-2">
+        <Field label="Materials">
+          {/* Rich-text editor — outputs HTML, rendered on the PDP with
+              `dangerouslySetInnerHTML` so paragraphs, bold, lists,
+              underline etc. survive end-to-end. */}
+          <RichTextEditor
+            value={state.materials}
+            onChange={(html) => update('materials', html)}
+            placeholder="Composition, fabric origin, finishing details…"
+            minHeight={160}
+          />
+        </Field>
+      </div>
       <Field label="Care">
         <textarea
           value={state.care}
@@ -209,23 +211,31 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
 
       <fieldset className="md:col-span-2 flex flex-col gap-2">
         <legend className="text-xs uppercase tracking-wider text-neutral-600 mb-1">
-          Homepage collection
+          Homepage collections
         </legend>
         <p className="text-[11px] text-neutral-500 -mt-1 mb-1">
-          Controls which collection landing page this product appears on
-          (/new-collection, /timeless, /new-arrivals). Pick one.
+          Tick every collection landing page this product should appear on
+          (/new-collection, /timeless, /new-arrivals). Leave all unticked
+          to keep the product off the collection pages.
         </p>
-        {HOME_COLLECTION_OPTIONS.map((opt) => (
-          <label key={opt.value ?? 'none'} className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="homeCollection"
-              checked={state.homeCollection === opt.value}
-              onChange={() => update('homeCollection', opt.value)}
-            />
-            <span>{opt.label}</span>
-          </label>
-        ))}
+        {HOME_COLLECTION_OPTIONS.map((opt) => {
+          const checked = state.homeCollections.includes(opt.value);
+          return (
+            <label key={opt.value} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={(e) => {
+                  const next = e.target.checked
+                    ? [...state.homeCollections, opt.value]
+                    : state.homeCollections.filter((v) => v !== opt.value);
+                  update('homeCollections', next);
+                }}
+              />
+              <span>{opt.label}</span>
+            </label>
+          );
+        })}
       </fieldset>
       <Field label="Size guide image" className="md:col-span-2">
         <SingleImageUpload
