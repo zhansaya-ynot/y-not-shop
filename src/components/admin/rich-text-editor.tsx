@@ -134,9 +134,99 @@ export function RichTextEditor({
   }
 
   return (
-    <div className="rounded border border-neutral-300 bg-white">
+    <div className="rounded border border-neutral-300 bg-white relative">
       <Toolbar editor={editor} />
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        <LinkBubble editor={editor} />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Floating "what does this link point to?" tooltip. Appears above the
+ * caret whenever the cursor is inside a link mark; shows the URL plus
+ * Open / Edit / Remove buttons. Lets the operator inspect and change
+ * a link without re-selecting the text and re-prompting via the
+ * toolbar "Link" button.
+ */
+function LinkBubble({ editor }: { editor: Editor }): React.ReactElement | null {
+  const [pos, setPos] = React.useState<{ top: number; left: number } | null>(null);
+  const [href, setHref] = React.useState<string>('');
+
+  React.useEffect(() => {
+    const update = () => {
+      const active = editor.isActive('link');
+      const url = (editor.getAttributes('link').href as string | undefined) ?? '';
+      if (!active || !url) {
+        setPos(null);
+        setHref('');
+        return;
+      }
+      // Position above the caret. coordsAtPos returns viewport coords;
+      // convert to coords relative to the editor's positioned wrapper
+      // so the bubble pins correctly even if the page is scrolled.
+      const { from } = editor.state.selection;
+      const view = editor.view;
+      const dom = view.dom as HTMLElement;
+      const containerRect = (dom.parentElement ?? dom).getBoundingClientRect();
+      const coords = view.coordsAtPos(from);
+      setHref(url);
+      setPos({
+        top: coords.top - containerRect.top - 40,
+        left: coords.left - containerRect.left,
+      });
+    };
+    editor.on('selectionUpdate', update);
+    editor.on('transaction', update);
+    return () => {
+      editor.off('selectionUpdate', update);
+      editor.off('transaction', update);
+    };
+  }, [editor]);
+
+  if (!pos || !href) return null;
+
+  const display = href.length > 48 ? href.slice(0, 45) + '…' : href;
+
+  return (
+    <div
+      className="absolute z-10 flex items-center gap-1 rounded border border-neutral-300 bg-white px-2 py-1 text-xs shadow-md"
+      style={{ top: pos.top, left: pos.left }}
+    >
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="max-w-[220px] truncate text-blue-700 underline"
+        title={href}
+      >
+        {display}
+      </a>
+      <span className="mx-1 h-3 w-px bg-neutral-300" aria-hidden />
+      <button
+        type="button"
+        onClick={() => {
+          const next = window.prompt('Edit link URL', href);
+          if (next === null) return;
+          if (next === '') {
+            editor.chain().focus().extendMarkRange('link').unsetLink().run();
+            return;
+          }
+          editor.chain().focus().extendMarkRange('link').setLink({ href: next }).run();
+        }}
+        className="px-1.5 py-0.5 rounded text-neutral-700 hover:bg-neutral-100"
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => editor.chain().focus().extendMarkRange('link').unsetLink().run()}
+        className="px-1.5 py-0.5 rounded text-red-700 hover:bg-red-50"
+      >
+        Remove
+      </button>
     </div>
   );
 }
