@@ -11,7 +11,12 @@ import { SortDropdown } from "@/components/catalog/sort-dropdown";
 import { ProductGridPaged } from "@/components/catalog/product-grid-paged";
 import { getAllCategories } from "@/server/data/categories";
 import { getAllProducts } from "@/server/data/products";
-import { applyCatalogQuery, type CatalogSort } from "@/lib/catalog/filter";
+import {
+  applyCatalogQuery,
+  colourOptionsFromProducts,
+  MATERIAL_SLUGS,
+  type CatalogSort,
+} from "@/lib/catalog/filter";
 import type { Size } from "@/lib/schemas";
 
 interface PageProps {
@@ -41,8 +46,12 @@ export default async function ShopPage({ searchParams }: PageProps) {
   ]);
 
   const materialOptions = allCategories
-    .filter((c) => ["leather", "suede", "wool", "cotton", "tencel"].includes(c.slug))
+    .filter((c) => MATERIAL_SLUGS.includes(c.slug))
     .map((c) => ({ value: c.slug, label: c.name }));
+  const categoryOptions = allCategories
+    .filter((c) => !MATERIAL_SLUGS.includes(c.slug))
+    .map((c) => ({ value: c.slug, label: c.name }));
+  const colourOptions = colourOptionsFromProducts(base);
 
   const sortRaw = (sp.sort as string | undefined) ?? "newest";
   const sort: CatalogSort =
@@ -50,6 +59,8 @@ export default async function ShopPage({ searchParams }: PageProps) {
 
   const filtered = applyCatalogQuery(base, {
     crossCategorySlug: (sp.material as string | undefined) ?? undefined,
+    categorySlug: (sp.category as string | undefined) ?? undefined,
+    colour: (sp.colour as string | undefined) ?? undefined,
     size: (sp.size as Size | undefined) ?? undefined,
     maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
     sort,
@@ -78,7 +89,11 @@ export default async function ShopPage({ searchParams }: PageProps) {
         <Section padding="sm">
           <Container size="wide">
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-              <FilterBar materialOptions={materialOptions} />
+              <FilterBar
+                materialOptions={materialOptions}
+                colourOptions={colourOptions}
+                categoryOptions={categoryOptions}
+              />
               <SortDropdown />
             </div>
           </Container>

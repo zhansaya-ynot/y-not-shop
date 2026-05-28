@@ -22,7 +22,7 @@ const PRICE_OPTIONS: FilterOption[] = [
 ];
 
 /** Query params this bar owns — used for the active-count badge + Clear all. */
-const FILTER_KEYS = ["material", "size", "maxPrice"] as const;
+const FILTER_KEYS = ["material", "colour", "category", "size", "maxPrice"] as const;
 
 interface FilterGroupProps {
   label: string;
@@ -68,8 +68,44 @@ function FilterGroup({
   );
 }
 
+/** Dropdown variant — used for Material / Colour / Category where the
+ *  list can be long and chips would wrap awkwardly. */
+function FilterSelect({
+  label,
+  current,
+  options,
+  paramKey,
+  allLabel,
+  onSelect,
+}: FilterGroupProps & { allLabel: string }) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground-secondary">
+        {label}
+      </span>
+      <select
+        value={current ?? ""}
+        onChange={(e) => onSelect(paramKey, e.target.value || null)}
+        className="h-10 border border-border-dark bg-surface-primary px-3 text-[13px] text-foreground-primary focus:border-foreground-primary focus:outline-none"
+      >
+        <option value="">{allLabel}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export interface FilterBarProps {
   materialOptions: FilterOption[];
+  /** Distinct colours across the current product set. */
+  colourOptions?: FilterOption[];
+  /** Garment categories — only passed on collection / shop pages (a
+   *  specific /collection/<slug> is already scoped to one category). */
+  categoryOptions?: FilterOption[];
 }
 
 /**
@@ -80,7 +116,11 @@ export interface FilterBarProps {
  * Selections write straight to the URL, so the grid behind the drawer
  * re-filters live — closing the drawer just hides the controls.
  */
-export function FilterBar({ materialOptions }: FilterBarProps) {
+export function FilterBar({
+  materialOptions,
+  colourOptions = [],
+  categoryOptions = [],
+}: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -180,12 +220,33 @@ export function FilterBar({ materialOptions }: FilterBarProps) {
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="flex flex-col gap-8">
+            {categoryOptions.length > 0 && (
+              <FilterSelect
+                label="Category"
+                allLabel="All categories"
+                current={params.get("category")}
+                options={categoryOptions}
+                paramKey="category"
+                onSelect={setParam}
+              />
+            )}
             {materialOptions.length > 0 && (
-              <FilterGroup
+              <FilterSelect
                 label="Material"
+                allLabel="All materials"
                 current={params.get("material")}
                 options={materialOptions}
                 paramKey="material"
+                onSelect={setParam}
+              />
+            )}
+            {colourOptions.length > 0 && (
+              <FilterSelect
+                label="Colour"
+                allLabel="All colours"
+                current={params.get("colour")}
+                options={colourOptions}
+                paramKey="colour"
                 onSelect={setParam}
               />
             )}

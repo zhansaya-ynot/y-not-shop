@@ -16,7 +16,12 @@ import {
   SLUG_TO_COLLECTION,
   type CollectionSlug,
 } from "@/lib/cms/collection-pages";
-import { applyCatalogQuery, type CatalogSort } from "@/lib/catalog/filter";
+import {
+  applyCatalogQuery,
+  colourOptionsFromProducts,
+  MATERIAL_SLUGS,
+  type CatalogSort,
+} from "@/lib/catalog/filter";
 import type { Size } from "@/lib/schemas";
 
 const PAGE_SIZE_DEFAULT = 12;
@@ -43,8 +48,12 @@ export async function CollectionLanding({ slug, searchParams: sp }: Props) {
   const page = pages[slug];
 
   const materialOptions = allCategories
-    .filter((c) => ["leather", "suede", "wool", "cotton", "tencel"].includes(c.slug))
+    .filter((c) => MATERIAL_SLUGS.includes(c.slug))
     .map((c) => ({ value: c.slug, label: c.name }));
+  const categoryOptions = allCategories
+    .filter((c) => !MATERIAL_SLUGS.includes(c.slug))
+    .map((c) => ({ value: c.slug, label: c.name }));
+  const colourOptions = colourOptionsFromProducts(base);
 
   const sortRaw = (sp.sort as string | undefined) ?? "newest";
   const sort: CatalogSort =
@@ -52,6 +61,8 @@ export async function CollectionLanding({ slug, searchParams: sp }: Props) {
 
   const filtered = applyCatalogQuery(base, {
     crossCategorySlug: (sp.material as string | undefined) ?? undefined,
+    categorySlug: (sp.category as string | undefined) ?? undefined,
+    colour: (sp.colour as string | undefined) ?? undefined,
     size: (sp.size as Size | undefined) ?? undefined,
     maxPrice: sp.maxPrice ? Number(sp.maxPrice) : undefined,
     sort,
@@ -92,7 +103,11 @@ export async function CollectionLanding({ slug, searchParams: sp }: Props) {
             <Section padding="sm">
               <Container size="wide">
                 <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-                  <FilterBar materialOptions={materialOptions} />
+                  <FilterBar
+                    materialOptions={materialOptions}
+                    colourOptions={colourOptions}
+                    categoryOptions={categoryOptions}
+                  />
                   <SortDropdown />
                 </div>
               </Container>
