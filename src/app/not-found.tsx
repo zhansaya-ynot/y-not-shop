@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { AnnouncementBarServer } from "@/components/announcement-bar-server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <>
-      <AnnouncementBar />
+      <AnnouncementBarServer />
       <SiteHeader />
       <main className="flex-1">
         <Section padding="lg">

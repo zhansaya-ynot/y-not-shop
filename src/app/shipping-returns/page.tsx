@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { AnnouncementBarServer } from "@/components/announcement-bar-server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
@@ -61,7 +61,7 @@ export default async function ShippingReturnsPage() {
 
   return (
     <>
-      <AnnouncementBar />
+      <AnnouncementBarServer />
       <SiteHeader />
       <main className="flex-1">
         <PageHero eyebrow={hero.eyebrow} title={hero.title} />

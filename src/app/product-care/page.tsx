@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { AnnouncementBarServer } from "@/components/announcement-bar-server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
@@ -95,7 +95,7 @@ export default async function ProductCarePage() {
 
   return (
     <>
-      <AnnouncementBar />
+      <AnnouncementBarServer />
       <SiteHeader />
       <main className="flex-1">
         <PageHero

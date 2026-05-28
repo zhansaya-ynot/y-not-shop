@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { AnnouncementBarServer } from "@/components/announcement-bar-server";
 import { SiteHeader } from "@/components/site-header";
 
 export const metadata = {
@@ -9,7 +9,7 @@ export const metadata = {
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <AnnouncementBar />
+      <AnnouncementBarServer />
       <SiteHeader />
       <main className="flex-1 flex flex-col">{children}</main>
     </div>

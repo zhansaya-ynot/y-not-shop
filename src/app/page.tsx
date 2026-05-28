@@ -1,4 +1,4 @@
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { AnnouncementBarServer } from "@/components/announcement-bar-server";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
@@ -59,7 +59,7 @@ export default async function Home() {
     <>
       {/* Chrome stack — fixed over the hero, transparent at start, white on scroll */}
       <div className="fixed top-0 left-0 right-0 z-40">
-        <AnnouncementBar />
+        <AnnouncementBarServer />
         <SiteHeader overHero />
       </div>
 

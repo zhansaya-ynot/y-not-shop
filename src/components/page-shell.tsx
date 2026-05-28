@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnnouncementBar } from "./announcement-bar";
+import { AnnouncementBarServer } from "./announcement-bar-server";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 
@@ -24,7 +24,7 @@ export function PageShell({
 }: PageShellProps) {
   return (
     <>
-      {!hideAnnouncement && <AnnouncementBar />}
+      {!hideAnnouncement && <AnnouncementBarServer />}
       {header ?? <SiteHeader overHero={overHero} />}
       <main className="flex-1">{children}</main>
       {!hideFooter && <SiteFooter />}
