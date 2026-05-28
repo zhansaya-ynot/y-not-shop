@@ -9,8 +9,7 @@ import { Breadcrumb } from "@/components/catalog/breadcrumb";
 import { CategoryHeader } from "@/components/catalog/category-header";
 import { FilterBar } from "@/components/catalog/filter-bar";
 import { SortDropdown } from "@/components/catalog/sort-dropdown";
-import { ProductGrid } from "@/components/catalog/product-grid";
-import { LoadMoreButton } from "@/components/catalog/load-more-button";
+import { ProductGridPaged } from "@/components/catalog/product-grid-paged";
 import { getCategoryBySlug, getAllCategories } from "@/server/data/categories";
 import { getProductsByCategory } from "@/server/data/products";
 import { applyCatalogQuery, type CatalogSort } from "@/lib/catalog/filter";
@@ -55,9 +54,6 @@ export default async function CollectionPage({ params, searchParams }: PageProps
     sort,
   });
 
-  const limit = sp.limit ? Number(sp.limit) : PAGE_SIZE_DEFAULT;
-  const visible = filtered.slice(0, limit);
-
   return (
     <>
       <AnnouncementBar />
@@ -87,8 +83,7 @@ export default async function CollectionPage({ params, searchParams }: PageProps
 
         <Section padding="md">
           <Container size="wide">
-            <ProductGrid products={visible} />
-            <LoadMoreButton visible={visible.length} total={filtered.length} />
+            <ProductGridPaged products={filtered} pageSize={PAGE_SIZE_DEFAULT} />
           </Container>
         </Section>
       </main>
