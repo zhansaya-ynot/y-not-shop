@@ -6,6 +6,19 @@ import { cn } from "@/lib/cn";
 export interface SelectOption {
   value: string;
   label: string;
+  /** Optional colour swatch (hex) shown as a square before the label —
+   *  used by the colour filter. */
+  hex?: string;
+}
+
+function Swatch({ hex }: { hex: string }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 flex-shrink-0 rounded-[2px] border border-border-light"
+      style={{ backgroundColor: hex }}
+    />
+  );
 }
 
 export interface SelectProps {
@@ -160,7 +173,10 @@ export function Select({
             error && "border-error focus:border-error",
           )}
         >
-          <span className="truncate">{selected?.label ?? ""}</span>
+          <span className="flex items-center gap-2 truncate">
+            {selected?.hex && <Swatch hex={selected.hex} />}
+            <span className="truncate">{selected?.label ?? ""}</span>
+          </span>
           <svg
             aria-hidden="true"
             viewBox="0 0 12 8"
@@ -201,11 +217,12 @@ export function Select({
                   }}
                   onMouseEnter={() => setHighlight(idx)}
                   className={cn(
-                    "px-4 py-2 text-[14px] cursor-pointer text-foreground-primary",
+                    "flex items-center gap-2 px-4 py-2 text-[14px] cursor-pointer text-foreground-primary",
                     isHighlighted && "bg-surface-secondary",
                     isSelected && "font-semibold",
                   )}
                 >
+                  {o.hex && <Swatch hex={o.hex} />}
                   {o.label}
                 </li>
               );

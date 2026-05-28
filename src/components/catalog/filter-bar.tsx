@@ -3,10 +3,12 @@
 import * as React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { Select } from "@/components/ui/select";
 
 interface FilterOption {
   value: string;
   label: string;
+  hex?: string;
 }
 
 const SIZE_OPTIONS: FilterOption[] = [
@@ -68,8 +70,10 @@ function FilterGroup({
   );
 }
 
-/** Dropdown variant — used for Material / Colour / Category where the
- *  list can be long and chips would wrap awkwardly. */
+/** Dropdown variant — uses the branded Select (button + popup list) so
+ *  Material / Colour / Category match the storefront's styling and can
+ *  render colour swatches. The leading "All X" entry maps to clearing
+ *  the param. */
 function FilterSelect({
   label,
   current,
@@ -78,24 +82,14 @@ function FilterSelect({
   allLabel,
   onSelect,
 }: FilterGroupProps & { allLabel: string }) {
+  const withAll = [{ value: "", label: allLabel }, ...options];
   return (
-    <label className="flex flex-col gap-2">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground-secondary">
-        {label}
-      </span>
-      <select
-        value={current ?? ""}
-        onChange={(e) => onSelect(paramKey, e.target.value || null)}
-        className="h-10 border border-border-dark bg-surface-primary px-3 text-[13px] text-foreground-primary focus:border-foreground-primary focus:outline-none"
-      >
-        <option value="">{allLabel}</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      label={label}
+      value={current ?? ""}
+      options={withAll}
+      onChange={(value) => onSelect(paramKey, value || null)}
+    />
   );
 }
 

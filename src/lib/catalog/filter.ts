@@ -61,20 +61,23 @@ export function applyCatalogQuery(
 export const MATERIAL_SLUGS = ["leather", "suede", "wool", "cotton", "tencel"];
 
 /** Distinct colour options across a product set, alphabetical, for the
- *  colour filter dropdown. Reads colourOptions first, falling back to the
- *  product's primary `colour`. */
+ *  colour filter dropdown. Carries the hex so the dropdown can show a
+ *  swatch. Reads colourOptions first, falling back to the product's
+ *  primary `colour` (no hex available there). */
 export function colourOptionsFromProducts(
   products: Product[],
-): Array<{ value: string; label: string }> {
-  const names = new Set<string>();
+): Array<{ value: string; label: string; hex?: string }> {
+  const byName = new Map<string, string | undefined>();
   for (const p of products) {
     if (p.colourOptions?.length) {
-      for (const c of p.colourOptions) names.add(c.name);
-    } else if (p.colour) {
-      names.add(p.colour);
+      for (const c of p.colourOptions) {
+        if (!byName.has(c.name)) byName.set(c.name, c.hex);
+      }
+    } else if (p.colour && !byName.has(p.colour)) {
+      byName.set(p.colour, undefined);
     }
   }
-  return [...names]
-    .sort((a, b) => a.localeCompare(b))
-    .map((name) => ({ value: name, label: name }));
+  return [...byName.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([name, hex]) => ({ value: name, label: name, ...(hex ? { hex } : {}) }));
 }
