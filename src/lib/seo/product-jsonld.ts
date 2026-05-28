@@ -1,4 +1,5 @@
 import type { Product } from "@/lib/schemas";
+import { stripHtml } from "@/lib/strip-html";
 
 export interface ProductJsonLd {
   "@context": "https://schema.org";
@@ -37,7 +38,7 @@ export function buildProductJsonLd(
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description,
+    description: stripHtml(product.description),
     image: product.images.map((src) =>
       src.startsWith("http") ? src : `${baseUrl}${src}`,
     ),

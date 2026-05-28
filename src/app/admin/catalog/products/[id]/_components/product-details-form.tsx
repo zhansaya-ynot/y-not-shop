@@ -106,11 +106,13 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
       </Field>
       <div className="md:col-span-2">
         <Field label="Description">
-          <textarea
+          {/* Rich-text editor (same as Materials) — outputs HTML,
+              rendered on the PDP via dangerouslySetInnerHTML. */}
+          <RichTextEditor
             value={state.description}
-            onChange={(e) => update('description', e.target.value)}
-            rows={4}
-            className="border border-neutral-300 rounded px-3 py-2 w-full"
+            onChange={(html) => update('description', html)}
+            placeholder="Product description — paragraphs, bold, lists…"
+            minHeight={160}
           />
         </Field>
       </div>

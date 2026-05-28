@@ -10,10 +10,10 @@ const RICH_CLASS =
   "[&>*]:m-0 [&>p+p]:mt-3 [&_a]:underline [&_strong]:font-semibold [&_em]:italic [&_u]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2 [&_li]:my-1";
 
 /**
- * Render plain text or rich HTML for an accordion row. Materials and
- * sizing are now edited via TipTap → HTML; description is still plain
- * text. `renderRichBodyHtml` also catches legacy markdown paste so
- * existing rows that contain `**bold**` etc. still render correctly.
+ * Render rich HTML for an accordion row. Description and Materials are
+ * edited via the TipTap RichTextEditor (HTML output).
+ * `renderRichBodyHtml` also catches legacy plain-text / markdown rows so
+ * older products still render correctly (plain text → wrapped paragraph).
  */
 function RichBody({ html }: { html: string }) {
   return (
@@ -32,7 +32,7 @@ export function ProductDetailsAccordion({ product }: { product: Product }) {
         {
           value: "description",
           title: "Description",
-          content: <p>{product.description}</p>,
+          content: <RichBody html={product.description} />,
         },
         {
           value: "materials",

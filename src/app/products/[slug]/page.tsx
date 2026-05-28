@@ -11,6 +11,7 @@ import { RecommendedProducts } from "@/components/pdp/recommended-products";
 import { getProductBySlug, getRelatedProducts } from "@/server/data/products";
 import { getCategoryBySlug } from "@/server/data/categories";
 import { buildProductJsonLd } from "@/lib/seo/product-jsonld";
+import { stripHtml } from "@/lib/strip-html";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -22,7 +23,8 @@ export async function generateMetadata({ params }: PageProps) {
   if (!p) return { title: "Not found · YNOT London" };
   return {
     title: `${p.name} · YNOT London`,
-    description: p.description,
+    // Description is rich HTML now — flatten to plain text for the meta tag.
+    description: stripHtml(p.description).slice(0, 300),
   };
 }
 
