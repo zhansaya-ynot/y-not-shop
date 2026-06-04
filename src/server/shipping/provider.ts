@@ -116,6 +116,10 @@ export interface CreateShipmentInput {
   subtotalCents: number;
   declaredValueCents: number;
   isInternational: boolean;
+  /** DHL product code override. Defaults to 'P' (Express Worldwide) — only
+   *  valid for international. Set to 'N' (Domestic Express) for GB→GB and
+   *  GB→Northern Ireland. */
+  productCode?: string;
 }
 
 export interface ShipmentParty {

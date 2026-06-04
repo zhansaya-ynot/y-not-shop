@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Local drop folder for raw assets from operator desktop
 /_input/
+
+# Local DHL sandbox sample-pack output (PDFs + summary)
+dhl-sample-pack/

@@ -317,6 +317,13 @@ describe('DhlExpressProvider.createShipment', () => {
     expect(body.content.exportDeclaration.lineItems[0].commodityCodes[0].value).toBe('6214.10');
     expect(body.content.unitOfMeasurement).toBe('metric');
     expect(body.customerReferences[0].value).toBe('YN-2026-00042');
+    // Paperless Trade (WY) + DHL-generated invoice — required by DHL CFIT
+    // (Lee 2026-06-02) for any customs-declarable shipment.
+    expect(body.valueAddedServices).toEqual([{ serviceCode: 'WY' }]);
+    const invoiceOpt = body.outputImageProperties.imageOptions.find(
+      (o: { typeCode: string }) => o.typeCode === 'invoice',
+    );
+    expect(invoiceOpt.isRequested).toBe(true);
   });
 
   it('omits customs block + invoice PDF for domestic shipments', async () => {
@@ -342,6 +349,9 @@ describe('DhlExpressProvider.createShipment', () => {
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string);
     expect(body.content.isCustomsDeclarable).toBe(false);
     expect(body.content.exportDeclaration).toBeUndefined();
+    // Paperless Trade is only for customs-declarable shipments — domestic
+    // payload must not include it.
+    expect(body.valueAddedServices).toBeUndefined();
   });
 
   it('throws on non-2xx', async () => {

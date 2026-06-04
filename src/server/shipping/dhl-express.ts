@@ -252,7 +252,7 @@ export class DhlExpressProvider implements ShippingRateProvider {
 
     const body: Record<string, unknown> = {
       plannedShippingDateAndTime: plannedAt,
-      productCode: 'P',
+      productCode: input.productCode ?? 'P',
       accounts: [{ typeCode: 'shipper', number: this.cfg.accountNumber }],
       customerReferences: [{ value: input.orderRef, typeCode: 'CU' }],
       customerDetails: {
@@ -291,6 +291,13 @@ export class DhlExpressProvider implements ShippingRateProvider {
         closeTime: '18:00',
         location: 'reception',
       },
+      // Paperless Trade (serviceCode "WY") sends the commercial invoice to DHL
+      // electronically, so no paper invoice needs to travel with the package.
+      // Required for any customs-declarable shipment (international + GB→NI
+      // under Windsor Framework). Confirmed by DHL CFIT (Lee) 2026-06-02.
+      ...(input.isInternational
+        ? { valueAddedServices: [{ serviceCode: 'WY' }] }
+        : {}),
       content: {
         unitOfMeasurement: 'metric',
         isCustomsDeclarable: input.isInternational,
@@ -312,8 +319,15 @@ export class DhlExpressProvider implements ShippingRateProvider {
         encodingFormat: 'pdf',
         imageOptions: [
           { typeCode: 'label', templateName: 'ECOM26_84_A4_001' },
+          // `isRequested: true` tells DHL to actually generate the customs
+          // invoice PDF from the exportDeclaration data — without it, DHL only
+          // returns an empty template slot. Required by Paperless Trade (WY).
           ...(input.isInternational
-            ? [{ typeCode: 'invoice', templateName: 'COMMERCIAL_INVOICE_P_10' }]
+            ? [{
+                typeCode: 'invoice',
+                templateName: 'COMMERCIAL_INVOICE_P_10',
+                isRequested: true,
+              }]
             : []),
         ],
       },
