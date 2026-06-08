@@ -57,6 +57,10 @@ const EnvSchema = z.object({
   WORKER_ENABLED: z.string().default('true').transform((v) => v !== 'false'),
   // Phase 5 — operational alerts (carrier failures, refund failures, etc.).
   ALERT_EMAIL: z.email().optional(),
+  // Phase 8 — comma-separated list of recipients for new-order admin
+  // notifications. Falls back to ALERT_EMAIL when unset. Example:
+  //   ADMIN_ORDER_RECIPIENTS=zhansaya@ynotlondon.com,juliya@ynot-fashion.com
+  ADMIN_ORDER_RECIPIENTS: z.string().optional(),
   SEED_OWNER_EMAIL: z.email().optional(),
   SEED_OWNER_PASSWORD: z.string().min(8).optional(),
   // Phase 7a — media storage backend (product/CMS images). Mirrors Phase 5

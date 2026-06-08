@@ -10,6 +10,7 @@ import { getEmailService } from '@/server/email';
 import type { EmailService } from '@/server/email';
 import { OrderReceipt } from '@/emails/order-receipt';
 import { updateStatus } from '@/server/orders/service';
+import { sendNewOrderAlert } from '@/server/alerts/service';
 
 export interface WebhookInput {
   rawBody: string;
@@ -221,6 +222,20 @@ async function fulfilOrderPostPayment(orderId: string, deps: WebhookDeps): Promi
   } catch (err) {
     process.stderr.write(
       `[checkout/webhook] OrderReceipt send failed for ${order.id}: ${
+        err instanceof Error ? err.message : String(err)
+      }\n`,
+    );
+  }
+
+  // 4. Admin "New Order" notification — mirrors the legacy WordPress operator
+  // email so Y Not Fashion's existing workflow keeps working. Failures are
+  // logged but never thrown so they can't interfere with the customer-facing
+  // receipt above or with the order being marked NEW/PROCESSING.
+  try {
+    await sendNewOrderAlert(order.id);
+  } catch (err) {
+    process.stderr.write(
+      `[checkout/webhook] sendNewOrderAlert failed for ${order.id}: ${
         err instanceof Error ? err.message : String(err)
       }\n`,
     );

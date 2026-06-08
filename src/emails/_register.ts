@@ -33,6 +33,10 @@ import {
   AdminAlertTrackingStale,
   type AdminAlertTrackingStaleProps,
 } from "./admin-alert-tracking-stale";
+import {
+  AdminAlertNewOrder,
+  type AdminAlertNewOrderProps,
+} from "./admin-alert-new-order";
 
 registerTemplate("OrderReceipt", async (payload) => {
   const p = payload as OrderReceiptProps;
@@ -120,4 +124,10 @@ registerTemplate("AdminAlertTrackingStale", async (payload) => {
     html,
     text,
   };
+});
+
+registerTemplate("AdminAlertNewOrder", async (payload) => {
+  const p = payload as AdminAlertNewOrderProps;
+  const { html, text } = await renderEmail(createElement(AdminAlertNewOrder, p));
+  return { subject: `[YNOT LONDON]: New order ${p.orderNumber}`, html, text };
 });
