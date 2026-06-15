@@ -78,7 +78,7 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        setError(`Save failed (${res.status})`);
+        setError(await describeSaveError(res));
         return;
       }
       setSaved(true);
@@ -263,6 +263,28 @@ export function ProductDetailsForm({ productId, initial }: Props): React.ReactEl
       </div>
     </form>
   );
+}
+
+/**
+ * Turn a failed PATCH response into a human-readable message. The API returns
+ * `{ error: { fieldErrors, formErrors } }` (Zod's flattened error) on a 400, so
+ * we surface exactly which field was rejected instead of a bare status code —
+ * otherwise a validation failure looks like the form silently "resetting".
+ */
+async function describeSaveError(res: Response): Promise<string> {
+  try {
+    const data = (await res.json()) as {
+      error?: { fieldErrors?: Record<string, string[]>; formErrors?: string[] };
+    };
+    const fieldErrors = data.error?.fieldErrors ?? {};
+    const parts = Object.entries(fieldErrors)
+      .map(([field, msgs]) => `${field}: ${(msgs ?? []).join(', ')}`)
+      .concat(data.error?.formErrors ?? []);
+    if (parts.length > 0) return `Save failed — ${parts.join('; ')}`;
+  } catch {
+    // fall through to the generic message below
+  }
+  return `Save failed (${res.status})`;
 }
 
 function Field({

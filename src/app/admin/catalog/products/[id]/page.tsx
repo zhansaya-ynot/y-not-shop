@@ -53,6 +53,7 @@ export default async function AdminProductDetailPage({
       id: true,
       name: true,
       slug: true,
+      status: true,
       images: { orderBy: { sortOrder: 'asc' }, take: 1, select: { url: true } },
     },
   });
@@ -60,6 +61,10 @@ export default async function AdminProductDetailPage({
     id: p.id,
     name: p.name,
     slug: p.slug,
+    // Only PUBLISHED products appear in the storefront "Complete the look"
+    // section, so the picker flags everything else — otherwise an operator
+    // picks 5 and sees only the published ones render.
+    published: p.status === 'PUBLISHED',
     image: p.images[0]?.url ?? null,
   }));
 

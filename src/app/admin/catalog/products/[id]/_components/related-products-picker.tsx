@@ -9,6 +9,9 @@ export interface RelatedOption {
   slug: string;
   /** First product image, or null when the product has none. */
   image: string | null;
+  /** Only PUBLISHED products render in the storefront "Complete the look"
+   *  section — drafts are flagged so the operator knows they won't appear. */
+  published: boolean;
 }
 
 interface Props {
@@ -81,6 +84,15 @@ export function RelatedProductsPicker({
     () => new Map(options.map((o) => [o.id, o.name] as const)),
     [options],
   );
+  const publishedById = React.useMemo(
+    () => new Map(options.map((o) => [o.id, o.published] as const)),
+    [options],
+  );
+  // Selected products that won't show on the storefront because they aren't
+  // published yet — the #1 reason "I picked 5 but only N appear".
+  const draftSelectedCount = selected.filter(
+    (id) => publishedById.get(id) === false,
+  ).length;
 
   return (
     <div className="bg-white border border-neutral-200 rounded-lg p-4">
@@ -93,6 +105,11 @@ export function RelatedProductsPicker({
             >
               <span className="text-neutral-400">{i + 1}.</span>
               {nameById.get(id) ?? id}
+              {publishedById.get(id) === false && (
+                <span className="rounded bg-yellow-100 px-1 text-[10px] font-semibold uppercase text-yellow-800">
+                  Draft
+                </span>
+              )}
               <button
                 type="button"
                 onClick={() => toggle(id)}
@@ -140,7 +157,14 @@ export function RelatedProductsPicker({
                     ) : (
                       <span className="h-12 w-10 flex-shrink-0 rounded bg-neutral-100" />
                     )}
-                    <span className="flex-1">{o.name}</span>
+                    <span className="flex-1">
+                      {o.name}
+                      {!o.published && (
+                        <span className="ml-2 rounded bg-yellow-100 px-1 text-[10px] font-semibold uppercase text-yellow-800">
+                          Draft
+                        </span>
+                      )}
+                    </span>
                     <span className="text-xs text-neutral-400 font-mono">/{o.slug}</span>
                   </label>
                 </li>
@@ -149,6 +173,15 @@ export function RelatedProductsPicker({
           </ul>
         )}
       </div>
+
+      {draftSelectedCount > 0 && (
+        <p className="mt-3 rounded border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-800">
+          {draftSelectedCount} selected{' '}
+          {draftSelectedCount === 1 ? 'product is' : 'products are'} still a draft
+          and won&apos;t appear on the storefront until published. Only published
+          products show in &quot;Complete the look&quot;.
+        </p>
+      )}
 
       <div className="mt-4 flex items-center gap-3">
         <button

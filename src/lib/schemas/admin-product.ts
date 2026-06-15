@@ -3,11 +3,17 @@ import { z } from 'zod';
 export const ProductCreateSchema = z.object({
   name: z.string().min(1).max(200),
   slug: z.string().min(1).max(200).optional(), // auto-generated if absent
-  description: z.string().min(1).max(5000),
+  // description and materials are rich-text (TipTap) fields — stored as HTML,
+  // so even modest copy expands to far more characters than the visible text
+  // (paragraphs, bold, lists, tables all add markup). The limits are generous
+  // to stop a normal edit from 400-ing and silently discarding the whole save.
+  // The DB columns are unbounded `text`, so these caps are purely a sanity
+  // guard against pathological payloads.
+  description: z.string().min(1).max(50000),
   priceCents: z.number().int().positive(),
-  materials: z.string().max(2000).default(''),
-  care: z.string().max(2000).default(''),
-  sizing: z.string().max(2000).default(''),
+  materials: z.string().max(50000).default(''),
+  care: z.string().max(10000).default(''),
+  sizing: z.string().max(10000).default(''),
   weightGrams: z.number().int().positive().optional(),
   hsCode: z
     .string()
