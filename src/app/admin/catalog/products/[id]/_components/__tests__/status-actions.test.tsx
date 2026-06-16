@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { StatusActions } from '../status-actions';
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
 }));
 
 describe('<StatusActions>', () => {
@@ -13,14 +13,14 @@ describe('<StatusActions>', () => {
   });
 
   it('DRAFT — Publish + Archive enabled, Unpublish disabled', () => {
-    render(<StatusActions productId="p1" status="DRAFT" />);
+    render(<StatusActions productId="p1" productName="Test" status="DRAFT" />);
     expect(screen.getByRole('button', { name: /^publish$/i })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: /archive/i })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: /unpublish/i })).toBeDisabled();
   });
 
   it('ARCHIVED — only Restore is enabled (ARCHIVED → DRAFT)', () => {
-    render(<StatusActions productId="p1" status="ARCHIVED" />);
+    render(<StatusActions productId="p1" productName="Test" status="ARCHIVED" />);
     expect(screen.getByRole('button', { name: /^publish$/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /restore/i })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: /archive/i })).toBeDisabled();
@@ -30,7 +30,7 @@ describe('<StatusActions>', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fetchMock = globalThis.fetch as any;
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({}) });
-    render(<StatusActions productId="p1" status="ARCHIVED" />);
+    render(<StatusActions productId="p1" productName="Test" status="ARCHIVED" />);
     fireEvent.click(screen.getByRole('button', { name: /restore/i }));
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -47,7 +47,7 @@ describe('<StatusActions>', () => {
     const fetchMock = globalThis.fetch as any;
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({}) });
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    render(<StatusActions productId="p1" status="DRAFT" />);
+    render(<StatusActions productId="p1" productName="Test" status="DRAFT" />);
     fireEvent.click(screen.getByRole('button', { name: /archive/i }));
     expect(confirmSpy).toHaveBeenCalled();
     // confirm returned false → no request was made
@@ -59,7 +59,7 @@ describe('<StatusActions>', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fetchMock = globalThis.fetch as any;
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({}) });
-    render(<StatusActions productId="p1" status="DRAFT" />);
+    render(<StatusActions productId="p1" productName="Test" status="DRAFT" />);
     fireEvent.click(screen.getByRole('button', { name: /^publish$/i }));
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -69,5 +69,35 @@ describe('<StatusActions>', () => {
     });
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.to).toBe('PUBLISHED');
+  });
+
+  it('Delete requires confirm + typing DELETE, then DELETEs with ?hard=1', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fetchMock = globalThis.fetch as any;
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ deleted: true }) });
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue('DELETE');
+    render(<StatusActions productId="p1" productName="Test" status="ARCHIVED" />);
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/products/p1?hard=1',
+        expect.objectContaining({ method: 'DELETE' }),
+      );
+    });
+    confirmSpy.mockRestore();
+    promptSpy.mockRestore();
+  });
+
+  it('Delete does nothing when the typed confirmation is wrong', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fetchMock = globalThis.fetch as any;
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue('nope');
+    render(<StatusActions productId="p1" productName="Test" status="ARCHIVED" />);
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+    promptSpy.mockRestore();
   });
 });

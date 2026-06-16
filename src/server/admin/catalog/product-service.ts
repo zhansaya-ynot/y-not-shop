@@ -139,6 +139,45 @@ export async function updateProduct(opts: UpdateProductOptions) {
   );
 }
 
+export interface HardDeleteProductOptions {
+  id: string;
+  actorId: string;
+  ip?: string;
+  ua?: string;
+}
+
+/**
+ * Permanently delete a product (as opposed to the soft `ARCHIVED` status).
+ *
+ * Safe for order history: `OrderItem.productId` is `onDelete: SetNull` and the
+ * order row keeps denormalised snapshots (name, slug, image, size, colour), so
+ * past orders still render correctly after the product row is gone — the link
+ * back to the live product simply becomes null.
+ *
+ * The only relation that would otherwise block the delete is `CartItem`
+ * (RESTRICT), so we clear any active cart lines for this product inside the
+ * same transaction first. Everything else (images, sizes, colours, categories,
+ * related-product links, reviews, pre-order batches) is `Cascade`/`SetNull`
+ * and cleaned up by the database.
+ */
+export async function hardDeleteProduct(opts: HardDeleteProductOptions) {
+  const { id, actorId, ip, ua } = opts;
+  const before = await prisma.product.findUnique({ where: { id } });
+  if (!before) throw new Error(`Product ${id} not found`);
+
+  return withAudit(
+    { actorId, entityType: 'product', entityId: id, action: 'product.delete', before, ip, ua },
+    async () =>
+      prisma.$transaction(async (tx) => {
+        // CartItem has no onDelete rule (defaults to RESTRICT), so any line in
+        // a shopper's cart would block the delete. Carts are transient — drop
+        // the lines pointing at this product before removing it.
+        await tx.cartItem.deleteMany({ where: { productId: id } });
+        return tx.product.delete({ where: { id } });
+      }),
+  );
+}
+
 export interface ChangeProductStatusOptions {
   id: string;
   to: ProductStatus;

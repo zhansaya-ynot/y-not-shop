@@ -88,7 +88,11 @@ export default async function AdminProductDetailPage({
             </span>
           </div>
         </div>
-        <StatusActions productId={product.id} status={product.status} />
+        <StatusActions
+          productId={product.id}
+          productName={product.name}
+          status={product.status}
+        />
       </header>
 
       <section className="mb-10">

@@ -6,6 +6,7 @@ import type { ProductStatus } from '@prisma/client';
 
 interface Props {
   productId: string;
+  productName: string;
   status: ProductStatus;
 }
 
@@ -30,7 +31,7 @@ const LABEL: Record<ProductStatus, { unpublish: string; archive: string }> = {
   ARCHIVED: { unpublish: 'Restore', archive: 'Archive' },
 };
 
-export function StatusActions({ productId, status }: Props): React.ReactElement {
+export function StatusActions({ productId, productName, status }: Props): React.ReactElement {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
@@ -48,6 +49,36 @@ export function StatusActions({ productId, status }: Props): React.ReactElement 
         setError(`Status change failed (${res.status})`);
         return;
       }
+      router.refresh();
+    });
+  }
+
+  function hardDelete(): void {
+    // Two-step confirm: a plain confirm() is too easy to reflexively accept
+    // for an irreversible action, so require the operator to type DELETE.
+    if (
+      !confirm(
+        `Permanently delete "${productName}"?\n\nThis cannot be undone. Images, stock, colours and "complete the look" links are removed. Past orders keep their record. If you only want to hide it from the shop, use Archive instead.`,
+      )
+    ) {
+      return;
+    }
+    const typed = prompt('Type DELETE to confirm permanent deletion:');
+    if (typed !== 'DELETE') {
+      if (typed !== null) setError('Deletion cancelled — confirmation text did not match.');
+      return;
+    }
+    setError(null);
+    startTransition(async () => {
+      const res = await fetch(`/api/admin/products/${productId}?hard=1`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        setError(`Delete failed (${res.status})`);
+        return;
+      }
+      // Product no longer exists — go back to the list.
+      router.push('/admin/catalog/products');
       router.refresh();
     });
   }
@@ -88,6 +119,14 @@ export function StatusActions({ productId, status }: Props): React.ReactElement 
           className="px-3 py-1.5 text-xs uppercase tracking-wider rounded border border-red-300 text-red-700 bg-white hover:bg-red-50 disabled:opacity-30"
         >
           {labels.archive}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={hardDelete}
+          className="px-3 py-1.5 text-xs uppercase tracking-wider rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-30"
+        >
+          Delete
         </button>
       </div>
       {error && <span className="text-xs text-red-700">{error}</span>}

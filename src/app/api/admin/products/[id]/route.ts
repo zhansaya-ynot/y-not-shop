@@ -1,7 +1,11 @@
 import { auth } from '@/server/auth/nextauth';
 import { requireOwner, AuthorizationError } from '@/server/auth/guards';
 import { ProductUpdateSchema } from '@/lib/schemas/admin-product';
-import { updateProduct, changeProductStatus } from '@/server/admin/catalog/product-service';
+import {
+  updateProduct,
+  changeProductStatus,
+  hardDeleteProduct,
+} from '@/server/admin/catalog/product-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,8 +20,10 @@ interface Ctx {
  * categoryIds extension is delegated to the service layer via the same
  * audit-wrapped write so the before/after JSON snapshot captures both.
  *
- * `DELETE` is a soft archive — products are never hard-deleted because
- * historical Order references depend on them (see Phase 7a spec §9).
+ * `DELETE` defaults to a soft archive. Passing `?hard=1` permanently removes
+ * the product instead — order history is preserved via `OrderItem`'s SetNull
+ * relation + denormalised snapshots, so this is safe even for products that
+ * have been ordered.
  */
 export async function PATCH(req: Request, ctx: Ctx): Promise<Response> {
   let session;
@@ -70,12 +76,15 @@ export async function DELETE(req: Request, ctx: Ctx): Promise<Response> {
   const actorId = session.user?.id;
   if (!actorId) return new Response('Forbidden', { status: 403 });
   const { id } = await ctx.params;
-  const product = await changeProductStatus({
-    id,
-    to: 'ARCHIVED',
-    actorId,
-    ip: req.headers.get('x-forwarded-for') ?? undefined,
-    ua: req.headers.get('user-agent') ?? undefined,
-  });
+  const hard = new URL(req.url).searchParams.get('hard') === '1';
+  const ip = req.headers.get('x-forwarded-for') ?? undefined;
+  const ua = req.headers.get('user-agent') ?? undefined;
+
+  if (hard) {
+    await hardDeleteProduct({ id, actorId, ip, ua });
+    return Response.json({ id, deleted: true });
+  }
+
+  const product = await changeProductStatus({ id, to: 'ARCHIVED', actorId, ip, ua });
   return Response.json(product);
 }

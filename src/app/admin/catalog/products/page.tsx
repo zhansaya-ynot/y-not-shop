@@ -6,12 +6,13 @@ import { prisma } from '@/server/db/client';
 export const dynamic = 'force-dynamic';
 
 const STATUSES: ProductStatus[] = ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 24;
 
 interface SP {
   searchParams: Promise<{
     status?: string;
     search?: string;
+    page?: string;
   }>;
 }
 
@@ -39,12 +40,33 @@ export default async function AdminProductsPage({ searchParams }: SP): Promise<R
     ];
   }
 
+  const total = await prisma.product.count({ where });
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // Clamp the requested page into [1, totalPages] so a stale/hand-edited
+  // ?page= can't render an empty list past the end.
+  const requestedPage = Number.parseInt(sp.page ?? '1', 10);
+  const page = Math.min(
+    Math.max(1, Number.isNaN(requestedPage) ? 1 : requestedPage),
+    totalPages,
+  );
+
   const products = await prisma.product.findMany({
     where,
+    skip: (page - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
     orderBy: { updatedAt: 'desc' },
     include: { images: { take: 1, orderBy: { sortOrder: 'asc' } } },
   });
+
+  // Preserve the active status/search filters when moving between pages.
+  function pageHref(p: number): string {
+    const params = new URLSearchParams();
+    if (sp.status) params.set('status', sp.status);
+    if (search) params.set('search', search);
+    if (p > 1) params.set('page', String(p));
+    const qs = params.toString();
+    return qs ? `/admin/catalog/products?${qs}` : '/admin/catalog/products';
+  }
 
   return (
     <div>
@@ -151,6 +173,43 @@ export default async function AdminProductsPage({ searchParams }: SP): Promise<R
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between text-sm">
+        <span className="text-neutral-600">
+          {total === 0
+            ? 'No products'
+            : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, total)} of ${total}`}
+        </span>
+        <div className="flex items-center gap-2">
+          {page > 1 ? (
+            <Link
+              href={pageHref(page - 1)}
+              className="px-3 py-1.5 rounded border border-neutral-300 bg-white hover:bg-neutral-50"
+            >
+              ← Prev
+            </Link>
+          ) : (
+            <span className="px-3 py-1.5 rounded border border-neutral-200 text-neutral-300">
+              ← Prev
+            </span>
+          )}
+          <span className="text-neutral-600">
+            Page {page} of {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Link
+              href={pageHref(page + 1)}
+              className="px-3 py-1.5 rounded border border-neutral-300 bg-white hover:bg-neutral-50"
+            >
+              Next →
+            </Link>
+          ) : (
+            <span className="px-3 py-1.5 rounded border border-neutral-200 text-neutral-300">
+              Next →
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
