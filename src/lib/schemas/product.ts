@@ -36,7 +36,15 @@ export const ProductSchema = z.object({
   colourOptions: z.array(ColourOptionSchema).optional(),
   sizes: z.array(SizeSchema),
   categorySlugs: z.array(z.string()),
+  /** Aggregate stock per size, summed across all colours. Kept for cards and
+   *  any consumer that doesn't care about colour. */
   stock: z.partialRecord(SizeSchema, z.number().int().nonnegative()),
+  /** Stock per colour → size. Key is the ColourOption.name; the no-colour
+   *  variant uses "". The PDP uses this so size availability follows the
+   *  selected colour. */
+  stockByColour: z
+    .record(z.string(), z.partialRecord(SizeSchema, z.number().int().nonnegative()))
+    .optional(),
   preOrder: z.boolean(),
   /** True when the product has no size variants (sold as 'one size'). The
    *  storefront skips the size picker and the cart records ONE_SIZE.

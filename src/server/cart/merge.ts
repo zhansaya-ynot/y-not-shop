@@ -25,13 +25,22 @@ export async function mergeGuestIntoUser({ userId, guestSessionToken }: MergeArg
       return adoptGuestCart(guest.id, userId, tx);
     }
 
-    // Merge items: for each guest item, find matching (productId,size) in userCart.
+    // Merge items: for each guest item, find matching (productId,size,colour) in userCart.
     for (const gItem of guest.items) {
       const matching = userCart.items.find(
-        (u) => u.productId === gItem.productId && u.size === gItem.size,
+        (u) =>
+          u.productId === gItem.productId &&
+          u.size === gItem.size &&
+          u.colour === gItem.colour,
       );
       const stockRow = await tx.productSize.findUnique({
-        where: { productId_size: { productId: gItem.productId, size: gItem.size } },
+        where: {
+          productId_size_colour: {
+            productId: gItem.productId,
+            size: gItem.size,
+            colour: gItem.colour,
+          },
+        },
       });
       const stock = stockRow?.stock ?? 0;
 

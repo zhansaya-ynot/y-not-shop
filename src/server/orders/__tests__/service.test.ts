@@ -89,7 +89,7 @@ async function seedOrderWithProductAndShipment(opts: {
       slug: 'cancel-' + Math.random().toString(36).slice(2, 6),
       name: 'P', priceCents: 5000, currency: 'GBP',
       description: '', materials: '', care: '', sizing: '',
-      sizes: { create: [{ size: 'M', stock: opts.initialStock ?? 4 }] },
+      sizes: { create: [{ size: 'M', colour: 'Black', stock: opts.initialStock ?? 4 }] },
       images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
     },
   });
@@ -162,7 +162,7 @@ describe('OrderService.cancelOrder', () => {
     expect(event?.note).toContain('customer requested');
 
     const stock = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: product.id, size: 'M' } },
+      where: { productId_size_colour: { productId: product.id, size: 'M', colour: 'Black' } },
     });
     expect(stock.stock).toBe(5); // 4 + 1 restocked
 
@@ -321,7 +321,7 @@ describe('OrderService.listForAdmin / getForAdmin', () => {
         name: 'P', priceCents: 5000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
         weightGrams: 1500,
-        sizes: { create: [{ size: 'S', stock: 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

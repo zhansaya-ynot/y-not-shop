@@ -37,9 +37,13 @@ export async function createOrderAndPaymentIntent(
     if (snap.items.length > 0) {
       // SELECT ... FOR UPDATE on (product_id, size) tuples.
       // Prisma does not yet have a native FOR UPDATE; raw SQL on the same tx is safe.
-      const keys = snap.items.map((i) => `('${i.productId}','${i.size}')`).join(',');
+      // Colour is operator-entered text, so escape single quotes defensively.
+      const esc = (s: string) => s.replace(/'/g, "''");
+      const keys = snap.items
+        .map((i) => `('${esc(i.productId)}','${i.size}','${esc(i.colour)}')`)
+        .join(',');
       await tx.$queryRawUnsafe(
-        `SELECT "productId", "size", "stock" FROM "ProductSize" WHERE ("productId", "size") IN (${keys}) FOR UPDATE`,
+        `SELECT "productId", "size", "colour", "stock" FROM "ProductSize" WHERE ("productId", "size", "colour") IN (${keys}) FOR UPDATE`,
       );
     }
     for (const item of snap.items) {
@@ -48,7 +52,13 @@ export async function createOrderAndPaymentIntent(
       // is enforced separately when assignItemToBatch runs at cart time.
       if (item.isPreorder) continue;
       const stockRow = await tx.productSize.findUniqueOrThrow({
-        where: { productId_size: { productId: item.productId, size: item.size } },
+        where: {
+          productId_size_colour: {
+            productId: item.productId,
+            size: item.size,
+            colour: item.colour,
+          },
+        },
       });
       if (stockRow.stock < item.quantity) {
         throw new StockConflictError(item.productId, item.size, stockRow.stock);
@@ -60,7 +70,13 @@ export async function createOrderAndPaymentIntent(
     for (const item of snap.items) {
       if (item.isPreorder) continue;
       await tx.productSize.update({
-        where: { productId_size: { productId: item.productId, size: item.size } },
+        where: {
+          productId_size_colour: {
+            productId: item.productId,
+            size: item.size,
+            colour: item.colour,
+          },
+        },
         data: { stock: { decrement: item.quantity } },
       });
     }

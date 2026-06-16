@@ -55,7 +55,12 @@ export function AddToBagSection({
   const addItem = useCartStore((s) => s.addItem);
   const openDrawer = useCartStore((s) => s.openDrawer);
 
-  const selectedStock = size ? (product.stock[size] ?? 0) : 0;
+  // Stock follows the selected colour. Products without colours store their
+  // stock under the "" key; fall back to the aggregate map for older fixtures
+  // that don't carry stockByColour.
+  const colourKey = colour?.name ?? '';
+  const stockForColour = product.stockByColour?.[colourKey] ?? product.stock;
+  const selectedStock = size ? (stockForColour[size] ?? 0) : 0;
   const isPreOrderForSelection =
     product.preOrder || (size !== null && selectedStock === 0);
 
@@ -120,7 +125,7 @@ export function AddToBagSection({
             sizes={product.sizes}
             value={size}
             onChange={(s) => setSize(s)}
-            stock={product.stock}
+            stock={stockForColour}
             allowSoldOut
           />
         </div>

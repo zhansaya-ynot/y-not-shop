@@ -58,7 +58,7 @@ describe('checkout flow (cart → quote → create)', () => {
         weightGrams: 1500,
         hsCode: '6202.93',
         countryOfOriginCode: 'GB',
-        sizes: { create: [{ size: 'M', stock: 5 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

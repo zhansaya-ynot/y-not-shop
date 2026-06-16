@@ -5,9 +5,18 @@ export function toProduct(row: ProductWithRelations): ZodProduct {
   const colourOptions = row.colours.length
     ? row.colours.map((c) => ({ name: c.name, hex: c.hex }))
     : undefined;
-  const stock = Object.fromEntries(
-    row.sizes.map((s) => [s.size as Size, s.stock]),
-  ) as Partial<Record<Size, number>>;
+  // Stock now lives per (size, colour). Aggregate to a per-size total for the
+  // legacy `stock` field, and build a colour→size map for the PDP picker so
+  // size availability follows the selected colour.
+  const stock: Partial<Record<Size, number>> = {};
+  const stockByColour: Record<string, Partial<Record<Size, number>>> = {};
+  for (const s of row.sizes) {
+    const size = s.size as Size;
+    stock[size] = (stock[size] ?? 0) + s.stock;
+    (stockByColour[s.colour] ??= {})[size] = s.stock;
+  }
+  // Distinct sizes (the matrix repeats each size once per colour).
+  const sizes = Array.from(new Set(row.sizes.map((s) => s.size as Size)));
   return {
     id: row.id,
     slug: row.slug,
@@ -19,9 +28,10 @@ export function toProduct(row: ProductWithRelations): ZodProduct {
     imageVariants: row.images.map((i) => ({ url: i.url, colour: i.colour ?? null })),
     colour: colourOptions?.[0]?.name,
     colourOptions,
-    sizes: row.sizes.map((s) => s.size as Size),
+    sizes,
     categorySlugs: row.categories.map((c) => c.category.slug),
     stock,
+    stockByColour,
     preOrder: row.preOrder,
     isOneSize: row.isOneSize,
     sizeGuideImage: row.sizeGuideImage,

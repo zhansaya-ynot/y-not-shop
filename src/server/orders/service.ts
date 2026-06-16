@@ -81,7 +81,13 @@ export async function cancelOrder(
     for (const item of order.items) {
       if (!item.productId) continue;
       await tx.productSize.update({
-        where: { productId_size: { productId: item.productId, size: item.size } },
+        where: {
+          productId_size_colour: {
+            productId: item.productId,
+            size: item.size,
+            colour: item.colour,
+          },
+        },
         data: { stock: { increment: item.quantity } },
       });
     }

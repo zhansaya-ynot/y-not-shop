@@ -20,7 +20,7 @@ describe('createOrderAndPaymentIntent', () => {
         name: 'P', priceCents: opts.price ?? 20000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
         weightGrams: 1500, hsCode: '6202.93', countryOfOriginCode: 'GB',
-        sizes: { create: [{ size: 'S', stock: opts.stock ?? 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: opts.stock ?? 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -60,7 +60,7 @@ describe('createOrderAndPaymentIntent', () => {
     expect(order.user?.isGuest).toBe(true);
 
     const stock = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: product.id, size: 'S' } },
+      where: { productId_size_colour: { productId: product.id, size: 'S', colour: 'Black' } },
     });
     expect(stock.stock).toBe(2); // 3 - 1
   });
@@ -171,7 +171,7 @@ describe('createOrderAndPaymentIntent', () => {
         name: 'P', priceCents: 10000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
         weightGrams: 1500,
-        sizes: { create: [{ size: 'S', stock: 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -181,7 +181,7 @@ describe('createOrderAndPaymentIntent', () => {
         name: 'P', priceCents: 30000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
         weightGrams: 1500, preOrder: true,
-        sizes: { create: [{ size: 'M', stock: 5 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

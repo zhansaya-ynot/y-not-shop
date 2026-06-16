@@ -50,7 +50,7 @@ describe('handlePaymentSucceeded', () => {
         slug: 'pp-' + Math.random().toString(36).slice(2, 6),
         name: 'P', priceCents: 20000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
-        sizes: { create: [{ size: 'S', stock: 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -227,7 +227,7 @@ describe('handlePaymentFailed', () => {
         slug: 'pf-' + Math.random().toString(36).slice(2, 6),
         name: 'P', priceCents: 20000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
-        sizes: { create: [{ size: 'S', stock: 2 }] }, // already decremented in real flow
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 2 }] }, // already decremented in real flow
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -257,7 +257,7 @@ describe('handlePaymentFailed', () => {
     expect(o.status).toBe('PAYMENT_FAILED');
     expect(o.payment?.status).toBe('FAILED');
     const stock = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: product.id, size: 'S' } },
+      where: { productId_size_colour: { productId: product.id, size: 'S', colour: 'Black' } },
     });
     expect(stock.stock).toBe(3); // 2 + released 1
   });
@@ -275,7 +275,7 @@ describe('handleChargeRefunded', () => {
         slug: 'cr-' + Math.random().toString(36).slice(2, 6),
         name: 'P', priceCents: 5000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
-        sizes: { create: [{ size: 'S', stock: 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

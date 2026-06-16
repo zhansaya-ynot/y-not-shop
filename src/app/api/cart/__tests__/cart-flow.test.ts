@@ -32,7 +32,7 @@ describe('cart full lifecycle (guest → signin → merge)', () => {
         sizing: '',
         priceCents: 10000,
         currency: 'GBP',
-        sizes: { create: [{ size: 'S', stock: 5 }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

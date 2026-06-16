@@ -14,7 +14,7 @@ describe('refundPartialItems', () => {
         slug: 'rp-' + Math.random().toString(36).slice(2, 6),
         name: 'P', priceCents: 4000, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
-        sizes: { create: [{ size: 'M', stock: opts.initialStock ?? 5 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: opts.initialStock ?? 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

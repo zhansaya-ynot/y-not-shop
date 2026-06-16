@@ -29,8 +29,8 @@ const fixture = {
     { url: "/p1/b.jpg", alt: "back", sortOrder: 1, colour: "Black" },
   ],
   sizes: [
-    { size: "S", stock: 3 },
-    { size: "M", stock: 5 },
+    { size: "S", colour: "Black", stock: 3 },
+    { size: "M", colour: "Black", stock: 5 },
   ],
   colours: [
     { name: "Black", hex: "#000000", sortOrder: 0 },
@@ -66,6 +66,10 @@ describe("toProduct", () => {
 
   it("converts sizes array to a stock map", () => {
     expect(toProduct(fixture).stock).toEqual({ S: 3, M: 5 });
+  });
+
+  it("exposes per-colour stock under stockByColour", () => {
+    expect(toProduct(fixture).stockByColour).toEqual({ Black: { S: 3, M: 5 } });
   });
 
   it("exposes colour swatches and picks the first as default colour", () => {

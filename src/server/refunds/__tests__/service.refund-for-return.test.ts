@@ -14,7 +14,7 @@ describe('refundForReturn', () => {
         slug: 'rfr-' + Math.random().toString(36).slice(2, 6),
         name: 'P', priceCents: 4500, currency: 'GBP',
         description: '', materials: '', care: '', sizing: '',
-        sizes: { create: [{ size: 'M', stock: 3 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 3 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

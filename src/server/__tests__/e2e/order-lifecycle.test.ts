@@ -146,7 +146,7 @@ describe('E2E — order lifecycle (happy path)', () => {
         weightGrams: 1500,
         hsCode: '6202.93',
         countryOfOriginCode: 'GB',
-        sizes: { create: [{ size: 'M', stock: 3 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 3 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -323,7 +323,7 @@ describe('E2E — order lifecycle (mixed cart with preorder)', () => {
         weightGrams: 800,
         hsCode: '6202.93',
         countryOfOriginCode: 'GB',
-        sizes: { create: [{ size: 'M', stock: 5 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -342,7 +342,7 @@ describe('E2E — order lifecycle (mixed cart with preorder)', () => {
         countryOfOriginCode: 'GB',
         // Stock seeded so cart `addItem` validation passes; the splitter cares
         // about `isPreorder`, not stock balance.
-        sizes: { create: [{ size: 'M', stock: 2 }] },
+        sizes: { create: [{ size: 'M', colour: 'Black', stock: 2 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

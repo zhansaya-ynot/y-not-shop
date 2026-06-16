@@ -2,20 +2,23 @@ import type { Prisma, Size } from '@prisma/client';
 import { prisma } from '@/server/db/client';
 
 /**
- * ProductSize has a composite primary key (productId, size) — there's no
- * scalar id. The admin UI needs a stable single-field identifier so we
+ * ProductSize has a composite primary key (productId, size, colour) — there's
+ * no scalar id. The admin UI needs a stable single-field identifier so we
  * encode/decode it here. The separator is `__` (double underscore) which
- * cuid (used for productId) cannot produce.
+ * cuid (used for productId) cannot produce. Layout: productId__size__colour,
+ * where colour may be empty (the no-colour variant) and is taken as the
+ * remainder after the size segment so colour names containing `__` survive.
  */
 const VARIANT_SEPARATOR = '__';
 
-export function encodeVariantId(productId: string, size: Size): string {
-  return `${productId}${VARIANT_SEPARATOR}${size}`;
+export function encodeVariantId(productId: string, size: Size, colour: string): string {
+  return `${productId}${VARIANT_SEPARATOR}${size}${VARIANT_SEPARATOR}${colour}`;
 }
 
 export interface DecodedVariantId {
   productId: string;
   size: Size;
+  colour: string;
 }
 
 const VALID_SIZES: ReadonlySet<string> = new Set([
@@ -23,12 +26,16 @@ const VALID_SIZES: ReadonlySet<string> = new Set([
 ] satisfies Size[]);
 
 export function decodeVariantId(raw: string): DecodedVariantId | null {
-  const idx = raw.indexOf(VARIANT_SEPARATOR);
-  if (idx === -1) return null;
-  const productId = raw.slice(0, idx);
-  const size = raw.slice(idx + VARIANT_SEPARATOR.length);
+  const first = raw.indexOf(VARIANT_SEPARATOR);
+  if (first === -1) return null;
+  const productId = raw.slice(0, first);
+  const rest = raw.slice(first + VARIANT_SEPARATOR.length);
+  const second = rest.indexOf(VARIANT_SEPARATOR);
+  if (second === -1) return null;
+  const size = rest.slice(0, second);
+  const colour = rest.slice(second + VARIANT_SEPARATOR.length);
   if (!productId || !VALID_SIZES.has(size)) return null;
-  return { productId, size: size as Size };
+  return { productId, size: size as Size, colour };
 }
 
 export interface InventoryRow {
@@ -37,6 +44,7 @@ export interface InventoryRow {
   productName: string;
   productSlug: string;
   size: Size;
+  colour: string;
   stock: number;
   isLow: boolean;
 }
@@ -76,15 +84,16 @@ export async function listInventoryForAdmin(
     include: {
       product: { select: { id: true, name: true, slug: true } },
     },
-    orderBy: [{ product: { name: 'asc' } }, { size: 'asc' }],
+    orderBy: [{ product: { name: 'asc' } }, { size: 'asc' }, { colour: 'asc' }],
   });
 
   return rows.map((r) => ({
-    variantId: encodeVariantId(r.productId, r.size),
+    variantId: encodeVariantId(r.productId, r.size, r.colour),
     productId: r.productId,
     productName: r.product.name,
     productSlug: r.product.slug,
     size: r.size,
+    colour: r.colour,
     stock: r.stock,
     isLow: r.stock <= LOW_STOCK_THRESHOLD,
   }));
@@ -118,14 +127,19 @@ export async function setVariantStock(
   if (!decoded) {
     throw new InventoryError('Invalid variant id', 400);
   }
-  const existing = await prisma.productSize.findUnique({
-    where: { productId_size: { productId: decoded.productId, size: decoded.size } },
-  });
+  const key = {
+    productId_size_colour: {
+      productId: decoded.productId,
+      size: decoded.size,
+      colour: decoded.colour,
+    },
+  };
+  const existing = await prisma.productSize.findUnique({ where: key });
   if (!existing) {
     throw new InventoryError('Variant not found', 404);
   }
   const updated = await prisma.productSize.update({
-    where: { productId_size: { productId: decoded.productId, size: decoded.size } },
+    where: key,
     data: { stock },
     select: { stock: true },
   });

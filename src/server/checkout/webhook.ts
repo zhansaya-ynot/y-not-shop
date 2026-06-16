@@ -254,7 +254,13 @@ async function handlePaymentFailed(pi: Stripe.PaymentIntent): Promise<void> {
     // Release stock.
     for (const item of order.items) {
       await tx.productSize.update({
-        where: { productId_size: { productId: item.productId!, size: item.size } },
+        where: {
+          productId_size_colour: {
+            productId: item.productId!,
+            size: item.size,
+            colour: item.colour,
+          },
+        },
         data: { stock: { increment: item.quantity } },
       });
     }

@@ -225,13 +225,19 @@ model ProductRelation {
   @@index([productId])
 }
 
+/// Stock is tracked per (product, size, colour) variant. `colour` is the
+/// ColourOption.name this stock belongs to; products without colours use the
+/// empty string "" (matching the cart/order snapshot, which stores "" when no
+/// colour is selected). This lets a black M and a red M carry independent
+/// inventory.
 model ProductSize {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   size      Size
+  colour    String  @default("")
   stock     Int     @default(0)
 
-  @@id([productId, size])
+  @@id([productId, size, colour])
 }
 
 model ColourOption {

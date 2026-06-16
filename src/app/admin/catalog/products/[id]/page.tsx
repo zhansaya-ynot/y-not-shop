@@ -144,8 +144,13 @@ export default async function AdminProductDetailPage({
         </h3>
         <StockEditor
           productId={product.id}
-          initial={product.sizes.map((s) => ({ size: s.size, stock: s.stock }))}
+          initial={product.sizes.map((s) => ({
+            size: s.size,
+            colour: s.colour,
+            stock: s.stock,
+          }))}
           isOneSize={product.isOneSize}
+          colours={product.colours.map((c) => c.name)}
         />
       </section>
 

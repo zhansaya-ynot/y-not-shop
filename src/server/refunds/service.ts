@@ -173,7 +173,13 @@ export async function refundPartialItems(
       const oi = order.items.find((o) => o.id === it.orderItemId)!;
       if (oi.productId) {
         await tx.productSize.update({
-          where: { productId_size: { productId: oi.productId, size: oi.size } },
+          where: {
+            productId_size_colour: {
+              productId: oi.productId,
+              size: oi.size,
+              colour: oi.colour,
+            },
+          },
           data: { stock: { increment: it.quantity } },
         });
       }
@@ -288,7 +294,13 @@ export async function refundForReturn(
       const oi = ri.orderItem;
       if (oi.productId) {
         await tx.productSize.update({
-          where: { productId_size: { productId: oi.productId, size: oi.size } },
+          where: {
+            productId_size_colour: {
+              productId: oi.productId,
+              size: oi.size,
+              colour: oi.colour,
+            },
+          },
           data: { stock: { increment: ri.quantity } },
         });
       }

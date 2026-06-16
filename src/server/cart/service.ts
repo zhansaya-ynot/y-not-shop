@@ -58,7 +58,9 @@ export async function snapshotCart(
     },
   });
   const items: CartItemSnapshotT[] = cart.items.map((it) => {
-    const stockRow = it.product.sizes.find((s) => s.size === it.size);
+    const stockRow = it.product.sizes.find(
+      (s) => s.size === it.size && s.colour === it.colour,
+    );
     return {
       id: it.id,
       productId: it.productId,
@@ -122,13 +124,17 @@ export async function addItem(
   async function run(tx: Prisma.TransactionClient) {
     const product = await tx.product.findUniqueOrThrow({
       where: { id: input.productId },
-      include: { sizes: { where: { size: input.size } } },
+      include: { sizes: { where: { size: input.size, colour: input.colour } } },
     });
     const stockRow = product.sizes[0];
-    if (!stockRow) throw new Error(`Product ${input.productId} has no size ${input.size}`);
+    if (!stockRow) {
+      throw new Error(
+        `Product ${input.productId} has no size ${input.size} in colour "${input.colour}"`,
+      );
+    }
 
     const existingItem = await tx.cartItem.findFirst({
-      where: { cartId, productId: input.productId, size: input.size },
+      where: { cartId, productId: input.productId, size: input.size, colour: input.colour },
     });
     const totalQty = (existingItem?.quantity ?? 0) + input.quantity;
 
@@ -192,7 +198,13 @@ export async function setQuantity(
     }
     const item = await tx.cartItem.findUniqueOrThrow({ where: { id: itemId } });
     const stockRow = await tx.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: item.productId, size: item.size } },
+      where: {
+        productId_size_colour: {
+          productId: item.productId,
+          size: item.size,
+          colour: item.colour,
+        },
+      },
     });
     if (quantity > stockRow.stock) {
       throw new StockConflictError(item.productId, item.size, stockRow.stock);

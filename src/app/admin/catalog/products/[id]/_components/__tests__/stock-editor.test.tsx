@@ -53,17 +53,14 @@ describe('<StockEditor>', () => {
     expect(m.stock).toBe(5);
   });
 
-  it('one-size — saves with stock on M and zeros on the others', async () => {
+  it('one-size — saves a single M row under colour "" (server replaces the rest)', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fetchMock = globalThis.fetch as any;
     fetchMock.mockResolvedValue({ ok: true, json: async () => [] });
     render(
       <StockEditor
         productId="p1"
-        initial={[
-          { size: 'S', stock: 99 },
-          { size: 'M', stock: 1 },
-        ]}
+        initial={[{ size: 'M', colour: '', stock: 1 }]}
         isOneSize
       />,
     );
@@ -73,12 +70,34 @@ describe('<StockEditor>', () => {
       expect(fetchMock).toHaveBeenCalled();
     });
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sizes).toHaveLength(3);
-    const stockBy = Object.fromEntries(
-      (body.sizes as Array<{ size: string; stock: number }>).map((s) => [s.size, s.stock]),
+    expect(body.sizes).toHaveLength(1);
+    expect(body.sizes[0]).toMatchObject({ size: 'M', colour: '', stock: 12 });
+  });
+
+  it('with colours — renders a size × colour matrix and saves every cell', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fetchMock = globalThis.fetch as any;
+    fetchMock.mockResolvedValue({ ok: true, json: async () => [] });
+    render(
+      <StockEditor
+        productId="p1"
+        initial={[{ size: 'M', colour: 'Black', stock: 2 }]}
+        isOneSize={false}
+        colours={['Black', 'Red']}
+      />,
     );
-    expect(stockBy.M).toBe(12);
-    expect(stockBy.S).toBe(0);
-    expect(stockBy.L).toBe(0);
+    expect((screen.getByTestId('stock-M-Black') as HTMLInputElement).value).toBe('2');
+    fireEvent.change(screen.getByTestId('stock-L-Red'), { target: { value: '4' } });
+    fireEvent.click(screen.getByRole('button', { name: /save stock/i }));
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    // 3 sizes × 2 colours = 6 cells.
+    expect(body.sizes).toHaveLength(6);
+    const cell = body.sizes.find(
+      (s: { size: string; colour: string }) => s.size === 'L' && s.colour === 'Red',
+    );
+    expect(cell.stock).toBe(4);
   });
 });

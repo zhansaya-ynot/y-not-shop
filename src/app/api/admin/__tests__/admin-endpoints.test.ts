@@ -82,7 +82,7 @@ async function seedOrder(opts: SeedOrderOpts = {}) {
       slug: 'p-' + Math.random().toString(36).slice(2, 6),
       name: 'P', priceCents: 5000, currency: 'GBP',
       description: '', materials: '', care: '', sizing: '',
-      sizes: { create: [{ size: 'M', stock: 10 }] },
+      sizes: { create: [{ size: 'M', colour: 'Black', stock: 10 }] },
       images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
     },
   });

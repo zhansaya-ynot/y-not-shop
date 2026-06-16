@@ -25,7 +25,7 @@ describe('POST /api/cart/items', () => {
         sizing: '',
         priceCents: 12000,
         currency: 'GBP',
-        sizes: { create: [{ size: 'M', stock: 5 }] },
+        sizes: { create: [{ size: 'M', colour: 'Navy', stock: 5 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });
@@ -66,7 +66,7 @@ describe('POST /api/cart/items', () => {
         sizing: '',
         priceCents: 12000,
         currency: 'GBP',
-        sizes: { create: [{ size: 'M', stock: 2 }] },
+        sizes: { create: [{ size: 'M', colour: 'Navy', stock: 2 }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

@@ -236,16 +236,25 @@ export async function setProductSizes(opts: SetProductSizesOptions) {
       ip,
       ua,
     },
-    async () => {
-      for (const s of sizes) {
-        await prisma.productSize.upsert({
-          where: { productId_size: { productId, size: s.size } },
-          create: { productId, size: s.size, stock: s.stock },
-          update: { stock: s.stock },
-        });
-      }
-      return prisma.productSize.findMany({ where: { productId } });
-    },
+    async () =>
+      prisma.$transaction(async (tx) => {
+        // Replace-all: the editor always submits the full (size × colour)
+        // matrix, so we clear the product's stock rows and recreate them.
+        // This also cleans up stale rows when colours are added/removed (e.g.
+        // the legacy colour="" rows once a colour matrix is entered).
+        await tx.productSize.deleteMany({ where: { productId } });
+        if (sizes.length > 0) {
+          await tx.productSize.createMany({
+            data: sizes.map((s) => ({
+              productId,
+              size: s.size,
+              colour: s.colour ?? '',
+              stock: s.stock,
+            })),
+          });
+        }
+        return tx.productSize.findMany({ where: { productId } });
+      }),
   );
 }
 

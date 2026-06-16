@@ -30,9 +30,9 @@ async function seedProduct(opts: {
 
 describe('encode/decode variantId', () => {
   it('roundtrips', () => {
-    const v = encodeVariantId('cuid_abc123', 'M');
-    expect(v).toBe('cuid_abc123__M');
-    expect(decodeVariantId(v)).toEqual({ productId: 'cuid_abc123', size: 'M' });
+    const v = encodeVariantId('cuid_abc123', 'M', 'Black');
+    expect(v).toBe('cuid_abc123__M__Black');
+    expect(decodeVariantId(v)).toEqual({ productId: 'cuid_abc123', size: 'M', colour: 'Black' });
   });
 
   it('rejects garbage / unknown size', () => {
@@ -112,29 +112,29 @@ describe('setVariantStock', () => {
 
   it('updates stock and returns the new value', async () => {
     const p = await seedProduct({ name: 'Stocky', sizes: [{ size: 'M', stock: 5 }] });
-    const variantId = encodeVariantId(p.id, 'M');
+    const variantId = encodeVariantId(p.id, 'M', '');
     const next = await setVariantStock(variantId, 12);
     expect(next).toBe(12);
     const stored = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: p.id, size: 'M' } },
+      where: { productId_size_colour: { productId: p.id, size: 'M', colour: '' } },
     });
     expect(stored.stock).toBe(12);
   });
 
   it('rejects negative stock', async () => {
     const p = await seedProduct({ name: 'X', sizes: [{ size: 'M', stock: 1 }] });
-    await expect(setVariantStock(encodeVariantId(p.id, 'M'), -1))
+    await expect(setVariantStock(encodeVariantId(p.id, 'M', ''), -1))
       .rejects.toBeInstanceOf(InventoryError);
   });
 
   it('rejects non-integer stock', async () => {
     const p = await seedProduct({ name: 'X', sizes: [{ size: 'M', stock: 1 }] });
-    await expect(setVariantStock(encodeVariantId(p.id, 'M'), 3.5))
+    await expect(setVariantStock(encodeVariantId(p.id, 'M', ''), 3.5))
       .rejects.toBeInstanceOf(InventoryError);
   });
 
   it('throws 404 InventoryError for unknown variant', async () => {
-    await expect(setVariantStock('does-not-exist__M', 5))
+    await expect(setVariantStock('does-not-exist__M__', 5))
       .rejects.toMatchObject({ status: 404 });
   });
 

@@ -69,6 +69,9 @@ export const ProductSizesUpdateSchema = z.object({
     .array(
       z.object({
         size: z.enum(['S', 'M', 'L']),
+        // Colour name this stock row belongs to. "" = the no-colour variant
+        // (products without ColourOptions). Matches ProductSize.colour.
+        colour: z.string().default(''),
         stock: z.number().int().min(0),
       }),
     )

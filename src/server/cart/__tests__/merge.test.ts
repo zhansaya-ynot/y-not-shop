@@ -20,7 +20,7 @@ describe('mergeGuestIntoUser', () => {
         sizing: '',
         priceCents: opts.price,
         currency: 'GBP',
-        sizes: { create: [{ size: 'S', stock: opts.stock }] },
+        sizes: { create: [{ size: 'S', colour: 'Black', stock: opts.stock }] },
         images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
       },
     });

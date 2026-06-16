@@ -194,8 +194,8 @@ describe('setProductSizes', () => {
     await setProductSizes({
       productId: p.id,
       sizes: [
-        { size: 'M', stock: 5 },
-        { size: 'L', stock: 3 },
+        { size: 'M', colour: '', stock: 5 },
+        { size: 'L', colour: '', stock: 3 },
       ],
       actorId: 'u1',
     });
@@ -221,12 +221,12 @@ describe('setProductSizes', () => {
     });
     await setProductSizes({
       productId: p.id,
-      sizes: [{ size: 'M', stock: 5 }],
+      sizes: [{ size: 'M', colour: '', stock: 5 }],
       actorId: 'u1',
     });
     await setProductSizes({
       productId: p.id,
-      sizes: [{ size: 'M', stock: 10 }],
+      sizes: [{ size: 'M', colour: '', stock: 10 }],
       actorId: 'u1',
     });
     const sizes = await prisma.productSize.findMany({ where: { productId: p.id } });

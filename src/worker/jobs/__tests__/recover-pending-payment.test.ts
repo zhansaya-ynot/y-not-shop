@@ -20,7 +20,7 @@ async function seedProductWithStock(stock: number) {
       countryOfOriginCode: 'GB',
       sizes: {
         create: [
-          { size: 'M', stock },
+          { size: 'M', colour: 'Black', stock },
         ],
       },
     },
@@ -103,7 +103,7 @@ describe('recoverPendingPayments', () => {
     const r = await recoverPendingPayments({ stripe: { paymentIntents: { cancel } } });
     expect(r.recovered).toBe(0);
     const stockNow = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: product.id, size: 'M' } },
+      where: { productId_size_colour: { productId: product.id, size: 'M', colour: 'Black' } },
     });
     expect(stockNow.stock).toBe(10);
   });
@@ -137,7 +137,7 @@ describe('recoverPendingPayments', () => {
     expect(refreshed.status).toBe('CANCELLED');
 
     const stockNow = await prisma.productSize.findUniqueOrThrow({
-      where: { productId_size: { productId: product.id, size: 'M' } },
+      where: { productId_size_colour: { productId: product.id, size: 'M', colour: 'Black' } },
     });
     expect(stockNow.stock).toBe(12); // restocked +2
 
