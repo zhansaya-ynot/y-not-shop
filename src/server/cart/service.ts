@@ -127,11 +127,6 @@ export async function addItem(
       include: { sizes: { where: { size: input.size, colour: input.colour } } },
     });
     const stockRow = product.sizes[0];
-    if (!stockRow) {
-      throw new Error(
-        `Product ${input.productId} has no size ${input.size} in colour "${input.colour}"`,
-      );
-    }
 
     const existingItem = await tx.cartItem.findFirst({
       where: { cartId, productId: input.productId, size: input.size, colour: input.colour },
@@ -145,12 +140,20 @@ export async function addItem(
     // batch — the checkout shipment splitter would otherwise drop it.
     const treatAsPreorder = product.preOrder || input.isPreorder;
 
-    // Stock guard only applies to in-stock items; preorders ship from a
-    // future batch so current stock can legitimately be 0. Without this
-    // skip, every preorder add bounced as STOCK_CONFLICT and the customer
-    // saw nothing happen on click.
-    if (!treatAsPreorder && totalQty > stockRow.stock) {
-      throw new StockConflictError(input.productId, input.size, stockRow.stock);
+    // In-stock items must have a stock row for the exact (size, colour) and
+    // enough quantity. Preorders are made to order against a future batch —
+    // they carry no current inventory, so a missing/zero stock row is fine and
+    // we skip the guard entirely (otherwise a preorder colour with no stock row
+    // would bounce on add-to-bag).
+    if (!treatAsPreorder) {
+      if (!stockRow) {
+        throw new Error(
+          `Product ${input.productId} has no size ${input.size} in colour "${input.colour}"`,
+        );
+      }
+      if (totalQty > stockRow.stock) {
+        throw new StockConflictError(input.productId, input.size, stockRow.stock);
+      }
     }
 
     let preorderBatchId: string | null = null;

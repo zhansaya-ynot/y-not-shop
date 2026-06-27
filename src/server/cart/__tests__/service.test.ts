@@ -162,6 +162,29 @@ describe('cart service — addItem', () => {
     const row = await prisma.cartItem.findFirstOrThrow({ where: { cartId: cart.id } });
     expect(row.preorderBatchId).toBeNull();
   });
+
+  it('adds a preorder colour with no stock row (made-to-order, no inventory)', async () => {
+    // Preorder product whose selected (size, colour) has NO ProductSize row —
+    // e.g. a coloured preorder where stock was never set. Must still add.
+    const product = await prisma.product.create({
+      data: {
+        slug: 'p-pre-nostock-' + Math.random().toString(36).slice(2, 6),
+        name: 'Olive Coat', priceCents: 48000, currency: 'GBP',
+        description: '', materials: '', care: '', sizing: '',
+        preOrder: true,
+        colours: { create: [{ name: 'Olive', hex: '#556B2F', sortOrder: 0 }] },
+        images: { create: [{ url: '/x.jpg', alt: '', sortOrder: 0 }] },
+        // Note: no sizes/stock rows at all.
+      },
+    });
+    const cart = await getOrCreateCart({ userId: null, sessionToken: generateCartToken() });
+    const snap = await addItem(cart.id, {
+      productId: product.id, size: 'M', colour: 'Olive', quantity: 1, isPreorder: true,
+    });
+    expect(snap.items).toHaveLength(1);
+    expect(snap.items[0].isPreorder).toBe(true);
+    expect(snap.items[0].colour).toBe('Olive');
+  });
 });
 
 describe('cart service — setQuantity / removeItem', () => {

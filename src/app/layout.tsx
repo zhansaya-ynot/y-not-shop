@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { SiteOverlays } from "@/components/site-overlays";
 import { CookieBanner } from "@/components/cookie-banner";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { getAllCategories } from "@/server/data/categories";
 
 // Phase 8 — root layout fetches the live category list (chrome menu) and
@@ -90,6 +91,7 @@ export default async function RootLayout({
       className={`${inter.variable} ${playfair.variable} ${englischeSchreibschrift.variable} h-full antialiased`}
     >
       <body className="min-h-screen bg-surface-primary text-foreground-primary font-body">
+        <MetaPixel />
         {children}
         <SiteOverlays categories={menuCategories} />
         <CookieBanner />
