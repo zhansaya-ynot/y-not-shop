@@ -1,4 +1,5 @@
 import { prisma } from '@/server/db/client';
+import { syncProductToMeta, removeProductFromMeta } from '@/server/meta/sync';
 import { withAudit } from '../audit';
 import { ensureUniqueSlug } from './slug-service';
 import { slugify } from '@/lib/slug';
@@ -23,7 +24,7 @@ export async function createProduct(opts: CreateProductOptions) {
   const baseSlug = input.slug ?? slugify(input.name);
   const slug = await ensureUniqueSlug('product', baseSlug);
 
-  return withAudit(
+  const created = await withAudit(
     {
       actorId,
       entityType: 'product',
@@ -57,6 +58,10 @@ export async function createProduct(opts: CreateProductOptions) {
       return product;
     },
   );
+  // New products start as DRAFT, so this is a no-op against the ad catalog —
+  // it becomes an upsert the moment the product is published.
+  await syncProductToMeta(created.id);
+  return created;
 }
 
 export interface UpdateProductOptions {
@@ -77,7 +82,7 @@ export async function updateProduct(opts: UpdateProductOptions) {
     slug = await ensureUniqueSlug('product', input.slug, id);
   }
 
-  return withAudit(
+  const result = await withAudit(
     { actorId, entityType: 'product', entityId: id, action: 'product.update', before, ip, ua },
     async () =>
       prisma.$transaction(async (tx) => {
@@ -137,6 +142,8 @@ export async function updateProduct(opts: UpdateProductOptions) {
         return updated;
       }),
   );
+  await syncProductToMeta(id);
+  return result;
 }
 
 export interface HardDeleteProductOptions {
@@ -165,7 +172,7 @@ export async function hardDeleteProduct(opts: HardDeleteProductOptions) {
   const before = await prisma.product.findUnique({ where: { id } });
   if (!before) throw new Error(`Product ${id} not found`);
 
-  return withAudit(
+  const deleted = await withAudit(
     { actorId, entityType: 'product', entityId: id, action: 'product.delete', before, ip, ua },
     async () =>
       prisma.$transaction(async (tx) => {
@@ -176,6 +183,9 @@ export async function hardDeleteProduct(opts: HardDeleteProductOptions) {
         return tx.product.delete({ where: { id } });
       }),
   );
+  // Row is gone, so sync-by-id can't load it — remove from the catalog directly.
+  await removeProductFromMeta(id);
+  return deleted;
 }
 
 export interface ChangeProductStatusOptions {
@@ -199,7 +209,7 @@ export async function changeProductStatus(opts: ChangeProductStatusOptions) {
         ? 'product.archive'
         : 'product.unpublish';
 
-  return withAudit(
+  const changed = await withAudit(
     { actorId, entityType: 'product', entityId: id, action, before, ip, ua },
     async () =>
       prisma.product.update({
@@ -213,6 +223,9 @@ export async function changeProductStatus(opts: ChangeProductStatusOptions) {
         },
       }),
   );
+  // Publish → upsert into the Meta catalog; unpublish/archive → remove from it.
+  await syncProductToMeta(id);
+  return changed;
 }
 
 export interface SetProductSizesOptions {
@@ -226,7 +239,7 @@ export interface SetProductSizesOptions {
 export async function setProductSizes(opts: SetProductSizesOptions) {
   const { productId, sizes, actorId, ip, ua } = opts;
   const before = await prisma.productSize.findMany({ where: { productId } });
-  return withAudit(
+  const rows = await withAudit(
     {
       actorId,
       entityType: 'product',
@@ -256,6 +269,9 @@ export async function setProductSizes(opts: SetProductSizesOptions) {
         return tx.productSize.findMany({ where: { productId } });
       }),
   );
+  // Stock drives `availability` / `quantity_to_sell_on_facebook` on the item.
+  await syncProductToMeta(productId);
+  return rows;
 }
 
 export interface SetProductColoursOptions {
@@ -307,7 +323,7 @@ export interface AddProductImagesOptions {
 
 export async function addProductImages(opts: AddProductImagesOptions) {
   const { productId, items, actorId, ip, ua } = opts;
-  return withAudit(
+  const created = await withAudit(
     {
       actorId,
       entityType: 'product',
@@ -341,6 +357,9 @@ export async function addProductImages(opts: AddProductImagesOptions) {
         return created;
       }),
   );
+  // First image is the catalog `image_link`; a product with no image can't be listed.
+  await syncProductToMeta(productId);
+  return created;
 }
 
 export interface RemoveProductImageOptions {
@@ -357,7 +376,7 @@ export async function removeProductImage(opts: RemoveProductImageOptions) {
   if (!before || before.productId !== productId) {
     throw new Error('Image not found on product');
   }
-  return withAudit(
+  const removed = await withAudit(
     {
       actorId,
       entityType: 'product',
@@ -369,6 +388,8 @@ export async function removeProductImage(opts: RemoveProductImageOptions) {
     },
     async () => prisma.productImage.delete({ where: { id: imageId } }),
   );
+  await syncProductToMeta(productId);
+  return removed;
 }
 
 export interface SetProductImageColourOptions {
@@ -415,7 +436,7 @@ export interface ReorderProductImagesOptions {
 
 export async function reorderProductImages(opts: ReorderProductImagesOptions) {
   const { productId, order, actorId, ip, ua } = opts;
-  return withAudit(
+  const reordered = await withAudit(
     {
       actorId,
       entityType: 'product',
@@ -435,4 +456,7 @@ export async function reorderProductImages(opts: ReorderProductImagesOptions) {
         });
       }),
   );
+  // Reordering changes which image is primary.
+  await syncProductToMeta(productId);
+  return reordered;
 }

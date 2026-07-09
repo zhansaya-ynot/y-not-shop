@@ -61,6 +61,12 @@ const EnvSchema = z.object({
   // notifications. Falls back to ALERT_EMAIL when unset. Example:
   //   ADMIN_ORDER_RECIPIENTS=zhansaya@ynotlondon.com,juliya@ynot-fashion.com
   ADMIN_ORDER_RECIPIENTS: z.string().optional(),
+  // Meta (Facebook) product catalog. When either is unset the instant
+  // catalog push is a no-op — the XML feed at /api/feed/meta.xml still works,
+  // so Meta can pull the catalogue on a schedule regardless.
+  // META_ACCESS_TOKEN is a System User token with `catalog_management`.
+  META_CATALOG_ID: z.string().min(1).optional(),
+  META_ACCESS_TOKEN: z.string().min(1).optional(),
   SEED_OWNER_EMAIL: z.email().optional(),
   SEED_OWNER_PASSWORD: z.string().min(8).optional(),
   // Phase 7a — media storage backend (product/CMS images). Mirrors Phase 5
