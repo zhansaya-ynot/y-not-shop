@@ -4,10 +4,11 @@ import Script from 'next/script';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
 
-// Meta Pixel ID. Defaults to the YNOT London pixel from Meta Events Manager;
-// overridable via NEXT_PUBLIC_META_PIXEL_ID (inlined at build time) so the same
-// build can point at a different pixel without a code change.
-const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1669136137533422';
+// Meta Pixel ID. Defaults to the "YNOT LONDON Meta pixel" that the product
+// catalogue (542001714853094) is linked to in Commerce Manager — pixel,
+// catalogue and ad account must live in the same Business Manager for dynamic
+// ads to work. Overridable via NEXT_PUBLIC_META_PIXEL_ID (inlined at build).
+const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1299988264339944';
 
 declare global {
   interface Window {

@@ -10,6 +10,7 @@ import { ClaimAccountForm } from '@/components/checkout/claim-account-form';
 import { formatPrice } from '@/lib/format';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { useCheckoutStore } from '@/lib/stores/checkout-store';
+import { reportPurchaseConversion } from '@/components/analytics/google-ads';
 
 interface OrderView {
   id: string;
@@ -18,7 +19,7 @@ interface OrderView {
   totalCents: number;
   currency: 'GBP';
   carrier: string;
-  items: Array<{ id: string; productName: string; size: string; colour: string; quantity: number; unitPriceCents: number }>;
+  items: Array<{ id: string; productId: string | null; productName: string; size: string; colour: string; quantity: number; unitPriceCents: number }>;
   isGuestOrder: boolean;
   shipping: { firstName: string; lastName: string; line1: string; city: string; postcode: string; country: string; phone: string };
   createdAt: string;
@@ -40,6 +41,33 @@ export default function CheckoutSuccessPage() {
     clearCart();
     resetCheckout();
   }, [clearCart, resetCheckout]);
+
+  // Report the sale to Google Ads + Meta once the payment is confirmed
+  // (status flips to NEW). The ref guards against re-firing while the page
+  // stays mounted; across refreshes Google dedupes on transaction_id and Meta
+  // on eventID, so a customer reloading the page can't double-count.
+  const conversionFired = React.useRef(false);
+  React.useEffect(() => {
+    if (!order || order.status !== 'NEW' || conversionFired.current) return;
+    conversionFired.current = true;
+    reportPurchaseConversion({
+      valueCents: order.totalCents,
+      orderNumber: order.orderNumber,
+    });
+    window.fbq?.(
+      'track',
+      'Purchase',
+      {
+        value: order.totalCents / 100,
+        currency: 'GBP',
+        content_type: 'product',
+        content_ids: order.items
+          .map((it) => it.productId)
+          .filter((id): id is string => Boolean(id)),
+      },
+      { eventID: order.orderNumber },
+    );
+  }, [order]);
 
   React.useEffect(() => {
     let cancelled = false;
