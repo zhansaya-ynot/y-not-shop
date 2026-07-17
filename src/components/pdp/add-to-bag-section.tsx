@@ -7,6 +7,7 @@ import { SizeSelector } from "@/components/ui/size-selector";
 import { ColourSwatch } from "@/components/ui/colour-swatch";
 import { Modal } from "@/components/ui/modal";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { trackAddToCart } from "@/components/analytics/meta-events";
 import type { Product, Size, ColourOption } from "@/lib/schemas";
 
 export interface AddToBagSectionProps {
@@ -73,6 +74,7 @@ export function AddToBagSection({
       quantity: 1,
       isPreorder: isPreOrderForSelection,
     });
+    trackAddToCart({ productId: product.id, valueCents: product.price, quantity: 1 });
     openDrawer();
   };
 

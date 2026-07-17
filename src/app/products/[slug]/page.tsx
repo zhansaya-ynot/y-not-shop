@@ -8,6 +8,7 @@ import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Breadcrumb } from "@/components/catalog/breadcrumb";
 import { ProductDetailMedia } from "@/components/pdp/product-detail-media";
 import { RecommendedProducts } from "@/components/pdp/recommended-products";
+import { MetaViewContent } from "@/components/analytics/meta-view-content";
 import { getProductBySlug, getRelatedProducts } from "@/server/data/products";
 import { getCategoryBySlug } from "@/server/data/categories";
 import { buildProductJsonLd } from "@/lib/seo/product-jsonld";
@@ -49,6 +50,7 @@ export default async function ProductPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <MetaViewContent productId={product.id} valueCents={product.price} />
       <AnnouncementBarServer />
       <SiteHeader />
 
