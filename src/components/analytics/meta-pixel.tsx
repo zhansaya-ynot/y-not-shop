@@ -49,10 +49,6 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-// Revoke consent until the visitor accepts cookies (see ConsentBridge).
-// While revoked, fbq queues events without setting cookies / sending data;
-// they flush once consent is granted.
-fbq('consent', 'revoke');
 fbq('init', '${PIXEL_ID}');
 fbq('track', 'PageView');`}
       </Script>

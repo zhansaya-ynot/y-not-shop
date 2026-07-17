@@ -6,16 +6,16 @@ import { useCookieConsentStore } from '@/lib/stores/cookie-consent-store';
 /**
  * Bridges the cookie banner to the ad platforms' consent APIs.
  *
- * The Google tag boots with Consent Mode v2 defaults = denied and the Meta
- * pixel boots with consent revoked (see google-ads.tsx / meta-pixel.tsx). This
- * component watches the persisted consent status and:
- *  - "accepted"  → grant ad/analytics storage (Google) + grant pixel (Meta),
- *                  which flushes the queued PageView.
- *  - "declined"  → keep everything denied/revoked.
- *  - "pending"   → leave the boot defaults untouched.
+ * The Google tag boots with Consent Mode v2 defaults = denied (see
+ * google-ads.tsx). This component watches the persisted consent status and
+ * grants ad/analytics storage on Accept, keeps it denied on Decline, and
+ * leaves the denied default while pending.
  *
- * Returning visitors who already accepted get granted on mount, so their
- * PageView isn't delayed. Renders nothing.
+ * NOTE: the Meta pixel is intentionally NOT gated here. The documented
+ * `fbq('consent','revoke')`-before-init pattern broke pixel registration in
+ * prod (pixelsByID stayed empty, queue never drained), so the pixel fires on
+ * load for now; proper Meta consent gating needs a CMP / different approach.
+ * Renders nothing.
  */
 export function ConsentBridge(): null {
   const status = React.useSyncExternalStore(
@@ -34,7 +34,6 @@ export function ConsentBridge(): null {
         ad_personalization: 'granted',
         analytics_storage: 'granted',
       });
-      window.fbq?.('consent', 'grant');
     } else if (status === 'declined') {
       window.gtag?.('consent', 'update', {
         ad_storage: 'denied',
@@ -42,9 +41,8 @@ export function ConsentBridge(): null {
         ad_personalization: 'denied',
         analytics_storage: 'denied',
       });
-      window.fbq?.('consent', 'revoke');
     }
-    // "pending": leave the denied/revoked boot defaults in place.
+    // "pending": leave the denied Consent Mode default in place.
   }, [status]);
 
   return null;
