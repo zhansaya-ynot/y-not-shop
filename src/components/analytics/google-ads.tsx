@@ -32,6 +32,16 @@ export function GoogleAdsTag(): React.ReactElement | null {
 function gtag(){dataLayer.push(arguments);}
 window.gtag = gtag;
 gtag('js', new Date());
+// Consent Mode v2: deny ad/analytics storage until the visitor accepts
+// cookies (see ConsentBridge). Google still does cookieless conversion
+// modelling while denied; granted state is set on Accept.
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'denied',
+  wait_for_update: 500,
+});
 gtag('config', '${ADS_ID}');`}
       </Script>
     </>
