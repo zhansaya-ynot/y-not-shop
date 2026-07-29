@@ -15,6 +15,7 @@ const DEFAULTS = {
   whatsappMessage: 'Hi YNOT, I have a question.',
   authSignInImage: '/cms/auth/sign-in.jpg' as string | null,
   authRegisterImage: '/cms/auth/register.jpg' as string | null,
+  ogImage: '/cms/hero.jpg' as string | null,
   brandStatementPrimary:
     'Urban outerwear designed to move with you, for any occasion — from street to statement.',
   brandStatementSecondary: 'Why not.',
@@ -37,6 +38,7 @@ export default async function AdminSettingsPage(): Promise<React.ReactElement> {
         whatsappMessage: policy.whatsappMessage,
         authSignInImage: policy.authSignInImage,
         authRegisterImage: policy.authRegisterImage,
+        ogImage: policy.ogImage,
         brandStatementPrimary: policy.brandStatementPrimary,
         brandStatementSecondary: policy.brandStatementSecondary,
         brandStatementTertiary: policy.brandStatementTertiary,

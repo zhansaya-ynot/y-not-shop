@@ -19,6 +19,7 @@ interface Initial {
   whatsappMessage: string;
   authSignInImage: string | null;
   authRegisterImage: string | null;
+  ogImage: string | null;
   brandStatementPrimary: string;
   brandStatementSecondary: string;
   brandStatementTertiary: string;
@@ -49,6 +50,7 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
   const [whatsappMessage, setWhatsappMessage] = React.useState(initial.whatsappMessage);
   const [authSignInImage, setAuthSignInImage] = React.useState<string>(initial.authSignInImage ?? '');
   const [authRegisterImage, setAuthRegisterImage] = React.useState<string>(initial.authRegisterImage ?? '');
+  const [ogImage, setOgImage] = React.useState<string>(initial.ogImage ?? '');
   const [brandPrimary, setBrandPrimary] = React.useState<string>(initial.brandStatementPrimary);
   const [brandSecondary, setBrandSecondary] = React.useState<string>(initial.brandStatementSecondary);
   const [brandTertiary, setBrandTertiary] = React.useState<string>(initial.brandStatementTertiary);
@@ -78,6 +80,7 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
           whatsappMessage,
           authSignInImage: authSignInImage.trim() || null,
           authRegisterImage: authRegisterImage.trim() || null,
+          ogImage: ogImage.trim() || null,
           brandStatementPrimary: brandPrimary.trim(),
           brandStatementSecondary: brandSecondary.trim(),
           brandStatementTertiary: brandTertiary.trim(),
@@ -253,6 +256,21 @@ export function SitePolicyForm({ initial }: Props): React.ReactElement {
         />
         <span className="text-[11px] text-neutral-500">
           Shown next to the form on /register. Same format as sign-in.
+        </span>
+      </div>
+      <div className="flex flex-col gap-2 text-sm pt-4 border-t border-neutral-200">
+        <span className="text-xs uppercase tracking-wider text-neutral-600">
+          Social share image (link preview)
+        </span>
+        <SingleImageUpload
+          prefix="seo"
+          value={ogImage}
+          onChange={setOgImage}
+        />
+        <span className="text-[11px] text-neutral-500">
+          The picture shown when the site link is shared on WhatsApp / social.
+          Recommended landscape 1200×630 JPG. Note: chat apps cache previews —
+          older shared links may keep the old image for a while.
         </span>
       </div>
       <fieldset className="flex flex-col gap-2 pt-4 border-t border-neutral-200">

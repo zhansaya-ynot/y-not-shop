@@ -8,6 +8,7 @@ import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { GoogleAdsTag } from "@/components/analytics/google-ads";
 import { ConsentBridge } from "@/components/analytics/consent-bridge";
 import { getAllCategories } from "@/server/data/categories";
+import { prisma } from "@/server/db/client";
 
 // Phase 8 — root layout fetches the live category list (chrome menu) and
 // reads cookies via downstream client components, so it must render per-request.
@@ -43,38 +44,61 @@ const englischeSchreibschrift = localFont({
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://ynotlondon.com";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "YNOT London",
-    template: "%s · YNOT London",
-  },
-  description:
-    "Urban outerwear designed to move with you, for any occasion — from street to statement. Why not. A way of living.",
-  openGraph: {
-    type: "website",
-    siteName: "YNOT London",
-    title: "YNOT London",
-    description: "Urban outerwear designed to move with you, for any occasion — from street to statement.",
-    url: SITE_URL,
-    images: [
-      {
-        url: "/cms/hero.jpg",
-        width: 1200,
-        height: 630,
-        alt: "YNOT London — Premium Outerwear",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "YNOT London",
-    description: "Urban outerwear designed to move with you, for any occasion — from street to statement.",
-    images: ["/cms/hero.jpg"],
-  },
-  robots: { index: true, follow: true },
-  icons: { icon: "/favicon.ico" },
-};
+// Social-share preview image (`og:image`). Admin-editable via the SitePolicy
+// singleton (Site settings → "Social share image"); falls back to the bundled
+// hero. `generateMetadata` (not a static export) so it can read the DB per
+// request — safe because the layout is `force-dynamic`, so this never runs at
+// Docker build time where Prisma is unreachable.
+const DEFAULT_OG_IMAGE = "/cms/hero.jpg";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let ogImage = DEFAULT_OG_IMAGE;
+  try {
+    const policy = await prisma.sitePolicy.findUnique({
+      where: { id: "singleton" },
+      select: { ogImage: true },
+    });
+    if (policy?.ogImage) ogImage = policy.ogImage;
+  } catch {
+    // Fall back to the bundled image if the DB read fails — metadata must
+    // never break page rendering.
+  }
+
+  const description =
+    "Urban outerwear designed to move with you, for any occasion — from street to statement.";
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: "YNOT London",
+      template: "%s · YNOT London",
+    },
+    description: `${description} Why not. A way of living.`,
+    openGraph: {
+      type: "website",
+      siteName: "YNOT London",
+      title: "YNOT London",
+      description,
+      url: SITE_URL,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: "YNOT London — Premium Outerwear",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "YNOT London",
+      description,
+      images: [ogImage],
+    },
+    robots: { index: true, follow: true },
+    icons: { icon: "/favicon.ico" },
+  };
+}
 
 export default async function RootLayout({
   children,

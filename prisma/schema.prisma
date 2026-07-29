@@ -359,6 +359,11 @@ model SitePolicy {
   authSignInImage        String?
   /// Same as authSignInImage but for /register.
   authRegisterImage      String?
+  /// Open Graph / social-share preview image (`og:image`) shown when the
+  /// site link is shared on WhatsApp / social. Edited in the admin Settings
+  /// form via SingleImageUpload; the root layout falls back to /cms/hero.jpg
+  /// when null.
+  ogImage                String?
   /// Three-line brand statement shown between the hero and Shop-by-Category
   /// on the homepage. Empty string treated as 'use the bundled fallback'
   /// at render time so the page never renders blank if a column is

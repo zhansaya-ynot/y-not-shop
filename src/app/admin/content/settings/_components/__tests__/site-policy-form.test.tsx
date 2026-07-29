@@ -15,6 +15,7 @@ const initial = {
   whatsappMessage: 'Hi YNOT, I have a question.',
   authSignInImage: null as string | null,
   authRegisterImage: null as string | null,
+  ogImage: null as string | null,
   brandStatementPrimary: '',
   brandStatementSecondary: '',
   brandStatementTertiary: '',

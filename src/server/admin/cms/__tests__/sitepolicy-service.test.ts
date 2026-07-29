@@ -26,6 +26,16 @@ describe('updateSitePolicy', () => {
     expect(log).not.toBeNull();
   });
 
+  it('persists the social-share image (ogImage) and clears it with null', async () => {
+    await updateSitePolicy({ input: { ogImage: '/media/seo/share.jpg' }, actorId: 'u1' });
+    let row = await prisma.sitePolicy.findUniqueOrThrow({ where: { id: 'singleton' } });
+    expect(row.ogImage).toBe('/media/seo/share.jpg');
+
+    await updateSitePolicy({ input: { ogImage: null }, actorId: 'u1' });
+    row = await prisma.sitePolicy.findUniqueOrThrow({ where: { id: 'singleton' } });
+    expect(row.ogImage).toBeNull();
+  });
+
   it('updates existing singleton without creating duplicate rows', async () => {
     await updateSitePolicy({ input: { contactEmail: 'one@x.com' }, actorId: 'u1' });
     await updateSitePolicy({ input: { contactEmail: 'two@x.com' }, actorId: 'u1' });
