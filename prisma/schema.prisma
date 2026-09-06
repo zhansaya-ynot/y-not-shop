@@ -295,8 +295,14 @@ model ProductCategory {
 model HeroBlock {
   id           String    @id @default(cuid())
   kind         HeroKind  @default(IMAGE)
+  // Desktop/tablet assets (16:9). Rendered from the `md` breakpoint up.
   imageUrl     String
   videoUrl     String?
+  // Portrait assets (9:16) for phones. Optional — when null the storefront
+  // falls back to the landscape asset above, which is what every hero row
+  // did before these columns existed.
+  mobileImageUrl String?
+  mobileVideoUrl String?
   eyebrow      String
   ctaLabel     String
   ctaHref      String

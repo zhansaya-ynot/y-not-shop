@@ -45,7 +45,9 @@ export default async function AdminHeroDetailPage({
         initial={{
           kind: hero.kind,
           imageUrl: hero.imageUrl,
+          mobileImageUrl: hero.mobileImageUrl,
           videoUrl: hero.videoUrl,
+          mobileVideoUrl: hero.mobileVideoUrl,
           eyebrow: hero.eyebrow,
           ctaLabel: hero.ctaLabel,
           ctaHref: hero.ctaHref,

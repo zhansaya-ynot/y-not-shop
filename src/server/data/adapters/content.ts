@@ -14,6 +14,11 @@ export function toHero(row: PrismaHero): ZodHero {
     kind: row.kind === "VIDEO" ? "video" : "image",
     image: row.imageUrl,
     videoUrl: row.videoUrl,
+    // Phones get the portrait crop when one exists; otherwise they keep
+    // showing the landscape asset, which is what happened before the
+    // mobile columns were added.
+    mobileImage: row.mobileImageUrl ?? row.imageUrl,
+    mobileVideo: row.mobileVideoUrl ?? row.videoUrl,
     eyebrow: row.eyebrow,
     ctaLabel: row.ctaLabel,
     ctaHref: row.ctaHref,

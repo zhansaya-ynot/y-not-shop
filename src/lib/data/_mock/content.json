@@ -8,7 +8,9 @@
   "hero": {
     "kind": "image",
     "image": "/cms/hero.jpg",
+    "mobileImage": "/cms/hero.jpg",
     "videoUrl": null,
+    "mobileVideo": null,
     "eyebrow": "New Collection",
     "ctaLabel": "EXPLORE",
     "ctaHref": "/collection/jackets"
@@ -18,37 +20,55 @@
       "slug": "our-story",
       "title": "Our Story",
       "bodyMarkdown": "# Why Not?\n\nYNOT London was born from a simple belief: that outerwear should be as resilient as the women who wear it. Our name carries a quiet philosophy — why not live boldly, dress intentionally, and choose pieces that endure.\n\n## What we stand for\n\n- Timeless design — pieces that transcend seasons\n- Premium materials — leather, suede, wool, cotton, Tencel\n- Sustainability — 0% leather waste, ethically sourced\n- London & Istanbul — designed in London, made between London and Istanbul\n",
-      "meta": { "title": "Our Story · YNOT London", "description": "The YNOT London story." }
+      "meta": {
+        "title": "Our Story · YNOT London",
+        "description": "The YNOT London story."
+      }
     },
     {
       "slug": "product-care",
       "title": "Product Care",
       "bodyMarkdown": "# Product Care\n\nKeep your YNOT pieces looking their best with these care instructions.\n\nSelect a material to view detailed guidance.\n",
-      "meta": { "title": "Product Care · YNOT London", "description": "Care instructions for leather, suede, wool, shearling, and cotton." }
+      "meta": {
+        "title": "Product Care · YNOT London",
+        "description": "Care instructions for leather, suede, wool, shearling, and cotton."
+      }
     },
     {
       "slug": "sustainability",
       "title": "Sustainability & Animal Welfare",
       "bodyMarkdown": "# Sustainability\n\nAt YNOT London, sustainability isn't a trend — it's a responsibility.\n",
-      "meta": { "title": "Sustainability · YNOT London", "description": "Our approach to sustainability and animal welfare." }
+      "meta": {
+        "title": "Sustainability · YNOT London",
+        "description": "Our approach to sustainability and animal welfare."
+      }
     },
     {
       "slug": "shipping-returns",
       "title": "Shipping & Returns",
       "bodyMarkdown": "# Shipping & Returns\n\nDelivery is free worldwide.\n",
-      "meta": { "title": "Shipping & Returns · YNOT London", "description": "Shipping and returns policy." }
+      "meta": {
+        "title": "Shipping & Returns · YNOT London",
+        "description": "Shipping and returns policy."
+      }
     },
     {
       "slug": "privacy",
       "title": "Privacy Policy",
       "bodyMarkdown": "# Privacy Policy\n\nThis policy describes how YNOT London handles your personal data.\n",
-      "meta": { "title": "Privacy Policy · YNOT London", "description": "How we handle your data." }
+      "meta": {
+        "title": "Privacy Policy · YNOT London",
+        "description": "How we handle your data."
+      }
     },
     {
       "slug": "contact",
       "title": "Contact",
       "bodyMarkdown": "# Contact\n\nReach us at hello@ynotlondon.com\n",
-      "meta": { "title": "Contact · YNOT London", "description": "Get in touch with YNOT London." }
+      "meta": {
+        "title": "Contact · YNOT London",
+        "description": "Get in touch with YNOT London."
+      }
     }
   ]
 }

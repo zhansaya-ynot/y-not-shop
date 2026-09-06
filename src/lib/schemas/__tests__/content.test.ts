@@ -11,7 +11,9 @@ describe("HeroBlockSchema", () => {
       HeroBlockSchema.parse({
         kind: "image",
         image: "/images/hero/1.webp",
+        mobileImage: "/images/hero/1-portrait.webp",
         videoUrl: null,
+        mobileVideo: null,
         eyebrow: "New Collection",
         ctaLabel: "SHOP",
         ctaHref: "/collection/jackets",

@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { SingleImageUpload } from '../../../_components/single-image-upload';
-import { SingleVideoUpload } from '../../../_components/single-video-upload';
+import { HeroAssetFields } from '../../_components/hero-asset-fields';
 
 /**
  * Hero create form. New heroes are always inserted with `isActive=false` —
@@ -20,7 +19,9 @@ export function HeroCreateForm(): React.ReactElement {
   const [error, setError] = React.useState<string | null>(null);
   const [kind, setKind] = React.useState<'IMAGE' | 'VIDEO'>('IMAGE');
   const [imageUrl, setImageUrl] = React.useState('');
+  const [mobileImageUrl, setMobileImageUrl] = React.useState('');
   const [videoUrl, setVideoUrl] = React.useState('');
+  const [mobileVideoUrl, setMobileVideoUrl] = React.useState('');
   const [eyebrow, setEyebrow] = React.useState('');
   const [ctaLabel, setCtaLabel] = React.useState('');
   const [ctaHref, setCtaHref] = React.useState('');
@@ -52,6 +53,10 @@ export function HeroCreateForm(): React.ReactElement {
           // constraint on imageUrl stays satisfied.
           imageUrl: imageUrl || videoUrl,
           videoUrl: kind === 'VIDEO' ? videoUrl : undefined,
+          // Portrait crops are optional — omit rather than send '' so the
+          // schema's url() check doesn't reject an untouched field.
+          mobileImageUrl: mobileImageUrl || undefined,
+          mobileVideoUrl: kind === 'VIDEO' ? mobileVideoUrl || undefined : undefined,
           eyebrow,
           ctaLabel,
           ctaHref,
@@ -80,44 +85,17 @@ export function HeroCreateForm(): React.ReactElement {
         </select>
       </label>
 
-      {kind === 'IMAGE' ? (
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">Image</span>
-          <SingleImageUpload prefix="hero" value={imageUrl} onChange={setImageUrl} />
-          <label className="flex flex-col gap-1 mt-2">
-            <span className="text-xs uppercase tracking-wider text-neutral-600">Image URL</span>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="border border-neutral-300 rounded px-3 py-2 font-mono text-xs"
-            />
-          </label>
-          <p className="text-xs text-neutral-500 leading-relaxed mt-1">
-            <strong>Recommended:</strong> JPEG or WebP, 1920×1080 or larger
-            (16:9), ≤500KB. Hard upload limit 5MB.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">Video</span>
-          <SingleVideoUpload prefix="hero" value={videoUrl} onChange={setVideoUrl} />
-          <label className="flex flex-col gap-1 mt-2">
-            <span className="text-xs uppercase tracking-wider text-neutral-600">Video URL</span>
-            <input
-              type="url"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              className="border border-neutral-300 rounded px-3 py-2 font-mono text-xs"
-            />
-          </label>
-          <p className="text-xs text-neutral-500 leading-relaxed mt-1">
-            <strong>Recommended:</strong> MP4 H.264, 1920×1080, 5–10s loop,
-            no audio, ≤8MB. Hard upload limit 20MB. WebM and MOV also
-            accepted.
-          </p>
-        </div>
-      )}
+      <HeroAssetFields
+        kind={kind}
+        imageUrl={imageUrl}
+        onImageUrlChange={setImageUrl}
+        mobileImageUrl={mobileImageUrl}
+        onMobileImageUrlChange={setMobileImageUrl}
+        videoUrl={videoUrl}
+        onVideoUrlChange={setVideoUrl}
+        mobileVideoUrl={mobileVideoUrl}
+        onMobileVideoUrlChange={setMobileVideoUrl}
+      />
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-xs uppercase tracking-wider text-neutral-600">Eyebrow</span>

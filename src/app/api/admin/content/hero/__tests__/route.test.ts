@@ -92,6 +92,66 @@ describe('hero endpoints', () => {
     expect(await prisma.heroBlock.findUnique({ where: { id: created.id } })).toBeNull();
   });
 
+
+  it('POST persists the mobile image variant', async () => {
+    const req = new Request('http://x/api/admin/content/hero', {
+      method: 'POST',
+      body: JSON.stringify({ ...heroBody, mobileImageUrl: 'https://x/h-9x16.jpg' }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(201);
+    const data = await res.json();
+    expect(data.mobileImageUrl).toBe('https://x/h-9x16.jpg');
+  });
+
+  it('PATCH clears the mobile image when sent null', async () => {
+    const created = await prisma.heroBlock.create({
+      data: {
+        kind: 'IMAGE',
+        imageUrl: 'https://x/a.jpg',
+        mobileImageUrl: 'https://x/a-9x16.jpg',
+        eyebrow: 'a',
+        ctaLabel: 'a',
+        ctaHref: '/a',
+      },
+    });
+    const req = new Request(`http://x/api/admin/content/hero/${created.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ mobileImageUrl: null }),
+    });
+    const res = await PATCH(req, { params: Promise.resolve({ id: created.id }) });
+    expect(res.status).toBe(200);
+    expect((await res.json()).mobileImageUrl).toBeNull();
+  });
+
+  it('PATCH updates the mobile video variant', async () => {
+    const created = await prisma.heroBlock.create({
+      data: {
+        kind: 'VIDEO',
+        imageUrl: 'https://x/a.jpg',
+        videoUrl: 'https://x/a.mp4',
+        eyebrow: 'a',
+        ctaLabel: 'a',
+        ctaHref: '/a',
+      },
+    });
+    const req = new Request(`http://x/api/admin/content/hero/${created.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ mobileVideoUrl: 'https://x/a-9x16.mp4' }),
+    });
+    const res = await PATCH(req, { params: Promise.resolve({ id: created.id }) });
+    expect(res.status).toBe(200);
+    expect((await res.json()).mobileVideoUrl).toBe('https://x/a-9x16.mp4');
+  });
+
+  it('POST 400 when the mobile image is not a URL', async () => {
+    const req = new Request('http://x/api/admin/content/hero', {
+      method: 'POST',
+      body: JSON.stringify({ ...heroBody, mobileImageUrl: 'not-a-url' }),
+    });
+    expect((await POST(req)).status).toBe(400);
+  });
+
   it('POST /activate flips isActive', async () => {
     const a = await prisma.heroBlock.create({
       data: {

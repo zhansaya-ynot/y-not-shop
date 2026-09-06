@@ -11,7 +11,9 @@ describe("toHero", () => {
     id: "h1",
     kind: "IMAGE" as const,
     imageUrl: "/cms/hero.jpg",
+    mobileImageUrl: null as string | null,
     videoUrl: null as string | null,
+    mobileVideoUrl: null as string | null,
     eyebrow: "Welcome",
     ctaLabel: "Shop",
     ctaHref: "/collection/jackets",
@@ -38,6 +40,39 @@ describe("toHero", () => {
     expect(r.kind).toBe("video");
     expect(r.videoUrl).toBe("https://cdn.example.com/h.mp4");
     expect(() => HeroBlockSchema.parse(r)).not.toThrow();
+  });
+
+  it("maps mobileImageUrl to mobileImage when the operator uploaded one", () => {
+    const r = toHero({ ...baseRow, mobileImageUrl: "/cms/hero-9x16.jpg" });
+    expect(r.image).toBe("/cms/hero.jpg");
+    expect(r.mobileImage).toBe("/cms/hero-9x16.jpg");
+    expect(() => HeroBlockSchema.parse(r)).not.toThrow();
+  });
+
+  it("falls back to the desktop image when no mobile image is set", () => {
+    const r = toHero(baseRow);
+    expect(r.mobileImage).toBe("/cms/hero.jpg");
+  });
+
+  it("maps mobileVideoUrl to mobileVideo for a video hero", () => {
+    const r = toHero({
+      ...baseRow,
+      kind: "VIDEO",
+      videoUrl: "https://cdn.example.com/h.mp4",
+      mobileVideoUrl: "https://cdn.example.com/h-9x16.mp4",
+    });
+    expect(r.videoUrl).toBe("https://cdn.example.com/h.mp4");
+    expect(r.mobileVideo).toBe("https://cdn.example.com/h-9x16.mp4");
+    expect(() => HeroBlockSchema.parse(r)).not.toThrow();
+  });
+
+  it("falls back to the desktop video when no mobile video is set", () => {
+    const r = toHero({
+      ...baseRow,
+      kind: "VIDEO",
+      videoUrl: "https://cdn.example.com/h.mp4",
+    });
+    expect(r.mobileVideo).toBe("https://cdn.example.com/h.mp4");
   });
 });
 

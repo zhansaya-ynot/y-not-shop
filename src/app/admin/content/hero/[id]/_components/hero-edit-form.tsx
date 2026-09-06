@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { SingleImageUpload } from '../../../_components/single-image-upload';
-import { SingleVideoUpload } from '../../../_components/single-video-upload';
+import { HeroAssetFields } from '../../_components/hero-asset-fields';
 
 interface Initial {
   kind: 'IMAGE' | 'VIDEO';
   imageUrl: string;
+  mobileImageUrl: string | null;
   videoUrl: string | null;
+  mobileVideoUrl: string | null;
   eyebrow: string;
   ctaLabel: string;
   ctaHref: string;
@@ -36,7 +37,9 @@ export function HeroEditForm({ id, initial }: Props): React.ReactElement {
   const [saved, setSaved] = React.useState(false);
   const [kind, setKind] = React.useState<'IMAGE' | 'VIDEO'>(initial.kind);
   const [imageUrl, setImageUrl] = React.useState(initial.imageUrl);
+  const [mobileImageUrl, setMobileImageUrl] = React.useState(initial.mobileImageUrl ?? '');
   const [videoUrl, setVideoUrl] = React.useState(initial.videoUrl ?? '');
+  const [mobileVideoUrl, setMobileVideoUrl] = React.useState(initial.mobileVideoUrl ?? '');
   const [eyebrow, setEyebrow] = React.useState(initial.eyebrow);
   const [ctaLabel, setCtaLabel] = React.useState(initial.ctaLabel);
   const [ctaHref, setCtaHref] = React.useState(initial.ctaHref);
@@ -64,6 +67,11 @@ export function HeroEditForm({ id, initial }: Props): React.ReactElement {
           // storefront only reads the field matching `kind`.
           imageUrl,
           videoUrl: videoUrl || null,
+          // Empty string means "cleared" — send null so the column is
+          // nulled out and the storefront falls back to the landscape
+          // asset, rather than failing the schema's url() check.
+          mobileImageUrl: mobileImageUrl || null,
+          mobileVideoUrl: mobileVideoUrl || null,
           eyebrow,
           ctaLabel,
           ctaHref,
@@ -108,73 +116,17 @@ export function HeroEditForm({ id, initial }: Props): React.ReactElement {
         </span>
       </label>
 
-      {kind === 'IMAGE' ? (
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">Image</span>
-          <SingleImageUpload prefix="hero" value={imageUrl} onChange={setImageUrl} />
-          <label className="flex flex-col gap-1 mt-2">
-            <span className="text-xs uppercase tracking-wider text-neutral-600">Image URL</span>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="border border-neutral-300 rounded px-3 py-2 font-mono text-xs"
-            />
-          </label>
-          <p className="text-xs text-neutral-500 leading-relaxed mt-1">
-            <strong>Recommended:</strong> JPEG or WebP, 1920×1080 (or
-            larger, 16:9). Compress to ≤500KB for fast load — use
-            <a
-              href="https://squoosh.app"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              {' '}squoosh.app
-            </a>{' '}
-            or <span className="font-mono">cwebp -q 80</span>. Hard upload limit 5MB.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-xs uppercase tracking-wider text-neutral-600">Video</span>
-          <SingleVideoUpload prefix="hero" value={videoUrl} onChange={setVideoUrl} />
-          <label className="flex flex-col gap-1 mt-2">
-            <span className="text-xs uppercase tracking-wider text-neutral-600">Video URL</span>
-            <input
-              type="url"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              className="border border-neutral-300 rounded px-3 py-2 font-mono text-xs"
-            />
-          </label>
-          <p className="text-xs text-neutral-500 leading-relaxed mt-1">
-            <strong>Recommended:</strong> MP4 (H.264 codec) at 1920×1080,
-            5–10 seconds, looping, <em>no audio</em>, 24–30 fps,
-            bitrate 2–4 Mbps. Target file size ≤8MB for fast load on
-            mobile. Hard upload limit 20MB. WebM and MOV also accepted.
-            Use{' '}
-            <a
-              href="https://www.ffmpeg.org/"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              ffmpeg
-            </a>{' '}
-            or{' '}
-            <a
-              href="https://handbrake.fr/"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              HandBrake
-            </a>{' '}
-            to compress.
-          </p>
-        </div>
-      )}
+      <HeroAssetFields
+        kind={kind}
+        imageUrl={imageUrl}
+        onImageUrlChange={setImageUrl}
+        mobileImageUrl={mobileImageUrl}
+        onMobileImageUrlChange={setMobileImageUrl}
+        videoUrl={videoUrl}
+        onVideoUrlChange={setVideoUrl}
+        mobileVideoUrl={mobileVideoUrl}
+        onMobileVideoUrlChange={setMobileVideoUrl}
+      />
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-xs uppercase tracking-wider text-neutral-600">Eyebrow</span>

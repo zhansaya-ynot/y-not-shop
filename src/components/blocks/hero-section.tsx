@@ -1,12 +1,126 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import type { HeroBlock } from "@/lib/schemas";
 import { duration, ease } from "@/lib/motion";
 import { BLUR_DARK } from "@/lib/image-placeholders";
+import { useMediaQuery } from "@/lib/use-media-query";
+
+/**
+ * Breakpoint the art direction pivots on — Tailwind's `md`. Phones get the
+ * portrait crop; an iPad in portrait (820px) counts as desktop, because a
+ * 9:16 asset stretched across a tablet crops down to a meaningless sliver.
+ */
+const DESKTOP_QUERY = "(min-width: 768px)";
+/** Its exact complement, so precisely one preload below ever matches. */
+const MOBILE_QUERY = "(max-width: 767.98px)";
+
+/**
+ * Nominal dimensions handed to `getImageProps`. They don't need to match
+ * the uploaded file — they only set the aspect the srcSet is generated
+ * for, and the rendered <img> is sized by CSS anyway.
+ */
+const DESKTOP_SIZE = { width: 1920, height: 1080 };
+const MOBILE_SIZE = { width: 1080, height: 1920 };
+
+/**
+ * Art-directed hero image.
+ *
+ * `<picture>` + `getImageProps` rather than two `<Image>` elements toggled
+ * with `hidden`/`block`: a hidden <img> is still downloaded, so the toggle
+ * approach makes every visitor pay for both crops. Here the browser
+ * evaluates `media` and fetches exactly one — while still going through
+ * next/image's optimiser for AVIF/WebP.
+ */
+function HeroImage({ hero }: { hero: HeroBlock }): React.ReactElement {
+  const common = {
+    alt: "",
+    sizes: "100vw",
+    quality: 80,
+    priority: true,
+    placeholder: "blur" as const,
+    blurDataURL: BLUR_DARK,
+  };
+
+  const {
+    props: { srcSet: desktopSrcSet, src: desktopSrc },
+  } = getImageProps({ ...common, ...DESKTOP_SIZE, src: hero.image });
+
+  const {
+    props: { srcSet: mobileSrcSet, style: blurStyle, ...imgProps },
+  } = getImageProps({ ...common, ...MOBILE_SIZE, src: hero.mobileImage });
+
+  return (
+    <>
+      {/* `priority` on <Image> emits a preload link; getImageProps can't, so
+          we hoist our own. React keys resource hoisting off `href`, so each
+          link carries one (the browser prefers imageSrcSet when it matches)
+          and `media` keeps the browser to the single crop it will paint.
+          Without these the hero — the LCP element — waits for the parser
+          instead of starting during the preload scan. */}
+      <link
+        rel="preload"
+        as="image"
+        href={desktopSrc}
+        imageSrcSet={desktopSrcSet}
+        imageSizes="100vw"
+        media={DESKTOP_QUERY}
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href={imgProps.src}
+        imageSrcSet={mobileSrcSet}
+        imageSizes="100vw"
+        media={MOBILE_QUERY}
+        fetchPriority="high"
+      />
+      <picture>
+      <source media={DESKTOP_QUERY} srcSet={desktopSrcSet} sizes="100vw" />
+      {/* Plain <img> on purpose: getImageProps is the documented way to
+          art-direct, and <Image> cannot emit the <source> above. */}
+      <img
+        {...imgProps}
+        alt=""
+        srcSet={mobileSrcSet}
+        style={blurStyle}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      </picture>
+    </>
+  );
+}
+
+/**
+ * Art-directed hero video.
+ *
+ * Browsers ignore `media` on a `<source>` inside `<video>`, and rendering
+ * two <video> elements would download both cuts, so the choice has to
+ * happen in JS. Desktop is the server-side default: it matches the wider
+ * asset most visitors on a cold cache see first, and phones swap on mount
+ * before playback has meaningfully started.
+ */
+function HeroVideo({ hero }: { hero: HeroBlock }): React.ReactElement {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY, true);
+  const src = isDesktop ? hero.videoUrl : hero.mobileVideo;
+  const poster = isDesktop ? hero.image : hero.mobileImage;
+
+  return (
+    <video
+      src={src ?? undefined}
+      poster={poster}
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 h-full w-full object-cover"
+    />
+  );
+}
 
 export function HeroSection({ hero }: { hero: HeroBlock }) {
   return (
@@ -21,33 +135,10 @@ export function HeroSection({ hero }: { hero: HeroBlock }) {
             transition: { duration: 1.4, ease: ease.out },
           }}
         >
-          <Image
-            src={hero.image}
-            alt=""
-            fill
-            priority
-            // fetchPriority="high" lets the browser kick off the request
-            // before our React JS even hydrates. Combined with `priority`
-            // it's the closest we can get to <link rel=preload> for
-            // dynamically-sourced hero art.
-            fetchPriority="high"
-            sizes="100vw"
-            placeholder="blur"
-            blurDataURL={BLUR_DARK}
-            quality={80}
-            className="object-cover"
-          />
+          <HeroImage hero={hero} />
         </motion.div>
       ) : (
-        <video
-          src={hero.videoUrl ?? undefined}
-          poster={hero.image}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <HeroVideo hero={hero} />
       )}
 
       <div className="absolute inset-0 bg-black/30" />

@@ -3,8 +3,16 @@ import { SeoMetaSchema } from "./category";
 
 export const HeroBlockSchema = z.object({
   kind: z.enum(["image", "video"]),
+  /** Landscape (16:9) asset, rendered from the `md` breakpoint up. */
   image: z.string(),
   videoUrl: z.string().nullable(),
+  /**
+   * Portrait (9:16) asset for phones. Never null — `toHero` resolves the
+   * fallback to the landscape asset, so the storefront can render both
+   * without repeating the `??` at every call site.
+   */
+  mobileImage: z.string(),
+  mobileVideo: z.string().nullable(),
   eyebrow: z.string(),
   ctaLabel: z.string(),
   ctaHref: z.string(),
