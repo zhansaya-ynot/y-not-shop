@@ -84,3 +84,41 @@ describe('GET /api/feed/meta.xml', () => {
     expect(xml).toContain('<g:availability>out of stock</g:availability>');
   });
 });
+
+describe('availability_date in the feed', () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  it('accompanies every pre-order item, as Google requires', async () => {
+    await seedProduct({
+      name: 'Kaia Bomber',
+      slug: 'kaia-bomber',
+      status: 'PUBLISHED',
+      withImage: true,
+      preOrder: true,
+    });
+    const xml = await (await GET()).text();
+    const preorders = (xml.match(/<g:availability>preorder<\/g:availability>/g) ?? []).length;
+    const dates = (xml.match(/<g:availability_date>/g) ?? []).length;
+    expect(preorders).toBe(1);
+    expect(dates).toBe(preorders);
+    expect(xml).toMatch(
+      /<g:availability_date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z<\/g:availability_date>/,
+    );
+  });
+
+  it('is left off in-stock items', async () => {
+    await seedProduct({
+      name: 'Vera Jacket',
+      slug: 'vera-jacket',
+      status: 'PUBLISHED',
+      withImage: true,
+      preOrder: false,
+      stock: 4,
+    });
+    const xml = await (await GET()).text();
+    expect(xml).toContain('<g:availability>in stock</g:availability>');
+    expect(xml).not.toContain('<g:availability_date>');
+  });
+});

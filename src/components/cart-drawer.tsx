@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { QuantityStepper } from '@/components/ui/quantity-stepper';
 import { useCartStore } from '@/lib/stores/cart-store';
 import { formatPrice } from '@/lib/format';
+import { PREORDER_SHIPS_IN } from "@/lib/preorder";
 
 export function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -95,7 +96,7 @@ export function CartDrawer() {
                     </p>
                     {item.isPreorder && (
                       <p className="text-[11px] uppercase tracking-[0.15em] text-accent-warm mt-1">
-                        Pre-order — ships in 4-6 weeks
+                        {`Pre-order — ${PREORDER_SHIPS_IN}`}
                       </p>
                     )}
                   </div>

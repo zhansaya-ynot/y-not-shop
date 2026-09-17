@@ -35,7 +35,7 @@ describe("OrderReceipt", () => {
         currency="GBP"
         itemsInStock={[]}
         itemsPreorder={[
-          { name: "Spring Trench", size: "L", qty: 1, priceCents: 70000, batchEtaWeeks: 5 },
+          { name: "Spring Trench", size: "L", qty: 1, priceCents: 70000, batchEtaWeeks: 3 },
         ]}
         shippingAddress={{
           line1: "1 Green St",
@@ -46,6 +46,6 @@ describe("OrderReceipt", () => {
       />,
     );
     expect(html).toContain("Pre-order");
-    expect(html).toContain("5 weeks");
+    expect(html).toContain("3 weeks");
   });
 });

@@ -11,6 +11,7 @@ import type { EmailService } from '@/server/email';
 import { OrderReceipt } from '@/emails/order-receipt';
 import { updateStatus } from '@/server/orders/service';
 import { sendNewOrderAlert } from '@/server/alerts/service';
+import { PREORDER_LEAD_WEEKS } from '@/lib/preorder';
 
 export interface WebhookInput {
   rawBody: string;
@@ -193,8 +194,7 @@ async function fulfilOrderPostPayment(orderId: string, deps: WebhookDeps): Promi
     .filter((i) => i.isPreorder)
     .map((i) => ({
       name: i.productName, size: i.size, qty: i.quantity, priceCents: i.unitPriceCents,
-      // ETA defaults to 6 weeks until Group M wires actual batch ETAs.
-      batchEtaWeeks: 6,
+      batchEtaWeeks: PREORDER_LEAD_WEEKS,
     }));
 
   const emailService = deps.emailService ?? getEmailService();

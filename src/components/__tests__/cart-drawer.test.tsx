@@ -80,7 +80,7 @@ describe('CartDrawer', () => {
     useCartStore.setState({ snapshot: preorderSnapshot });
     render(<CartDrawer />);
     expect(
-      screen.getByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.getByText(/Pre-order — ships in 3 weeks/i),
     ).toBeInTheDocument();
     // No out-of-stock warning even though stockAvailable is 0
     expect(screen.queryByText(/out of stock/i)).toBeNull();

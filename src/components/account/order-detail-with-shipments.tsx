@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import { getTrackingUrl, type CarrierId } from "@/lib/tracking-url";
 import { Display } from "@/components/ui/typography";
+import { PREORDER_SHIPS_IN } from "@/lib/preorder";
 
 /**
  * Browser-safe shape mirrors the prisma row + relations the page loader
@@ -147,7 +148,7 @@ export function OrderDetailWithShipments({ order }: { order: OrderForCustomer })
                   </p>
                   {item.isPreorder && (
                     <p className="text-[11px] uppercase tracking-[0.15em] text-accent-warm mt-1">
-                      Pre-order — ships in 4-6 weeks
+                      {`Pre-order — ${PREORDER_SHIPS_IN}`}
                     </p>
                   )}
                 </div>

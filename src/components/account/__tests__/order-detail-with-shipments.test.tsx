@@ -121,7 +121,7 @@ describe("OrderDetailWithShipments", () => {
     order.items[0].isPreorder = true;
     render(<OrderDetailWithShipments order={order} />);
     expect(
-      screen.getByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.getByText(/Pre-order — ships in 3 weeks/i),
     ).toBeInTheDocument();
   });
 

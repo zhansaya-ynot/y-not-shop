@@ -1,4 +1,5 @@
 import type { ProductWithRelations } from '@/server/repositories/product.repo';
+import { preorderAvailabilityDate } from '@/lib/preorder';
 
 /** Brand shown on every catalog item — Meta requires a non-empty brand. */
 export const BRAND = 'YNOT London';
@@ -19,6 +20,12 @@ export interface MetaCatalogItem {
   title: string;
   description: string;
   availability: MetaAvailability;
+  /**
+   * When the item ships, for pre-orders only. Google treats this as
+   * required whenever `availability` is `preorder` and refuses to approve
+   * the item without it ("Missing attribute"); Meta ignores it.
+   */
+  availability_date?: string;
   condition: 'new';
   /** e.g. "480.00 GBP" */
   price: string;
@@ -68,6 +75,8 @@ export function availabilityFor(product: {
 export interface MapOptions {
   /** Absolute site origin, e.g. https://ynotlondon.com */
   siteUrl: string;
+  /** Clock for the pre-order ship date. Defaults to now; tests pin it. */
+  now?: Date;
 }
 
 /**
@@ -89,12 +98,17 @@ export function toMetaCatalogItem(
   const description =
     htmlToPlainText(product.description) || htmlToPlainText(product.materials) || product.name;
 
+  const availability = availabilityFor(product);
+
   return {
     id: product.id,
     title: product.name,
     // Meta caps description at 9,999 chars.
     description: description.slice(0, 9999),
-    availability: availabilityFor(product),
+    availability,
+    ...(availability === 'preorder'
+      ? { availability_date: preorderAvailabilityDate(opts.now ?? new Date()) }
+      : {}),
     condition: 'new',
     price: `${(product.priceCents / 100).toFixed(2)} ${product.currency}`,
     link: `${opts.siteUrl.replace(/\/$/, '')}/products/${product.slug}`,

@@ -33,6 +33,11 @@ function itemXml(item: MetaCatalogItem): string {
     `      <g:image_link>${esc(item.image_link)}</g:image_link>`,
     extra,
     `      <g:availability>${item.availability}</g:availability>`,
+    // Google requires availability_date alongside `preorder` and rejects
+    // the item without it; the mapper only sets it for those.
+    item.availability_date
+      ? `      <g:availability_date>${esc(item.availability_date)}</g:availability_date>`
+      : '',
     `      <g:condition>${item.condition}</g:condition>`,
     `      <g:price>${esc(item.price)}</g:price>`,
     `      <g:brand>${cdata(item.brand)}</g:brand>`,

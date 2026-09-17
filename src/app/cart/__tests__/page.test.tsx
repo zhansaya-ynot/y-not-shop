@@ -59,7 +59,7 @@ describe("CartPage pre-order eyebrow", () => {
     });
     render(<CartPage />);
     expect(
-      screen.getByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.getByText(/Pre-order — ships in 3 weeks/i),
     ).toBeInTheDocument();
     expect(screen.queryByText(/out of stock/i)).toBeNull();
     expect(screen.queryByText(/sold out/i)).toBeNull();
@@ -68,7 +68,7 @@ describe("CartPage pre-order eyebrow", () => {
   it("does not render the eyebrow on a normal item", () => {
     render(<CartPage />);
     expect(
-      screen.queryByText(/Pre-order — ships in 4-6 weeks/i),
+      screen.queryByText(/Pre-order — ships in 3 weeks/i),
     ).toBeNull();
   });
 });

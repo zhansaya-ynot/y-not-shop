@@ -97,3 +97,28 @@ describe('toMetaCatalogItem', () => {
     expect(item.description).toBe('100% lamb leather');
   });
 });
+
+describe('availability_date', () => {
+  const NOW = new Date('2026-09-17T10:00:00Z');
+
+  it('is set on pre-order items — Google rejects them without it', () => {
+    const item = toMetaCatalogItem(product({ preOrder: true }), { siteUrl: SITE, now: NOW });
+    expect(item!.availability).toBe('preorder');
+    expect(item!.availability_date).toBe('2026-10-08T00:00Z');
+  });
+
+  it('is absent on items that are simply in stock', () => {
+    const item = toMetaCatalogItem(product({ preOrder: false }), { siteUrl: SITE, now: NOW });
+    expect(item!.availability).toBe('in stock');
+    expect(item!.availability_date).toBeUndefined();
+  });
+
+  it('is absent on items that are out of stock', () => {
+    const item = toMetaCatalogItem(
+      product({ preOrder: false, sizes: [{ size: 'M', colour: '', stock: 0 }] }),
+      { siteUrl: SITE, now: NOW },
+    );
+    expect(item!.availability).toBe('out of stock');
+    expect(item!.availability_date).toBeUndefined();
+  });
+});

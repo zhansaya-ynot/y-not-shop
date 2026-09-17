@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/modal";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { trackAddToCart } from "@/components/analytics/meta-events";
 import type { Product, Size, ColourOption } from "@/lib/schemas";
+import { PREORDER_LEAD_WEEKS } from "@/lib/preorder";
 
 export interface AddToBagSectionProps {
   product: Product;
@@ -159,7 +160,7 @@ export function AddToBagSection({
         onClick={onAdd}
         disabled={!size}
       >
-        {isPreOrderForSelection ? "Pre-order (3 weeks)" : "Add to bag"}
+        {isPreOrderForSelection ? `Pre-order (${PREORDER_LEAD_WEEKS} weeks)` : "Add to bag"}
       </Button>
 
       {product.sizeGuideImage && (

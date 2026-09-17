@@ -1,14 +1,16 @@
 import * as React from "react";
 import { Display } from "@/components/ui/typography";
 import { formatPrice } from "@/lib/format";
+import { PREORDER_SHIPS_IN } from "@/lib/preorder";
 
 export interface ProductInfoPanelProps {
   name: string;
   price: number;
   /**
-   * When true, renders the "Pre-order — ships in 3 weeks" eyebrow above
-   * the product name (Phase 5 task 97 / spec §9; shortened from 4-6 to
-   * 3 weeks per Жансая 2026-05-19).
+   * When true, renders the pre-order eyebrow above the product name
+   * (Phase 5 task 97 / spec §9). The lead time itself lives in
+   * `PREORDER_LEAD_WEEKS` — Google reads this page to check the feed's
+   * `availability_date`, so the two must agree.
    */
   preOrder?: boolean;
   children?: React.ReactNode;
@@ -25,7 +27,7 @@ export function ProductInfoPanel({
       <div>
         {preOrder && (
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-warm mb-2">
-            Pre-order — ships in 3 weeks
+            {`Pre-order — ${PREORDER_SHIPS_IN}`}
           </p>
         )}
         <Display level="md" as="h1">
