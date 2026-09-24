@@ -1,8 +1,8 @@
-import { nanoid } from 'nanoid';
 import type { Cart, CartItem } from '@prisma/client';
 import { prisma } from '@/server/db/client';
 import { env } from '@/server/env';
 import { enqueueEmailJob } from '@/server/email/jobs';
+import { mintSingleUsePromo } from '@/server/promos/mint';
 import type { AbandonedCart1hProps } from '@/emails/abandoned-cart-1h';
 import type { AbandonedCart24hProps } from '@/emails/abandoned-cart-24h';
 
@@ -140,7 +140,11 @@ async function buildPayload1h(ctx: CartContext): Promise<AbandonedCart1hProps> {
 }
 
 async function buildPayload24h(ctx: CartContext): Promise<AbandonedCart24hProps> {
-  const promo = await mintPromo();
+  const promo = await mintSingleUsePromo({
+    prefix: 'WELCOME10',
+    percent: PROMO_DISCOUNT_PERCENT,
+    ttlMs: PROMO_TTL_MS,
+  });
   return {
     items: buildItemLines(ctx),
     cartUrl: cartUrl(),
@@ -148,40 +152,4 @@ async function buildPayload24h(ctx: CartContext): Promise<AbandonedCart24hProps>
     promoExpiresAt: promo.expiresAt.toISOString(),
     ...(ctx.cart.user?.name ? { customerName: ctx.cart.user.name } : {}),
   };
-}
-
-interface MintedPromo {
-  code: string;
-  expiresAt: Date;
-}
-
-async function mintPromo(): Promise<MintedPromo> {
-  // Loop on the unlikely chance of a unique-key collision.
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const code = `WELCOME10-${nanoid(6).toUpperCase()}`;
-    const expiresAt = new Date(Date.now() + PROMO_TTL_MS);
-    try {
-      const created = await prisma.promoCode.create({
-        data: {
-          code,
-          discountType: 'PERCENT',
-          discountValue: PROMO_DISCOUNT_PERCENT,
-          usageLimit: 1,
-          expiresAt,
-        },
-      });
-      return { code: created.code, expiresAt };
-    } catch (err) {
-      // Retry on unique-constraint clash; rethrow anything else.
-      if (
-        err instanceof Error &&
-        err.message.includes('Unique constraint') &&
-        attempt < 4
-      ) {
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error('mintPromo: exhausted retries generating a unique code');
 }

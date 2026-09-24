@@ -24,6 +24,7 @@ import { RefundRejected, type RefundRejectedProps } from "./refund-rejected";
 import { AbandonedCart1h, type AbandonedCart1hProps } from "./abandoned-cart-1h";
 import { AbandonedCart24h, type AbandonedCart24hProps } from "./abandoned-cart-24h";
 import { VerifyEmail, type VerifyEmailProps } from "./verify-email";
+import { WelcomeDiscount, type WelcomeDiscountProps } from "./welcome-discount";
 import { PasswordReset, type PasswordResetProps } from "./password-reset";
 import {
   AdminAlertLabelFailure,
@@ -96,6 +97,12 @@ registerTemplate("AbandonedCart24h", async (payload) => {
   const p = payload as AbandonedCart24hProps;
   const { html, text } = await renderEmail(createElement(AbandonedCart24h, p));
   return { subject: "Your cart, plus 10% off", html, text };
+});
+
+registerTemplate("WelcomeDiscount", async (payload) => {
+  const p = payload as WelcomeDiscountProps;
+  const { html, text } = await renderEmail(createElement(WelcomeDiscount, p));
+  return { subject: `Your ${p.discountPercent}% off — welcome to YNOT London`, html, text };
 });
 
 registerTemplate("VerifyEmail", async (payload) => {
